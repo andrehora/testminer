@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TestMiner - Tests</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jasmine/4.6.0/jasmine.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/4.6.0/jasmine.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/4.6.0/jasmine-html.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/4.6.0/boot0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/4.6.0/boot1.min.js"></script>
+</head>
+<body>
+  <!-- Source code -->
+  <script src="../js/app.js"></script>
+  <!-- Test fixtures -->
+  <script src="fixtures/jsdelivr-gitevo.js"></script>
+  <script src="fixtures/sbom-npm.js"></script>
+  <script src="fixtures/sbom-golang.js"></script>
+  <script src="fixtures/sbom-pypi.js"></script>
+  <script src="fixtures/sbom-composer.js"></script>
+  <script src="fixtures/sbom-cargo.js"></script>
+  <script src="fixtures/sbom-gem.js"></script>
+  <script src="fixtures/sbom-nuget.js"></script>
+  <script src="fixtures/sbom-empty.js"></script>
+  <!-- Test code -->
+  <script src="gh_url.test.js"></script>
+  <script src="sbom.test.js"></script>
+  <script src="jsdelivr.test.js"></script>
+</body>
+</html>

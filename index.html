@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TestMiner</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f0f4ff 0%, #e8ecf8 50%, #f5f0ff 100%);
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 60px 20px 40px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 640px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #1e293b;
+      letter-spacing: -0.5px;
+    }
+
+    .header p {
+      font-size: 1rem;
+      color: #64748b;
+      margin-top: 8px;
+    }
+
+    .search {
+      position: relative;
+      display: flex;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .search input {
+      flex: 1;
+      padding: 14px 18px;
+      font-size: 1rem;
+      font-family: 'Inter', sans-serif;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: #fff;
+      color: #1e293b;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    .search input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    .search input::placeholder { color: #94a3b8; }
+
+    .search button {
+      padding: 14px 28px;
+      font-size: 1rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      white-space: nowrap;
+    }
+
+    .search button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+
+    .search button:active { transform: translateY(0); }
+
+    .search button:disabled {
+      background: #a5b4fc;
+      cursor: default;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .autocomplete-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 100px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      margin-top: 4px;
+      max-height: 300px;
+      overflow-y: auto;
+      z-index: 10;
+      display: none;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .autocomplete-item {
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 0.93rem;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.12s;
+    }
+
+    .autocomplete-item .lang-icon {
+      font-size: 1.2rem;
+      width: 22px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .autocomplete-item:first-child { border-radius: 12px 12px 0 0; }
+    .autocomplete-item:last-child { border-bottom: none; border-radius: 0 0 12px 12px; }
+    .autocomplete-item:only-child { border-radius: 12px; }
+
+    .autocomplete-item:hover,
+    .autocomplete-item.active { background: #eef2ff; }
+
+    .autocomplete-item mark {
+      background: #fef9c3;
+      color: inherit;
+      padding: 0 2px;
+      border-radius: 3px;
+    }
+
+    .autocomplete-item .match-detail {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      margin-left: 8px;
+    }
+
+    .recent {
+      margin-bottom: 24px;
+      display: none;
+    }
+
+    .recent-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .recent-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .recent-item {
+      font-size: 0.85rem;
+      color: #4f46e5;
+      background: #eef2ff;
+      border: 1px solid #e0e7ff;
+      border-radius: 8px;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .recent-item:hover {
+      background: #e0e7ff;
+      border-color: #c7d2fe;
+    }
+
+    #error {
+      color: #ef4444;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    #results { display: none; }
+
+    .results-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 16px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 14px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #6366f1;
+    }
+
+    .stat-card .label {
+      font-size: 0.82rem;
+      color: #64748b;
+      margin-top: 6px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="header">
+      <h1>TestMiner</h1>
+      <p>Analyze test practices in GitHub repositories</p>
+    </div>
+
+    <div class="search">
+      <input id="repo-input" type="text" placeholder="owner/repo or GitHub URL" autocomplete="off" />
+      <button id="analyze-btn" onclick="analyze()">Analyze</button>
+      <div id="autocomplete-list" class="autocomplete-list"></div>
+    </div>
+
+    <div id="recent" class="recent">
+      <div class="recent-label">Recently viewed</div>
+      <div class="recent-list" id="recent-list"></div>
+    </div>
+
+    <div id="error"></div>
+
+    <div id="results">
+      <h2 id="results-title" class="results-title"></h2>
+      <div class="stats-grid" id="stats-grid"></div>
+    </div>
+
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    async function analyze() {
+      const input = document.getElementById('repo-input').value.trim();
+      const btn = document.getElementById('analyze-btn');
+      const errorEl = document.getElementById('error');
+      const resultsEl = document.getElementById('results');
+
+      errorEl.style.display = 'none';
+      resultsEl.style.display = 'none';
+
+      const ownerRepo = parseGitHubOwnerRepo(input);
+      if (!ownerRepo) {
+        errorEl.textContent = 'Invalid repository. Use "owner/repo" or a GitHub URL.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Analyzing...';
+
+      const data = await fetchJsDelivrFiles(ownerRepo);
+      btn.disabled = false;
+      btn.textContent = 'Analyze';
+
+      if (data && data.error === 'too_large') {
+        errorEl.textContent = 'Package size is too large. Try another repository...';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      if (!data) {
+        errorEl.textContent = 'Could not fetch repository data. Check the repo name and try again.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      const files = parseJsDelivrFiles(data);
+      const stats = computeTestStats(files);
+
+      const cards = [
+        { label: 'Total files',       value: stats.total },
+        { label: 'Test-related files',value: stats.testRelatedFiles },
+        { label: 'Test files',        value: stats.testFiles },
+        { label: 'Mock files',        value: stats.mockFiles },
+        { label: 'E2E files',         value: stats.e2eFiles },
+        { label: 'Snapshot files',    value: stats.snapshotFiles },
+        { label: 'CI test files',     value: stats.ciTestFiles },
+        { label: 'Smoke files',       value: stats.smokeFiles },
+        { label: 'Fixture files',     value: stats.fixtureFiles },
+        { label: 'Benchmark files',   value: stats.benchmarkFiles },
+      ];
+
+      const grid = document.getElementById('stats-grid');
+      grid.innerHTML = cards.filter(function (c) {
+        return c.value > 0;
+      }).map(function (c) {
+        return '<div class="stat-card"><div class="value">' + c.value + '</div><div class="label">' + c.label + '</div></div>';
+      }).join('');
+
+      document.getElementById('results-title').textContent = ownerRepo;
+      resultsEl.style.display = 'block';
+
+      saveRecent(ownerRepo);
+    }
+
+    // Recent searches
+    function getRecent() {
+      try {
+        return JSON.parse(localStorage.getItem('testminer_recent') || '[]');
+      } catch (e) { return []; }
+    }
+
+    function saveRecent(repo) {
+      var recent = getRecent().filter(function (r) { return r !== repo; });
+      recent.unshift(repo);
+      if (recent.length > 5) recent = recent.slice(0, 5);
+      localStorage.setItem('testminer_recent', JSON.stringify(recent));
+      renderRecent();
+    }
+
+    function renderRecent() {
+      var recent = getRecent();
+      var container = document.getElementById('recent');
+      var list = document.getElementById('recent-list');
+      if (recent.length === 0) {
+        container.style.display = 'none';
+        return;
+      }
+      list.innerHTML = recent.map(function (r) {
+        return '<span class="recent-item" data-repo="' + r + '">' + r + '</span>';
+      }).join('');
+      container.style.display = 'block';
+    }
+
+    document.getElementById('recent-list').addEventListener('click', function (e) {
+      var item = e.target.closest('.recent-item');
+      if (item) {
+        document.getElementById('repo-input').value = item.getAttribute('data-repo');
+        analyze();
+      }
+    });
+
+    renderRecent();
+
+    // Autocomplete
+    var repoData = [];
+    var activeIndex = -1;
+
+    fetch('data/repos.csv')
+      .then(function (r) { return r.text(); })
+      .then(function (text) {
+        var lines = text.trim().split('\n');
+        for (var i = 1; i < lines.length; i++) {
+          var cols = lines[i].split(',');
+          repoData.push({
+            name: cols[0],
+            language: cols[1] || '',
+            topics: cols[2] || ''
+          });
+        }
+      });
+
+    var repoInput = document.getElementById('repo-input');
+    var acList = document.getElementById('autocomplete-list');
+
+    function searchRepos(query) {
+      var q = query.toLowerCase();
+      var results = [];
+      for (var i = 0; i < repoData.length && results.length < 12; i++) {
+        var r = repoData[i];
+        var matchedOn = [];
+        if (r.name.toLowerCase().includes(q)) {
+          matchedOn.push('name');
+        }
+        if (r.topics && r.topics.toLowerCase().includes(q)) {
+          matchedOn.push('topics');
+        }
+        if (matchedOn.length > 0) {
+          results.push({ repo: r, matchedOn: matchedOn });
+        }
+      }
+      return results;
+    }
+
+    var deviconMap = {
+      'python': 'devicon-python-plain',
+      'javascript': 'devicon-javascript-plain',
+      'typescript': 'devicon-typescript-plain',
+      'java': 'devicon-java-plain',
+      'c': 'devicon-c-plain',
+      'c++': 'devicon-cplusplus-plain',
+      'c#': 'devicon-csharp-plain',
+      'go': 'devicon-go-plain',
+      'rust': 'devicon-rust-plain',
+      'ruby': 'devicon-ruby-plain',
+      'php': 'devicon-php-plain',
+      'swift': 'devicon-swift-plain',
+      'kotlin': 'devicon-kotlin-plain',
+      'dart': 'devicon-dart-plain',
+      'scala': 'devicon-scala-plain',
+      'r': 'devicon-r-plain',
+      'perl': 'devicon-perl-plain',
+      'lua': 'devicon-lua-plain',
+      'haskell': 'devicon-haskell-plain',
+      'elixir': 'devicon-elixir-plain',
+      'clojure': 'devicon-clojure-plain',
+      'shell': 'devicon-bash-plain',
+      'html': 'devicon-html5-plain',
+      'css': 'devicon-css3-plain',
+      'sass': 'devicon-sass-original',
+      'jupyter notebook': 'devicon-jupyter-plain',
+      'objective-c': 'devicon-objectivec-plain',
+      'matlab': 'devicon-matlab-plain',
+      'groovy': 'devicon-groovy-plain',
+      'vim script': 'devicon-vim-plain',
+      'emacs lisp': 'devicon-emacs-original',
+      'ocaml': 'devicon-ocaml-plain',
+      'erlang': 'devicon-erlang-plain',
+      'zig': 'devicon-zig-plain',
+      'nim': 'devicon-nim-plain',
+    };
+
+    function getDeviconClass(language) {
+      if (!language) return '';
+      return deviconMap[language.toLowerCase()] || '';
+    }
+
+    function highlightMatch(text, query) {
+      var idx = text.toLowerCase().indexOf(query);
+      if (idx === -1) return text;
+      return text.substring(0, idx) + '<mark>' + text.substring(idx, idx + query.length) + '</mark>' + text.substring(idx + query.length);
+    }
+
+    function renderAutocomplete(results) {
+      if (results.length === 0) {
+        acList.style.display = 'none';
+        return;
+      }
+      var q = repoInput.value.trim().toLowerCase();
+      var html = '';
+      for (var i = 0; i < results.length; i++) {
+        var r = results[i];
+        var detail = '';
+        if (r.repo.language) {
+          detail += '<span class="match-detail">' + r.repo.language + '</span>';
+        }
+        if (r.matchedOn.indexOf('topics') >= 0) {
+          var matched = r.repo.topics.split(';').filter(function (t) { return t.toLowerCase().includes(q); });
+          if (matched.length > 0) {
+            detail += '<span class="match-detail">topics: ' + matched.map(function (t) { return highlightMatch(t, q); }).join(', ') + '</span>';
+          }
+        }
+        var name = r.matchedOn.indexOf('name') >= 0 ? highlightMatch(r.repo.name, q) : r.repo.name;
+        var iconClass = getDeviconClass(r.repo.language);
+        var icon = iconClass ? '<i class="' + iconClass + ' colored lang-icon"></i>' : '<span class="lang-icon"></span>';
+        html += '<div class="autocomplete-item" data-index="' + i + '">' + icon + '<span>' + name + detail + '</span></div>';
+      }
+      acList.innerHTML = html;
+      acList.style.display = 'block';
+      activeIndex = -1;
+    }
+
+    repoInput.addEventListener('input', function () {
+      var q = this.value.trim();
+      if (q.length < 2) {
+        acList.style.display = 'none';
+        return;
+      }
+      renderAutocomplete(searchRepos(q));
+    });
+
+    repoInput.addEventListener('keydown', function (e) {
+      var items = acList.querySelectorAll('.autocomplete-item');
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        activeIndex = Math.min(activeIndex + 1, items.length - 1);
+        updateActive(items);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeIndex = Math.max(activeIndex - 1, 0);
+        updateActive(items);
+      } else if (e.key === 'Enter') {
+        if (activeIndex >= 0 && items[activeIndex]) {
+          e.preventDefault();
+          selectItem(items[activeIndex]);
+        } else {
+          analyze();
+        }
+      } else if (e.key === 'Escape') {
+        acList.style.display = 'none';
+      }
+    });
+
+    function updateActive(items) {
+      for (var i = 0; i < items.length; i++) {
+        items[i].classList.toggle('active', i === activeIndex);
+      }
+      if (items[activeIndex]) {
+        items[activeIndex].scrollIntoView({ block: 'nearest' });
+      }
+    }
+
+    function selectItem(item) {
+      var idx = parseInt(item.getAttribute('data-index'));
+      var results = searchRepos(repoInput.value.trim());
+      if (results[idx]) {
+        repoInput.value = results[idx].repo.name;
+      }
+      acList.style.display = 'none';
+    }
+
+    acList.addEventListener('mousedown', function (e) {
+      var item = e.target.closest('.autocomplete-item');
+      if (item) {
+        e.preventDefault();
+        selectItem(item);
+      }
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.search')) {
+        acList.style.display = 'none';
+      }
+    });
+  </script>
+
+</body>
+</html>
