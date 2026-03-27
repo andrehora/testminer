@@ -23,7 +23,7 @@
 
     .container {
       width: 100%;
-      max-width: 640px;
+      max-width: 900px;
     }
 
     .header {
@@ -49,6 +49,9 @@
       display: flex;
       gap: 10px;
       margin-bottom: 28px;
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .search input {
@@ -156,6 +159,8 @@
     .recent {
       margin-bottom: 24px;
       display: none;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
     }
 
     .recent-header {
@@ -246,6 +251,8 @@
       font-weight: 600;
       color: #1e293b;
       margin-bottom: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
     }
 
     .owner-link {
@@ -278,19 +285,20 @@
     }
 
     .stats-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
     }
 
     .stat-card {
       background: #fff;
       border: 1px solid #e2e8f0;
       border-radius: 10px;
-      padding: 12px 20px;
+      padding: 16px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: space-between;
+      text-align: center;
       transition: transform 0.15s, box-shadow 0.15s;
     }
 
@@ -300,13 +308,14 @@
     }
 
     .stat-card .label {
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       color: #64748b;
       font-weight: 500;
+      margin-bottom: 4px;
     }
 
     .stat-card .value {
-      font-size: 1.4rem;
+      font-size: 1.5rem;
       font-weight: 700;
       color: #22c55e;
     }
@@ -386,6 +395,114 @@
       color: #22c55e;
       font-weight: 700;
     }
+
+    .owner-table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      grid-column: 1 / -1;
+    }
+
+    .owner-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+
+    .owner-table th {
+      text-align: left;
+      padding: 8px 8px;
+      font-weight: 600;
+      color: #64748b;
+      border-bottom: 2px solid #e2e8f0;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .owner-table td {
+      padding: 8px 8px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #1e293b;
+      font-size: 0.82rem;
+    }
+
+    .owner-table-row {
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+
+    .owner-table-row:hover {
+      background: #f0fdf4;
+    }
+
+    .repo-name-cell {
+      font-weight: 600;
+      color: #16a34a;
+      width: 180px;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .suggestions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .suggestion-label {
+      font-size: 0.82rem;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .suggestion-btn {
+      font-size: 0.85rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      color: #16a34a;
+      background: #f0fdf4;
+      border: 1px solid #dcfce7;
+      border-radius: 8px;
+      padding: 6px 14px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .suggestion-btn:hover {
+      background: #dcfce7;
+      border-color: #bbf7d0;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #e2e8f0;
+      border-top-color: #22c55e;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .sortable-th {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .sortable-th:hover {
+      color: #16a34a;
+    }
+
+    .sort-arrow {
+      font-size: 0.7rem;
+    }
   </style>
 </head>
 <body>
@@ -397,9 +514,17 @@
     </div>
 
     <div class="search">
-      <input id="repo-input" type="text" placeholder="GitHub URL, owner/repo, or owner for multiple analysis" autocomplete="off" />
+      <input id="repo-input" type="text" placeholder="GitHub URL, owner/repo, or owner" autocomplete="off" />
       <button id="analyze-btn" onclick="analyze()">Analyze</button>
       <div id="autocomplete-list" class="autocomplete-list"></div>
+    </div>
+
+    <div id="suggestions" class="suggestions">
+      <span class="suggestion-label">Try:</span>
+      <button class="suggestion-btn" data-value="google">google</button>
+      <button class="suggestion-btn" data-value="microsoft">microsoft</button>
+      <button class="suggestion-btn" data-value="facebook/react">facebook/react</button>
+      <button class="suggestion-btn" data-value="openai/codex">openai/codex</button>
     </div>
 
     <div id="recent" class="recent">
@@ -421,11 +546,14 @@
 
   <script src="js/app.js?v=2"></script>
   <script>
+    loadExtensions();
+
     var analyzing = false;
     async function analyze() {
       if (analyzing) return;
       analyzing = true;
       try {
+        await loadExtensions();
         const input = document.getElementById('repo-input').value.trim();
         const btn = document.getElementById('analyze-btn');
         const errorEl = document.getElementById('error');
@@ -474,7 +602,7 @@
 
         if (data && data.error === 'too_large') {
           var tooLargeOwner = ownerRepo.split('/')[0];
-          errorEl.textContent = 'Repository "' + ownerRepo + '"size is too large. Try another repository of ' + tooLargeOwner + ' 😎';
+          errorEl.textContent = 'Repository "' + ownerRepo + '"size is too large. Try another repository of ' + tooLargeOwner + '...';
           errorEl.style.display = 'block';
           var tooLargeRepos = await fetchOwnerRepos(tooLargeOwner);
           if (tooLargeRepos) {
@@ -492,10 +620,13 @@
         const files = parseJsDelivrFiles(data);
         const stats = computeTestStats(files);
 
+        const ratio = testRatio(stats.testFiles, stats.sourceFiles);
         const cards = [
           { label: 'Total files',       value: stats.total },
-          { label: 'Test-related files',value: stats.testRelatedFiles },
+          { label: 'Source files',      value: stats.sourceFiles },
           { label: 'Test files',        value: stats.testFiles },
+          { label: 'Test ratio',        value: ratio + '%', alwaysShow: true },
+          { label: 'Test-related files',value: stats.testRelatedFiles },
           { label: 'Mock files',        value: stats.mockFiles },
           { label: 'E2E files',         value: stats.e2eFiles },
           { label: 'Snapshot files',    value: stats.snapshotFiles },
@@ -507,14 +638,16 @@
 
         const grid = document.getElementById('stats-grid');
         grid.innerHTML = cards.filter(function (c) {
-          return c.value > 0;
+          return c.alwaysShow || c.value > 0;
         }).map(function (c) {
           return '<div class="stat-card"><div class="label">' + c.label + '</div><div class="value">' + c.value + '</div></div>';
         }).join('');
 
         var ownerPart = ownerRepo.split('/')[0];
         var repoPart = ownerRepo.split('/')[1];
-        document.getElementById('results-title-text').innerHTML = '<a class="owner-link" href="#' + ownerPart + '">' + ownerPart + '</a> / ' + repoPart;
+        var ownerIcon = '<i class="devicon-' + ownerPart.toLowerCase() + '-plain colored" style="font-size:1.3rem;margin-right:6px;"></i>';
+        var ghLink = ' <a href="https://github.com/' + ownerRepo + '" target="_blank" rel="noopener" style="margin-left:8px;color:#1e293b;text-decoration:none;"><i class="devicon-github-original" style="font-size:1.1rem;"></i></a>';
+        document.getElementById('results-title-text').innerHTML = ownerIcon + '<a class="owner-link" href="#' + ownerPart + '">' + ownerPart + '</a> / ' + repoPart + ghLink;
         resultsEl.style.display = 'block';
 
         saveRecent(ownerRepo);
@@ -527,74 +660,126 @@
     function renderOwnerRepos(owner, repos) {
       var resultsEl = document.getElementById('results');
       var grid = document.getElementById('stats-grid');
-      document.getElementById('results-title-text').textContent = owner;
+      var ownerIcon = '<i class="devicon-' + owner.toLowerCase() + '-plain colored" style="font-size:1.3rem;margin-right:6px;"></i>';
+      document.getElementById('results-title-text').innerHTML = ownerIcon + owner;
 
-      var html = '<div class="repo-list">';
+      var repoIndices = [];
       for (var i = 0; i < repos.length; i++) {
-        var repo = repos[i];
-        if (repo.fork) continue;
-        var topicsHtml = '';
-        if (repo.topics && repo.topics.length > 0) {
-          topicsHtml = '<div class="repo-item-topics">';
-          for (var j = 0; j < repo.topics.length; j++) {
-            topicsHtml += '<span class="repo-topic">' + repo.topics[j] + '</span>';
-          }
-          topicsHtml += '</div>';
-        }
-        html += '<div class="repo-item" data-repo="' + repo.full_name + '" id="repo-item-' + i + '">'
-          + '<div class="repo-item-name">' + repo.name + '</div>'
-          + '<div class="repo-item-meta">'
-          + '<span class="repo-item-stars">&#9733; ' + repo.stargazers_count.toLocaleString() + '</span>'
-          + (repo.language ? '<span>' + repo.language + '</span>' : '')
-          + '</div>'
-          + '<div class="repo-item-stats" id="repo-stats-' + i + '"></div>'
-          + topicsHtml
-          + '</div>';
+        if (!repos[i].fork) repoIndices.push(i);
       }
-      html += '</div>';
+
+      var columns = [
+        { label: 'Repository', key: 'name', type: 'string' },
+        { label: 'Language', key: 'language', type: 'string' },
+        { label: 'Stars', key: 'stars', type: 'number' },
+        { label: 'Total files', key: 'total', type: 'number' },
+        { label: 'Source files', key: 'source', type: 'number' },
+        { label: 'Test files', key: 'test', type: 'number' },
+        { label: 'Test ratio', key: 'ratio', type: 'number' },
+      ];
+
+      var html = '<div class="owner-table-wrap"><table class="owner-table" id="owner-table">'
+        + '<thead><tr>';
+      for (var ci = 0; ci < columns.length; ci++) {
+        html += '<th class="sortable-th" data-col="' + ci + '">' + columns[ci].label + ' <span class="sort-arrow"></span></th>';
+      }
+      html += '<th></th>';
+      html += '</tr></thead><tbody>';
+      for (var j = 0; j < repoIndices.length; j++) {
+        var repo = repos[repoIndices[j]];
+        html += '<tr class="owner-table-row" data-repo="' + repo.full_name + '" id="repo-row-' + repoIndices[j] + '">'
+          + '<td class="repo-name-cell">' + repo.name + '</td>'
+          + '<td>' + (repo.language ? '<i class="' + getDeviconClass(repo.language) + ' colored lang-icon"></i> ' + repo.language : '') + '</td>'
+          + '<td data-sort-value="' + repo.stargazers_count + '">' + repo.stargazers_count.toLocaleString() + '</td>'
+          + '<td id="repo-total-' + repoIndices[j] + '" data-sort-value="">-</td>'
+          + '<td id="repo-source-' + repoIndices[j] + '" data-sort-value="">-</td>'
+          + '<td id="repo-test-' + repoIndices[j] + '" data-sort-value="">-</td>'
+          + '<td id="repo-ratio-' + repoIndices[j] + '" data-sort-value="">-</td>'
+          + '<td id="repo-status-' + repoIndices[j] + '"><span class="spinner"></span></td>'
+          + '</tr>';
+      }
+      html += '</tbody></table></div>';
 
       grid.innerHTML = html;
       resultsEl.style.display = 'block';
 
-      grid.querySelectorAll('.repo-item').forEach(function (item) {
-        item.addEventListener('click', function () {
+      // Sortable columns
+      var currentSort = { col: -1, asc: true };
+      function sortTable(colIdx, asc) {
+        var table = document.getElementById('owner-table');
+        var tbody = table.querySelector('tbody');
+        var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+        var colType = columns[colIdx].type;
+        rows.sort(function (a, b) {
+          var cellA = a.children[colIdx];
+          var cellB = b.children[colIdx];
+          var valA, valB;
+          if (colType === 'number') {
+            valA = parseFloat(cellA.getAttribute('data-sort-value') || cellA.textContent) || 0;
+            valB = parseFloat(cellB.getAttribute('data-sort-value') || cellB.textContent) || 0;
+          } else {
+            valA = cellA.textContent.toLowerCase();
+            valB = cellB.textContent.toLowerCase();
+          }
+          if (valA < valB) return asc ? -1 : 1;
+          if (valA > valB) return asc ? 1 : -1;
+          return 0;
+        });
+        for (var ri = 0; ri < rows.length; ri++) {
+          tbody.appendChild(rows[ri]);
+        }
+        grid.querySelectorAll('.sort-arrow').forEach(function (arrow) { arrow.textContent = ''; });
+        grid.querySelectorAll('.sortable-th')[colIdx].querySelector('.sort-arrow').textContent = asc ? ' \u25B2' : ' \u25BC';
+      }
+      grid.querySelectorAll('.sortable-th').forEach(function (th) {
+        th.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var colIdx = parseInt(this.getAttribute('data-col'));
+          if (currentSort.col === colIdx) {
+            currentSort.asc = !currentSort.asc;
+          } else {
+            currentSort.col = colIdx;
+            currentSort.asc = true;
+          }
+          sortTable(currentSort.col, currentSort.asc);
+        });
+      });
+
+      grid.querySelectorAll('.owner-table-row').forEach(function (row) {
+        row.addEventListener('click', function () {
           document.getElementById('repo-input').value = this.getAttribute('data-repo');
           analyze();
         });
       });
 
       // Fetch file stats for each repo
-      for (var k = 0; k < repos.length; k++) {
-        if (repos[k].fork) continue;
+      for (var k = 0; k < repoIndices.length; k++) {
         (function (repo, index) {
           fetchJsDelivrFiles(repo.full_name).then(function (data) {
-            var statsEl = document.getElementById('repo-stats-' + index);
-            if (!statsEl) return;
+            var totalEl = document.getElementById('repo-total-' + index);
+            if (!totalEl) return;
             if (!data || data.error) {
-              statsEl.innerHTML = '';
+              var row = document.getElementById('repo-row-' + index);
+              if (row) row.remove();
               return;
             }
             var files = parseJsDelivrFiles(data);
             var stats = computeTestStats(files);
-            var statItems = [
-              { label: 'Total files', value: stats.total },
-              { label: 'Test-related files', value: stats.testRelatedFiles },
-              { label: 'Test files', value: stats.testFiles },
-              { label: 'Mock files', value: stats.mockFiles },
-              { label: 'E2E files', value: stats.e2eFiles },
-              { label: 'Snapshot files', value: stats.snapshotFiles },
-              { label: 'CI test files', value: stats.ciTestFiles },
-              { label: 'Smoke files', value: stats.smokeFiles },
-              { label: 'Fixture files', value: stats.fixtureFiles },
-              { label: 'Benchmark files', value: stats.benchmarkFiles },
-            ];
-            statsEl.innerHTML = statItems.filter(function (s) {
-              return s.value > 0;
-            }).map(function (s) {
-              return '<span>' + s.label + ': <span class="stat-value">' + s.value + '</span></span>';
-            }).join('');
+            var repoRatio = testRatio(stats.testFiles, stats.sourceFiles);
+            totalEl.textContent = stats.total;
+            totalEl.setAttribute('data-sort-value', stats.total);
+            var sourceEl = document.getElementById('repo-source-' + index);
+            sourceEl.textContent = stats.sourceFiles;
+            sourceEl.setAttribute('data-sort-value', stats.sourceFiles);
+            var testEl = document.getElementById('repo-test-' + index);
+            testEl.textContent = stats.testFiles;
+            testEl.setAttribute('data-sort-value', stats.testFiles);
+            var ratioEl = document.getElementById('repo-ratio-' + index);
+            ratioEl.textContent = repoRatio + '%';
+            ratioEl.setAttribute('data-sort-value', repoRatio);
+            document.getElementById('repo-status-' + index).textContent = '\u2705';
           });
-        })(repos[k], k);
+        })(repos[repoIndices[k]], repoIndices[k]);
       }
     }
 
@@ -649,6 +834,14 @@
     });
 
     renderRecent();
+
+    // Suggestions
+    document.querySelectorAll('.suggestion-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.getElementById('repo-input').value = this.getAttribute('data-value');
+        analyze();
+      });
+    });
 
     // Autocomplete
     var repoData = [];
@@ -713,47 +906,23 @@
       return results;
     }
 
-    var deviconMap = {
-      'python': 'devicon-python-plain',
-      'javascript': 'devicon-javascript-plain',
-      'typescript': 'devicon-typescript-plain',
-      'java': 'devicon-java-plain',
-      'c': 'devicon-c-plain',
-      'c++': 'devicon-cplusplus-plain',
-      'c#': 'devicon-csharp-plain',
-      'go': 'devicon-go-plain',
-      'rust': 'devicon-rust-plain',
-      'ruby': 'devicon-ruby-plain',
-      'php': 'devicon-php-plain',
-      'swift': 'devicon-swift-plain',
-      'kotlin': 'devicon-kotlin-plain',
-      'dart': 'devicon-dart-plain',
-      'scala': 'devicon-scala-plain',
-      'r': 'devicon-r-plain',
-      'perl': 'devicon-perl-plain',
-      'lua': 'devicon-lua-plain',
-      'haskell': 'devicon-haskell-plain',
-      'elixir': 'devicon-elixir-plain',
-      'clojure': 'devicon-clojure-plain',
-      'shell': 'devicon-bash-plain',
-      'html': 'devicon-html5-plain',
-      'css': 'devicon-css3-plain',
-      'sass': 'devicon-sass-original',
-      'jupyter notebook': 'devicon-jupyter-plain',
-      'objective-c': 'devicon-objectivec-plain',
-      'matlab': 'devicon-matlab-plain',
-      'groovy': 'devicon-groovy-plain',
-      'vim script': 'devicon-vim-plain',
-      'emacs lisp': 'devicon-emacs-original',
-      'ocaml': 'devicon-ocaml-plain',
-      'erlang': 'devicon-erlang-plain',
-      'zig': 'devicon-zig-plain',
-      'nim': 'devicon-nim-plain',
+    var deviconAliases = {
+      'c++': 'cplusplus',
+      'c#': 'csharp',
+      'shell': 'bash',
+      'html': 'html5',
+      'css': 'css3',
+      'jupyter notebook': 'jupyter',
+      'objective-c': 'objectivec',
+      'vim script': 'vim',
+      'emacs lisp': 'emacs',
     };
 
     function getDeviconClass(language) {
       if (!language) return '';
-      return deviconMap[language.toLowerCase()] || '';
+      var key = language.toLowerCase();
+      var name = deviconAliases[key] || key.replace(/[^a-z0-9]/g, '');
+      return 'devicon-' + name + '-plain';
     }
 
     function highlightMatch(text, query) {

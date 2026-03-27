@@ -25,14 +25,17 @@ function fetchJsDelivrFiles(ownerRepo) {
   const url = 'https://data.jsdelivr.com/v1/packages/gh/' + ownerRepo + '@master';
   return fetch(url)
     .then(function (response) {
+      if (response.status === 403) {
+        return { error: 'too_large' };
+      }
+      if (!response.ok) {
+        return null;
+      }
       return response.json();
     })
     .then(function (data) {
-      if (data.status === 403) {
-        return { error: 'too_large' };
-      }
-      if (data.status && data.status !== 200 && !data.files) {
-        return null;
+      if (!data || !data.files) {
+        return data;
       }
       return data;
     })
@@ -83,8 +86,14 @@ function parseSBOM(data) {
   return packages;
 }
 
+function testRatio(testFiles, sourceFiles) {
+  if (sourceFiles === 0) return 0;
+  return Math.round((testFiles / sourceFiles) * 100);
+}
+
 function computeTestStats(filepaths) {
   var total = filepaths.length;
+  var sourceCount = filepaths.filter(isSourceFile).length;
   var testCount = filepaths.filter(isTestFile).length;
   var mockCount = filepaths.filter(isMockFile).length;
   var e2eCount = filepaths.filter(isE2EFile).length;
@@ -94,7 +103,7 @@ function computeTestStats(filepaths) {
   var fixtureCount = filepaths.filter(isFixtureFile).length;
   var benchmarkCount = filepaths.filter(isBenchmarkFile).length;
   var testRelatedCount = filepaths.filter(isTestRelatedFile).length;
-  return { total: total, testFiles: testCount, mockFiles: mockCount, e2eFiles: e2eCount, snapshotFiles: snapshotCount, ciTestFiles: ciTestCount, smokeFiles: smokeCount, fixtureFiles: fixtureCount, benchmarkFiles: benchmarkCount, testRelatedFiles: testRelatedCount };
+  return { total: total, sourceFiles: sourceCount, testFiles: testCount, mockFiles: mockCount, e2eFiles: e2eCount, snapshotFiles: snapshotCount, ciTestFiles: ciTestCount, smokeFiles: smokeCount, fixtureFiles: fixtureCount, benchmarkFiles: benchmarkCount, testRelatedFiles: testRelatedCount };
 }
 
 function containsTest(str) {
@@ -168,8 +177,8 @@ function isSnapshotFile(filepath) {
 }
 
 function isTestFile(filepath) {
+  if (!isSourceFile(filepath)) return false;
   var filename = filepath.split('/').pop();
-  // var nameWithoutExt = filename.replace(/\.[^/.]+$/, '');
   return containsTest(filename) || filename.toLowerCase().includes('spec.');
 }
 
@@ -199,6 +208,52 @@ function fetchOwnerRepos(owner) {
     .catch(function () {
       return null;
     });
+}
+
+var extensionSet = null;
+
+function loadExtensions() {
+  if (extensionSet) return Promise.resolve(extensionSet);
+  return fetch('data/extensions.csv')
+    .then(function (r) { return r.text(); })
+    .then(function (text) {
+      extensionSet = new Set();
+      var lines = text.trim().split('\n');
+      for (var i = 1; i < lines.length; i++) {
+        var ext = lines[i].trim();
+        if (ext) {
+          extensionSet.add(ext.toLowerCase());
+        }
+      }
+      return extensionSet;
+    });
+}
+
+function isSourceFile(filepath) {
+  var filename = filepath.split('/').pop();
+  var dotIndex = filename.lastIndexOf('.');
+  if (dotIndex === -1) return false;
+  var ext = filename.substring(dotIndex).toLowerCase();
+  return extensionSet ? extensionSet.has(ext) : false;
+}
+
+function classifyFiles(filepaths) {
+  return filepaths.map(function (filepath) {
+    return { filepath: filepath, classification: classifyFile(filepath) };
+  });
+}
+
+function classifyFile(filepath) {
+  if (isBenchmarkFile(filepath)) return 'benchmark';
+  if (isFixtureFile(filepath)) return 'fixture';
+  if (isSmokeFile(filepath)) return 'smoke';
+  if (isCITestFile(filepath)) return 'ci-test';
+  if (isSnapshotFile(filepath)) return 'snapshot';
+  if (isE2EFile(filepath)) return 'e2e';
+  if (isMockFile(filepath)) return 'mock';
+  if (isTestFile(filepath)) return 'test';
+  if (isTestRelatedFile(filepath)) return 'test-related';
+  return 'not-test';
 }
 
 function parseEcosystemFromPurl(pkg) {
