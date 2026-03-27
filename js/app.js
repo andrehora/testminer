@@ -173,6 +173,34 @@ function isTestFile(filepath) {
   return containsTest(filename) || filename.toLowerCase().includes('spec.');
 }
 
+var ownerReposCache = {};
+
+function fetchOwnerRepos(owner) {
+  var key = owner.toLowerCase();
+  if (ownerReposCache[key]) {
+    return Promise.resolve(ownerReposCache[key]);
+  }
+  var url = 'https://api.github.com/users/' + owner + '/repos?sort=pushed&per_page=30';
+  return fetch(url, {
+    headers: { 'Accept': 'application/vnd.github.mercy-preview+json' }
+  })
+    .then(function (response) {
+      if (!response.ok) {
+        return null;
+      }
+      return response.json();
+    })
+    .then(function (data) {
+      if (data) {
+        ownerReposCache[key] = data;
+      }
+      return data;
+    })
+    .catch(function () {
+      return null;
+    });
+}
+
 function parseEcosystemFromPurl(pkg) {
   if (!pkg.externalRefs) {
     return null;
