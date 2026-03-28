@@ -688,17 +688,15 @@
 
     .block-dir {
       display: flex;
-      align-items: center;
-      gap: 8px;
+      flex-direction: column;
+      gap: 4px;
     }
 
     .block-dir-label {
       font-size: 0.72rem;
       font-family: monospace;
       color: #64748b;
-      width: 180px;
-      min-width: 180px;
-      text-align: right;
+      text-align: left;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -715,8 +713,12 @@
       height: 10px;
       border-radius: 2px;
       cursor: default;
-      transition: transform 0.1s;
+      transition: transform 0.1s, border-radius 0.15s;
       position: relative;
+    }
+
+    .block-map.circles .block-cell {
+      border-radius: 50%;
     }
 
     .block-cell:hover {
@@ -724,26 +726,22 @@
       z-index: 10;
     }
 
-    .block-cell::after {
-      content: attr(data-tip);
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      transform: translateX(-50%);
+    .block-tooltip {
+      position: fixed;
+      pointer-events: none;
       background: #1e293b;
       color: #fff;
-      font-size: 0.35rem;
+      font-size: 0.65rem;
       font-family: monospace;
-      padding: 2px 5px;
+      padding: 3px 7px;
       border-radius: 4px;
       white-space: nowrap;
-      pointer-events: none;
+      z-index: 1000;
       opacity: 0;
       transition: opacity 0.1s;
-      margin-bottom: 4px;
     }
 
-    .block-cell:hover::after {
+    .block-tooltip.visible {
       opacity: 1;
     }
 
@@ -791,6 +789,106 @@
       border-bottom: 1px solid #f1f5f9;
       margin-bottom: 12px;
     }
+
+    .depth-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+
+    .depth-nav-label {
+      font-family: monospace;
+      font-size: 0.73rem;
+      color: #64748b;
+    }
+
+    .export-btns {
+      display: flex;
+      gap: 1px;
+    }
+
+    .export-png-btn {
+      font-size: 0.73rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      color: #64748b;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 3px 10px;
+      cursor: pointer;
+      transition: background 0.12s, border-color 0.12s, color 0.12s;
+    }
+
+    .export-btns .export-png-btn:first-child {
+      border-radius: 6px 0 0 6px;
+      border-right: none;
+    }
+
+    .export-btns .export-png-btn:last-child {
+      border-radius: 0 6px 6px 0;
+    }
+
+    .export-png-btn:hover {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+      color: #16a34a;
+    }
+
+    .export-png-btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .export-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .export-title i {
+      font-size: 1.3rem;
+    }
+
+    .shape-toggle {
+      width: 22px;
+      height: 22px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      background: #f8fafc;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.12s, border-color 0.12s;
+      padding: 0;
+      margin-left: auto;
+    }
+
+    .shape-toggle:hover {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+
+    .shape-toggle-icon {
+      width: 10px;
+      height: 10px;
+      background: #64748b;
+      transition: border-radius 0.15s;
+      border-radius: 2px;
+    }
+
+    .shape-toggle.active .shape-toggle-icon {
+      border-radius: 50%;
+    }
   </style>
 </head>
 <body>
@@ -835,6 +933,8 @@
 
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="js/app.js?v=5"></script>
   <script>
     loadExtensions();

@@ -324,13 +324,13 @@ function loadAnalyzeRepoCache() {
 var classificationColors = {
   'test': '#22c55e',
   'test-related': '#86efac',
-  'mock': '#f59e0b',
+  'mock': '#94a3b8',
   'e2e': '#8b5cf6',
   'snapshot': '#ec4899',
   'ci-test': '#06b6d4',
   'smoke': '#ef4444',
   'fixture': '#f97316',
-  'benchmark': '#14b8a6',
+  'benchmark': '#facc15',
   'source': '#1e293b',
   'other': '#1e293b'
 };
@@ -353,6 +353,38 @@ function groupFilesByDir(classifiedFiles) {
   return dirs;
 }
 
+function groupFilesByDepth(classifiedFiles, depth) {
+  var groups = {};
+  Object.keys(classifiedFiles).forEach(function (category) {
+    classifiedFiles[category].forEach(function (filepath) {
+      var parts = filepath.split('/');
+      var dirParts = parts.slice(0, -1);
+      var groupKey;
+      if (depth === 0 || dirParts.length === 0) {
+        groupKey = '.';
+      } else {
+        groupKey = dirParts.slice(0, Math.min(depth, dirParts.length)).join('/');
+      }
+      if (!groups[groupKey]) groups[groupKey] = [];
+      groups[groupKey].push({ name: parts[parts.length - 1], path: filepath, category: category });
+    });
+  });
+  return groups;
+}
+
+function getMaxDepth(classifiedFiles) {
+  var max = 0;
+  Object.keys(classifiedFiles).forEach(function (category) {
+    classifiedFiles[category].forEach(function (filepath) {
+      var parts = filepath.split('/');
+      // depth = number of directory segments (parts.length - 1 for the file)
+      var d = parts.length - 1;
+      if (d > max) max = d;
+    });
+  });
+  return max;
+}
+
 function renderFileTree(ownerRepo) {
   var chartEl = document.getElementById('tree-chart');
   if (!chartEl) return;
@@ -363,7 +395,12 @@ function renderFileTree(ownerRepo) {
     return;
   }
 
-  var dirs = groupFilesByDir(cached.files);
+  // Clean up old tooltip if present
+  var oldTooltip = document.querySelector('.block-tooltip');
+  if (oldTooltip) oldTooltip.remove();
+
+  var maxDepth = getMaxDepth(cached.files);
+  var currentDepth = Math.min(1, maxDepth);
 
   // Legend
   var legendHTML = '<div class="tree-legend">';
@@ -378,11 +415,11 @@ function renderFileTree(ownerRepo) {
   });
   legendHTML += '</div>';
 
-  var dirKeys = Object.keys(dirs);
-
-  var currentSort = 'alpha-asc';
+  var currentSort = 'files-desc';
 
   function buildBlockMapHTML(activeFilters) {
+    var dirs = groupFilesByDepth(cached.files, currentDepth);
+    var dirKeys = Object.keys(dirs);
     var html = '';
     var sortedDirs = dirKeys.slice().sort();
     if (currentSort === 'alpha-desc') {
@@ -400,8 +437,10 @@ function renderFileTree(ownerRepo) {
         return activeFilters.indexOf(f.category) >= 0;
       });
       if (files.length === 0) continue;
+      var catCounts = {};
+      files.forEach(function (f) { catCounts[f.category] = (catCounts[f.category] || 0) + 1; });
       files.sort(function (a, b) {
-        if (a.category !== b.category) return a.category.localeCompare(b.category);
+        if (a.category !== b.category) return (catCounts[b.category] || 0) - (catCounts[a.category] || 0);
         return a.name.localeCompare(b.name);
       });
       html += '<div class="block-dir">';
@@ -458,17 +497,53 @@ function renderFileTree(ownerRepo) {
   sortHTML += showHTML;
   sortHTML += '<span class="block-sort-sep">|</span>';
   sortHTML += 'Sort by: ';
-  sortHTML += '<button class="block-sort-btn active" data-sort="alpha" id="sort-alpha">name \u2191</button>';
-  sortHTML += '<button class="block-sort-btn" data-sort="files" id="sort-files">files \u2191</button>';
+  sortHTML += '<button class="block-sort-btn active" data-sort="files" id="sort-files">files \u2193</button>';
+  sortHTML += '<button class="block-sort-btn" data-sort="alpha" id="sort-alpha">name \u2191</button>';
   sortHTML += '</div>';
+
+  // Depth navigation
+  var depthNavHTML = '<div class="depth-nav">';
+  depthNavHTML += 'Depth: ';
+  depthNavHTML += '<button class="block-sort-btn" id="depth-left"' + (currentDepth <= 0 ? ' disabled' : '') + '>\u25C0</button>';
+  depthNavHTML += '<span class="depth-nav-label" id="depth-label">' + currentDepth + ' / ' + maxDepth + '</span>';
+  depthNavHTML += '<button class="block-sort-btn" id="depth-right"' + (currentDepth >= maxDepth ? ' disabled' : '') + '>\u25B6</button>';
+  depthNavHTML += '<button class="shape-toggle" id="shape-toggle" title="Toggle circles/squares"><span class="shape-toggle-icon"></span></button>';
+  depthNavHTML += '<span class="export-btns"><button class="export-png-btn" id="export-png-btn">PNG</button><button class="export-png-btn" id="export-pdf-btn">PDF</button></span>';
+  depthNavHTML += '</div>';
 
   var blockMapEl = document.createElement('div');
   blockMapEl.className = 'block-map';
   blockMapEl.innerHTML = buildBlockMapHTML(defaultCategories);
 
-  chartEl.innerHTML = legendHTML + sortHTML + showOnlyHTML + '<div class="block-separator"></div>';
+  chartEl.innerHTML = legendHTML + sortHTML + showOnlyHTML + depthNavHTML + '<div class="block-separator"></div>';
   chartEl.appendChild(blockMapEl);
   chartEl.style.display = 'block';
+
+  // Tooltip element
+  var tooltipEl = document.createElement('div');
+  tooltipEl.className = 'block-tooltip';
+  document.body.appendChild(tooltipEl);
+
+  blockMapEl.addEventListener('mouseover', function (e) {
+    var cell = e.target.closest('.block-cell');
+    if (!cell) return;
+    var tip = cell.getAttribute('data-tip');
+    if (!tip) return;
+    tooltipEl.textContent = tip;
+    tooltipEl.classList.add('visible');
+    var rect = cell.getBoundingClientRect();
+    var tipRect = tooltipEl.getBoundingClientRect();
+    var left = rect.left + rect.width / 2 - tipRect.width / 2;
+    if (left < 4) left = 4;
+    if (left + tipRect.width > window.innerWidth - 4) left = window.innerWidth - 4 - tipRect.width;
+    tooltipEl.style.left = left + 'px';
+    tooltipEl.style.top = (rect.top - tipRect.height - 6) + 'px';
+  });
+
+  blockMapEl.addEventListener('mouseout', function (e) {
+    var cell = e.target.closest('.block-cell');
+    if (cell) tooltipEl.classList.remove('visible');
+  });
 
   function getActiveFilters() {
     var filterBtns = chartEl.querySelectorAll('.block-sort-btn.active[data-showonly]');
@@ -486,6 +561,100 @@ function renderFileTree(ownerRepo) {
     }
     return allCategoryKeys;
   }
+
+  function updateDepthUI() {
+    var label = document.getElementById('depth-label');
+    var leftBtn = document.getElementById('depth-left');
+    var rightBtn = document.getElementById('depth-right');
+    if (label) label.textContent = currentDepth + ' / ' + maxDepth;
+    if (leftBtn) leftBtn.disabled = currentDepth <= 0;
+    if (rightBtn) rightBtn.disabled = currentDepth >= maxDepth;
+  }
+
+  // Depth navigation events
+  var depthNavEl = document.querySelector('.depth-nav');
+  depthNavEl.addEventListener('click', function (e) {
+    var depthBtn = e.target.closest('#depth-left, #depth-right');
+    if (depthBtn && !depthBtn.disabled) {
+      if (depthBtn.id === 'depth-left' && currentDepth > 0) {
+        currentDepth--;
+      } else if (depthBtn.id === 'depth-right' && currentDepth < maxDepth) {
+        currentDepth++;
+      }
+      updateDepthUI();
+      blockMapEl.innerHTML = buildBlockMapHTML(getActiveFilters());
+    }
+  });
+
+  // Shared capture logic
+  function captureChart(btn, originalLabel, callback) {
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+    tooltipEl.classList.remove('visible');
+
+    var hideEls = chartEl.querySelectorAll('.block-sort, .depth-nav, .block-separator');
+    hideEls.forEach(function (el) { el.style.display = 'none'; });
+
+    var origMaxHeight = chartEl.style.maxHeight;
+    var origOverflow = chartEl.style.overflowY;
+    chartEl.style.maxHeight = 'none';
+    chartEl.style.overflowY = 'visible';
+
+    var titleEl = document.createElement('div');
+    titleEl.className = 'export-title';
+    var titleIcon = document.querySelector('#results-title-text i');
+    if (titleIcon) {
+      titleEl.appendChild(titleIcon.cloneNode(true));
+    }
+    var titleText = document.createElement('span');
+    titleText.textContent = ownerRepo;
+    titleEl.appendChild(titleText);
+    chartEl.insertBefore(titleEl, chartEl.firstChild);
+
+    html2canvas(chartEl, { backgroundColor: '#ffffff', scale: 2 }).then(function (canvas) {
+      callback(canvas);
+    }).finally(function () {
+      chartEl.removeChild(titleEl);
+      chartEl.style.maxHeight = origMaxHeight;
+      chartEl.style.overflowY = origOverflow;
+      hideEls.forEach(function (el) { el.style.display = ''; });
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+    });
+  }
+
+  // Save as PNG
+  var exportPngBtn = document.getElementById('export-png-btn');
+  exportPngBtn.addEventListener('click', function () {
+    captureChart(exportPngBtn, 'PNG', function (canvas) {
+      var link = document.createElement('a');
+      link.download = ownerRepo.replace('/', '-') + '-testminer.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  });
+
+  // Save as PDF
+  var exportPdfBtn = document.getElementById('export-pdf-btn');
+  exportPdfBtn.addEventListener('click', function () {
+    captureChart(exportPdfBtn, 'PDF', function (canvas) {
+      var imgData = canvas.toDataURL('image/png');
+      var imgWidth = canvas.width;
+      var imgHeight = canvas.height;
+      var pdfWidth = imgWidth * 0.264583; // px to mm at 96dpi
+      var pdfHeight = imgHeight * 0.264583;
+      var orientation = pdfWidth > pdfHeight ? 'landscape' : 'portrait';
+      var pdf = new jspdf.jsPDF({ orientation: orientation, unit: 'mm', format: [pdfWidth, pdfHeight] });
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(ownerRepo.replace('/', '-') + '-testminer.pdf');
+    });
+  });
+
+  // Shape toggle (squares <-> circles)
+  document.getElementById('shape-toggle').addEventListener('click', function () {
+    this.classList.toggle('active');
+    blockMapEl.classList.toggle('circles');
+  });
 
   var sortBars = chartEl.querySelectorAll('.block-sort');
   sortBars.forEach(function (bar) {
