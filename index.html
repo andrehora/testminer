@@ -49,13 +49,19 @@
       display: flex;
       gap: 10px;
       margin-bottom: 28px;
-      max-width: 640px;
+      max-width: 720px;
       margin-left: auto;
       margin-right: auto;
     }
 
-    .search input {
+    .search-input-wrap {
       flex: 1;
+      position: relative;
+    }
+
+    .search input {
+      width: 100%;
+      box-sizing: border-box;
       padding: 14px 18px;
       font-size: 1rem;
       font-family: 'Inter', sans-serif;
@@ -106,7 +112,7 @@
       position: absolute;
       top: 100%;
       left: 0;
-      right: 100px;
+      right: 0;
       background: #fff;
       border: 1px solid #e2e8f0;
       border-radius: 12px;
@@ -154,6 +160,33 @@
       font-size: 0.78rem;
       color: #94a3b8;
       margin-left: 8px;
+    }
+
+    .autocomplete-item .ac-tag {
+      font-size: 0.72rem;
+      color: #94a3b8;
+      flex-shrink: 0;
+      width: 36px;
+      text-align: center;
+    }
+
+    .autocomplete-item .ac-name {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .autocomplete-item .ac-lang {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .autocomplete-item .ac-lang .lang-icon {
+      font-size: 0.95rem;
+      width: auto;
     }
 
     .recent {
@@ -264,6 +297,13 @@
       text-decoration: underline;
     }
 
+    .results-title-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .copy-link-btn {
       background: none;
       border: 1px solid #e2e8f0;
@@ -305,6 +345,72 @@
     .stat-card:hover {
       transform: translateY(-1px);
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-card.clickable {
+      cursor: pointer;
+    }
+
+    .stat-card.clickable:hover {
+      border-color: #bbf7d0;
+    }
+
+    .stat-card.active {
+      border-color: #22c55e;
+      box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+    }
+
+    .file-list-panel {
+      grid-column: 1 / -1;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px;
+      max-height: 350px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .file-list-panel.visible {
+      display: block;
+    }
+
+    .file-list-panel .file-list-header {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .file-list-panel .file-list-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      color: #94a3b8;
+      padding: 0 4px;
+      line-height: 1;
+    }
+
+    .file-list-panel .file-list-close:hover {
+      color: #ef4444;
+    }
+
+    .file-list-panel ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .file-list-panel li {
+      font-size: 0.82rem;
+      color: #1e293b;
+      padding: 3px 0;
+      font-family: monospace;
+      border-bottom: 1px solid #f8fafc;
     }
 
     .stat-card .label {
@@ -538,6 +644,153 @@
       .has-short-label .th-full { display: none; }
       .has-short-label .th-short { display: inline; }
     }
+
+    #tree-chart {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .tree-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .tree-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f1f5f9;
+      justify-content: center;
+    }
+
+    .tree-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+
+    .block-map {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .block-dir {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .block-dir-label {
+      font-size: 0.72rem;
+      font-family: monospace;
+      color: #64748b;
+      width: 180px;
+      min-width: 180px;
+      text-align: right;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .block-cells {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
+    }
+
+    .block-cell {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      cursor: default;
+      transition: transform 0.1s;
+      position: relative;
+    }
+
+    .block-cell:hover {
+      transform: scale(1.8);
+      z-index: 10;
+    }
+
+    .block-cell::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
+      color: #fff;
+      font-size: 0.35rem;
+      font-family: monospace;
+      padding: 2px 5px;
+      border-radius: 4px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.1s;
+      margin-bottom: 4px;
+    }
+
+    .block-cell:hover::after {
+      opacity: 1;
+    }
+
+    .block-sort {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      flex-wrap: wrap;
+    }
+
+    .block-sort-btn {
+      font-size: 0.73rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      color: #64748b;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 3px 8px;
+      cursor: pointer;
+      transition: background 0.12s, border-color 0.12s, color 0.12s;
+    }
+
+    .block-sort-btn:hover {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+      color: #16a34a;
+    }
+
+    .block-sort-btn.active {
+      background: #22c55e;
+      border-color: #22c55e;
+      color: #fff;
+    }
+
+    .block-sort-sep {
+      color: #e2e8f0;
+      margin: 0 2px;
+    }
+
+    .block-separator {
+      border-bottom: 1px solid #f1f5f9;
+      margin-bottom: 12px;
+    }
   </style>
 </head>
 <body>
@@ -549,9 +802,11 @@
     </div>
 
     <div class="search">
-      <input id="repo-input" type="text" placeholder="GitHub URL, owner/repo, or owner" autocomplete="off" />
+      <div class="search-input-wrap">
+        <input id="repo-input" type="text" placeholder="GitHub URL, owner/repo, or owner" autocomplete="off" />
+        <div id="autocomplete-list" class="autocomplete-list"></div>
+      </div>
       <button id="analyze-btn" onclick="analyze()">Analyze</button>
-      <div id="autocomplete-list" class="autocomplete-list"></div>
     </div>
 
     <div id="suggestions" class="suggestions">
@@ -573,13 +828,14 @@
     <div id="error"></div>
 
     <div id="results">
-      <h2 id="results-title" class="results-title"><span id="results-title-text"></span><button class="copy-link-btn" id="copy-link-btn">Copy link</button></h2>
+      <h2 id="results-title" class="results-title"><span id="results-title-text"></span><span class="results-title-actions"><a id="gh-link" target="_blank" rel="noopener" style="color:#1e293b;text-decoration:none;"><i class="devicon-github-original" style="font-size:1.1rem;"></i></a><button class="copy-link-btn" id="copy-link-btn">Copy link</button></span></h2>
       <div class="stats-grid" id="stats-grid"></div>
+      <div id="tree-chart" style="display:none;margin-top:16px;"></div>
     </div>
 
   </div>
 
-  <script src="js/app.js?v=2"></script>
+  <script src="js/app.js?v=5"></script>
   <script>
     loadExtensions();
 
@@ -636,6 +892,7 @@
       }
 
       renderRepoStats(ownerRepo, response.result.stats);
+      try { renderFileTree(ownerRepo); } catch (e) { console.error('Tree render error:', e); }
       saveRecent(ownerRepo);
       history.replaceState(null, '', '#' + ownerRepo);
     }
@@ -643,32 +900,73 @@
     function renderRepoStats(ownerRepo, stats) {
       var cards = [
         { label: 'Total files',       value: stats.total },
-        { label: 'Source files',      value: stats.sourceFiles },
-        { label: 'Test files',        value: stats.testFiles },
+        { label: 'Source files',      value: stats.sourceFiles,       category: 'source' },
+        { label: 'Test files',        value: stats.testFiles,         category: 'test' },
         { label: 'Test ratio',        value: stats.testRatio + '%', alwaysShow: true },
-        { label: 'Test-related files',value: stats.testRelatedFiles },
-        { label: 'Mock files',        value: stats.mockFiles },
-        { label: 'E2E files',         value: stats.e2eFiles },
-        { label: 'Snapshot files',    value: stats.snapshotFiles },
-        { label: 'CI test files',     value: stats.ciTestFiles },
-        { label: 'Smoke files',       value: stats.smokeFiles },
-        { label: 'Fixture files',     value: stats.fixtureFiles },
-        { label: 'Benchmark files',   value: stats.benchmarkFiles },
+        { label: 'Test-related files',value: stats.testRelatedFiles,  category: 'test-related' },
+        { label: 'Mock files',        value: stats.mockFiles,         category: 'mock' },
+        { label: 'E2E files',         value: stats.e2eFiles,          category: 'e2e' },
+        { label: 'Snapshot files',    value: stats.snapshotFiles,     category: 'snapshot' },
+        { label: 'CI test files',     value: stats.ciTestFiles,       category: 'ci-test' },
+        { label: 'Smoke files',       value: stats.smokeFiles,        category: 'smoke' },
+        { label: 'Fixture files',     value: stats.fixtureFiles,      category: 'fixture' },
+        { label: 'Benchmark files',   value: stats.benchmarkFiles,    category: 'benchmark' },
       ];
+
+      var cached = analyzeRepoCache[ownerRepo];
+      var hasFiles = cached && cached.files;
 
       var grid = document.getElementById('stats-grid');
       grid.innerHTML = cards.filter(function (c) {
         return c.alwaysShow || c.value > 0;
       }).map(function (c) {
-        return '<div class="stat-card"><div class="label">' + c.label + '</div><div class="value">' + c.value + '</div></div>';
-      }).join('');
+        var isClickable = c.category && hasFiles && (hasFiles[c.category] || []).length > 0;
+        var cls = 'stat-card' + (isClickable ? ' clickable' : '');
+        var dataAttr = isClickable ? ' data-category="' + c.category + '"' : '';
+        return '<div class="' + cls + '"' + dataAttr + '><div class="label">' + c.label + '</div><div class="value">' + c.value + '</div></div>';
+      }).join('') + '<div class="file-list-panel" id="file-list-panel"><div class="file-list-header"><span id="file-list-title"></span><button class="file-list-close" id="file-list-close">&times;</button></div><ul id="file-list-items"></ul></div>';
+
+      setupStatCardClicks(grid, ownerRepo);
 
       var ownerPart = ownerRepo.split('/')[0];
       var repoPart = ownerRepo.split('/')[1];
       var ownerIcon = '<i class="devicon-' + ownerPart.toLowerCase() + '-plain colored" style="font-size:1.3rem;margin-right:6px;"></i>';
-      var ghLink = ' <a href="https://github.com/' + ownerRepo + '" target="_blank" rel="noopener" style="margin-left:8px;color:#1e293b;text-decoration:none;"><i class="devicon-github-original" style="font-size:1.1rem;"></i></a>';
-      document.getElementById('results-title-text').innerHTML = ownerIcon + '<a class="owner-link" href="#' + ownerPart + '">' + ownerPart + '</a> / ' + repoPart + ghLink;
+      document.getElementById('results-title-text').innerHTML = ownerIcon + '<a class="owner-link" href="#' + ownerPart + '">' + ownerPart + '</a> / ' + repoPart;
+      document.getElementById('gh-link').href = 'https://github.com/' + ownerRepo;
       document.getElementById('results').style.display = 'block';
+    }
+
+    function setupStatCardClicks(grid, ownerRepo) {
+      var cached = analyzeRepoCache[ownerRepo];
+      if (!cached || !cached.files) return;
+
+      grid.querySelectorAll('.stat-card.clickable').forEach(function (card) {
+        card.addEventListener('click', function () {
+          var category = this.getAttribute('data-category');
+          var files = cached.files[category] || [];
+          var panel = document.getElementById('file-list-panel');
+          var wasActive = this.classList.contains('active');
+
+          grid.querySelectorAll('.stat-card.active').forEach(function (c) { c.classList.remove('active'); });
+
+          if (wasActive) {
+            panel.classList.remove('visible');
+            return;
+          }
+
+          this.classList.add('active');
+          document.getElementById('file-list-title').textContent = this.querySelector('.label').textContent + ' (' + files.length + ')';
+          document.getElementById('file-list-items').innerHTML = files.map(function (f) {
+            return '<li>' + f + '</li>';
+          }).join('');
+          panel.classList.add('visible');
+        });
+      });
+
+      document.getElementById('file-list-close').addEventListener('click', function () {
+        document.getElementById('file-list-panel').classList.remove('visible');
+        grid.querySelectorAll('.stat-card.active').forEach(function (c) { c.classList.remove('active'); });
+      });
     }
 
     async function analyze() {
@@ -680,6 +978,7 @@
 
         document.getElementById('error').style.display = 'none';
         document.getElementById('results').style.display = 'none';
+        document.getElementById('tree-chart').style.display = 'none';
         document.getElementById('autocomplete-list').style.display = 'none';
 
         if (!input) {
@@ -840,8 +1139,8 @@
       var resultsEl = document.getElementById('results');
       var grid = document.getElementById('stats-grid');
       var ownerIcon = '<i class="devicon-' + owner.toLowerCase() + '-plain colored" style="font-size:1.3rem;margin-right:6px;"></i>';
-      var ownerGhLink = ' <a href="https://github.com/' + owner + '" target="_blank" rel="noopener" style="margin-left:8px;color:#1e293b;text-decoration:none;"><i class="devicon-github-original" style="font-size:1.1rem;"></i></a>';
-      document.getElementById('results-title-text').innerHTML = ownerIcon + owner + ownerGhLink;
+      document.getElementById('results-title-text').innerHTML = ownerIcon + owner;
+      document.getElementById('gh-link').href = 'https://github.com/' + owner;
 
       var repoIndices = [];
       for (var i = 0; i < repos.length; i++) {
@@ -1009,35 +1308,25 @@
 
     function buildOwnerItemHTML(r, q, index) {
       var ownerName = highlightMatch(r.name, q);
-      var ownerIconClass = 'devicon-' + r.name.toLowerCase() + '-plain';
-      return '<div class="autocomplete-item" data-index="' + index + '"><i class="' + ownerIconClass + ' colored lang-icon owner-devicon"></i><span>' + ownerName + '<span class="match-detail">owner</span></span></div>';
+      return '<div class="autocomplete-item" data-index="' + index + '"><span class="ac-tag">owner</span><span class="ac-name">' + ownerName + '</span></div>';
     }
 
     function buildRepoItemHTML(r, q, index) {
-      var detail = '';
-      if (r.repo.language) {
-        detail += '<span class="match-detail">' + r.repo.language + '</span>';
-      }
+      var topicDetail = '';
       if (r.matchedOn.indexOf('topics') >= 0) {
         var matched = r.repo.topics.split(';').filter(function (t) { return t.toLowerCase().includes(q); });
         if (matched.length > 0) {
-          detail += '<span class="match-detail">topics: ' + matched.map(function (t) { return highlightMatch(t, q); }).join(', ') + '</span>';
+          topicDetail = '<span class="match-detail">topics: ' + matched.map(function (t) { return highlightMatch(t, q); }).join(', ') + '</span>';
         }
       }
       var name = r.matchedOn.indexOf('name') >= 0 ? highlightMatch(r.repo.name, q) : r.repo.name;
-      var iconClass = getDeviconClass(r.repo.language);
-      var icon = iconClass ? '<i class="' + iconClass + ' colored lang-icon"></i>' : '<i class="devicon-github-original lang-icon"></i>';
-      return '<div class="autocomplete-item" data-index="' + index + '">' + icon + '<span>' + name + detail + '</span></div>';
-    }
-
-    function fixOwnerDevicons() {
-      var ownerIcons = acList.querySelectorAll('.owner-devicon');
-      for (var j = 0; j < ownerIcons.length; j++) {
-        var content = window.getComputedStyle(ownerIcons[j], '::before').getPropertyValue('content');
-        if (!content || content === 'none' || content === 'normal') {
-          ownerIcons[j].className = 'devicon-github-original lang-icon';
-        }
+      var langRight = '';
+      if (r.repo.language) {
+        var langIconClass = getDeviconClass(r.repo.language);
+        var langIcon = langIconClass ? '<i class="' + langIconClass + ' colored lang-icon"></i>' : '';
+        langRight = '<span class="ac-lang">' + r.repo.language + langIcon + '</span>';
       }
+      return '<div class="autocomplete-item" data-index="' + index + '"><span class="ac-tag">repo</span><span class="ac-name">' + name + topicDetail + '</span>' + langRight + '</div>';
     }
 
     function renderAutocomplete(results) {
@@ -1054,7 +1343,6 @@
       acList.innerHTML = html;
       acList.style.display = 'block';
       activeIndex = -1;
-      fixOwnerDevicons();
     }
 
     repoInput.addEventListener('input', function () {
