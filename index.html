@@ -23,7 +23,7 @@
 
     .container {
       width: 100%;
-      max-width: 900px;
+      max-width: 720px;
     }
 
     .header {
@@ -146,7 +146,7 @@
     .autocomplete-item mark {
       background: #fef9c3;
       color: inherit;
-      padding: 0 2px;
+      padding: 0;
       border-radius: 3px;
     }
 
@@ -418,6 +418,13 @@
       font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 0.3px;
+      width: 1%;
+      white-space: nowrap;
+    }
+
+    .owner-table th:first-child {
+      width: auto;
+      white-space: normal;
     }
 
     .owner-table td {
@@ -425,6 +432,11 @@
       border-bottom: 1px solid #f1f5f9;
       color: #1e293b;
       font-size: 0.82rem;
+    }
+
+    .owner-table th:nth-child(n+3):nth-child(-n+6),
+    .owner-table td:nth-child(n+3):nth-child(-n+6) {
+      text-align: right;
     }
 
     .owner-table-row {
@@ -503,6 +515,29 @@
     .sort-arrow {
       font-size: 0.7rem;
     }
+    @media (max-width: 600px) {
+      .owner-table th,
+      .owner-table td {
+        padding: 6px 4px;
+        font-size: 0.72rem;
+      }
+      .owner-table th .th-label span {
+        display: block;
+      }
+      .lang-text {
+        display: none;
+      }
+      .lang-text.no-icon {
+        display: inline;
+      }
+    }
+
+    .th-short { display: none; }
+
+    @media (max-width: 600px) {
+      .has-short-label .th-full { display: none; }
+      .has-short-label .th-short { display: inline; }
+    }
   </style>
 </head>
 <body>
@@ -549,139 +584,146 @@
     loadExtensions();
 
     var analyzing = false;
+    function showError(msg) {
+      var errorEl = document.getElementById('error');
+      errorEl.textContent = msg;
+      errorEl.style.display = 'block';
+    }
+
+    function setBtnLoading(text) {
+      var btn = document.getElementById('analyze-btn');
+      btn.disabled = true;
+      btn.textContent = text;
+    }
+
+    function setBtnReady() {
+      var btn = document.getElementById('analyze-btn');
+      btn.disabled = false;
+      btn.textContent = 'Analyze';
+    }
+
+    async function analyzeOwner(owner) {
+      setBtnLoading('Searching...');
+      var repos = await fetchOwnerRepos(owner);
+      setBtnReady();
+      if (!repos) {
+        showError('Could not find GitHub user "' + owner + '".');
+        return;
+      }
+      renderOwnerRepos(owner, repos);
+      saveRecent(owner);
+      history.replaceState(null, '', '#' + owner);
+    }
+
+    async function analyzeSingleRepo(ownerRepo) {
+      setBtnLoading('Analyzing...');
+      var response = await ensureAnalyzeRepo(ownerRepo);
+      setBtnReady();
+
+      if (response.error === 'too_large') {
+        var tooLargeOwner = ownerRepo.split('/')[0];
+        showError('Repository "' + ownerRepo + '"size is too large. Try another repository of ' + tooLargeOwner + '...');
+        var tooLargeRepos = await fetchOwnerRepos(tooLargeOwner);
+        if (tooLargeRepos) {
+          renderOwnerRepos(tooLargeOwner, tooLargeRepos);
+        }
+        return;
+      }
+
+      if (response.error) {
+        showError('Could not fetch repository data. Check the repo name and try again.');
+        return;
+      }
+
+      renderRepoStats(ownerRepo, response.result.stats);
+      saveRecent(ownerRepo);
+      history.replaceState(null, '', '#' + ownerRepo);
+    }
+
+    function renderRepoStats(ownerRepo, stats) {
+      var cards = [
+        { label: 'Total files',       value: stats.total },
+        { label: 'Source files',      value: stats.sourceFiles },
+        { label: 'Test files',        value: stats.testFiles },
+        { label: 'Test ratio',        value: stats.testRatio + '%', alwaysShow: true },
+        { label: 'Test-related files',value: stats.testRelatedFiles },
+        { label: 'Mock files',        value: stats.mockFiles },
+        { label: 'E2E files',         value: stats.e2eFiles },
+        { label: 'Snapshot files',    value: stats.snapshotFiles },
+        { label: 'CI test files',     value: stats.ciTestFiles },
+        { label: 'Smoke files',       value: stats.smokeFiles },
+        { label: 'Fixture files',     value: stats.fixtureFiles },
+        { label: 'Benchmark files',   value: stats.benchmarkFiles },
+      ];
+
+      var grid = document.getElementById('stats-grid');
+      grid.innerHTML = cards.filter(function (c) {
+        return c.alwaysShow || c.value > 0;
+      }).map(function (c) {
+        return '<div class="stat-card"><div class="label">' + c.label + '</div><div class="value">' + c.value + '</div></div>';
+      }).join('');
+
+      var ownerPart = ownerRepo.split('/')[0];
+      var repoPart = ownerRepo.split('/')[1];
+      var ownerIcon = '<i class="devicon-' + ownerPart.toLowerCase() + '-plain colored" style="font-size:1.3rem;margin-right:6px;"></i>';
+      var ghLink = ' <a href="https://github.com/' + ownerRepo + '" target="_blank" rel="noopener" style="margin-left:8px;color:#1e293b;text-decoration:none;"><i class="devicon-github-original" style="font-size:1.1rem;"></i></a>';
+      document.getElementById('results-title-text').innerHTML = ownerIcon + '<a class="owner-link" href="#' + ownerPart + '">' + ownerPart + '</a> / ' + repoPart + ghLink;
+      document.getElementById('results').style.display = 'block';
+    }
+
     async function analyze() {
       if (analyzing) return;
       analyzing = true;
       try {
         await loadExtensions();
-        const input = document.getElementById('repo-input').value.trim();
-        const btn = document.getElementById('analyze-btn');
-        const errorEl = document.getElementById('error');
-        const resultsEl = document.getElementById('results');
+        var input = document.getElementById('repo-input').value.trim();
 
-        errorEl.style.display = 'none';
-        resultsEl.style.display = 'none';
+        document.getElementById('error').style.display = 'none';
+        document.getElementById('results').style.display = 'none';
         document.getElementById('autocomplete-list').style.display = 'none';
 
         if (!input) {
-          errorEl.textContent = 'Please enter a repository name or GitHub URL.';
-          errorEl.style.display = 'block';
+          showError('Please enter a repository name or GitHub URL.');
           return;
         }
 
-        const ownerRepo = parseGitHubOwnerRepo(input);
+        var ownerRepo = parseGitHubOwnerRepo(input);
         if (!ownerRepo) {
-          const owner = parseGitHubOwner(input);
+          var owner = parseGitHubOwner(input);
           if (owner) {
-            btn.disabled = true;
-            btn.textContent = 'Searching...';
-            const repos = await fetchOwnerRepos(owner);
-            btn.disabled = false;
-            btn.textContent = 'Analyze';
-            if (!repos) {
-              errorEl.textContent = 'Could not find GitHub user "' + owner + '".';
-              errorEl.style.display = 'block';
-              return;
-            }
-            renderOwnerRepos(owner, repos);
-            saveRecent(owner);
-            history.replaceState(null, '', '#' + owner);
+            await analyzeOwner(owner);
             return;
           }
-          errorEl.textContent = 'Invalid repository. Use "owner/repo" or a GitHub URL.';
-          errorEl.style.display = 'block';
+          showError('Invalid repository. Use "owner/repo" or a GitHub URL.');
           return;
         }
 
-        btn.disabled = true;
-        btn.textContent = 'Analyzing...';
-
-        const data = await fetchJsDelivrFiles(ownerRepo);
-        btn.disabled = false;
-        btn.textContent = 'Analyze';
-
-        if (data && data.error === 'too_large') {
-          var tooLargeOwner = ownerRepo.split('/')[0];
-          errorEl.textContent = 'Repository "' + ownerRepo + '"size is too large. Try another repository of ' + tooLargeOwner + '...';
-          errorEl.style.display = 'block';
-          var tooLargeRepos = await fetchOwnerRepos(tooLargeOwner);
-          if (tooLargeRepos) {
-            renderOwnerRepos(tooLargeOwner, tooLargeRepos);
-          }
-          return;
-        }
-
-        if (!data) {
-          errorEl.textContent = 'Could not fetch repository data. Check the repo name and try again.';
-          errorEl.style.display = 'block';
-          return;
-        }
-
-        const files = parseJsDelivrFiles(data);
-        const stats = computeTestStats(files);
-
-        const ratio = testRatio(stats.testFiles, stats.sourceFiles);
-        const cards = [
-          { label: 'Total files',       value: stats.total },
-          { label: 'Source files',      value: stats.sourceFiles },
-          { label: 'Test files',        value: stats.testFiles },
-          { label: 'Test ratio',        value: ratio + '%', alwaysShow: true },
-          { label: 'Test-related files',value: stats.testRelatedFiles },
-          { label: 'Mock files',        value: stats.mockFiles },
-          { label: 'E2E files',         value: stats.e2eFiles },
-          { label: 'Snapshot files',    value: stats.snapshotFiles },
-          { label: 'CI test files',     value: stats.ciTestFiles },
-          { label: 'Smoke files',       value: stats.smokeFiles },
-          { label: 'Fixture files',     value: stats.fixtureFiles },
-          { label: 'Benchmark files',   value: stats.benchmarkFiles },
-        ];
-
-        const grid = document.getElementById('stats-grid');
-        grid.innerHTML = cards.filter(function (c) {
-          return c.alwaysShow || c.value > 0;
-        }).map(function (c) {
-          return '<div class="stat-card"><div class="label">' + c.label + '</div><div class="value">' + c.value + '</div></div>';
-        }).join('');
-
-        var ownerPart = ownerRepo.split('/')[0];
-        var repoPart = ownerRepo.split('/')[1];
-        var ownerIcon = '<i class="devicon-' + ownerPart.toLowerCase() + '-plain colored" style="font-size:1.3rem;margin-right:6px;"></i>';
-        var ghLink = ' <a href="https://github.com/' + ownerRepo + '" target="_blank" rel="noopener" style="margin-left:8px;color:#1e293b;text-decoration:none;"><i class="devicon-github-original" style="font-size:1.1rem;"></i></a>';
-        document.getElementById('results-title-text').innerHTML = ownerIcon + '<a class="owner-link" href="#' + ownerPart + '">' + ownerPart + '</a> / ' + repoPart + ghLink;
-        resultsEl.style.display = 'block';
-
-        saveRecent(ownerRepo);
-        history.replaceState(null, '', '#' + ownerRepo);
+        await analyzeSingleRepo(ownerRepo);
       } finally {
         analyzing = false;
       }
     }
 
-    function renderOwnerRepos(owner, repos) {
-      var resultsEl = document.getElementById('results');
-      var grid = document.getElementById('stats-grid');
-      var ownerIcon = '<i class="devicon-' + owner.toLowerCase() + '-plain colored" style="font-size:1.3rem;margin-right:6px;"></i>';
-      document.getElementById('results-title-text').innerHTML = ownerIcon + owner;
+    var ownerTableColumns = [
+      { label: 'Repository', key: 'name', type: 'string' },
+      { label: 'Language', shortLabel: 'Lang.', key: 'language', type: 'string' },
+      { label: 'Stars', key: 'stars', type: 'number' },
+      { label: 'Source files', key: 'source', type: 'number' },
+      { label: 'Test files', key: 'test', type: 'number' },
+      { label: 'Test ratio', key: 'ratio', type: 'number' },
+    ];
 
-      var repoIndices = [];
-      for (var i = 0; i < repos.length; i++) {
-        if (!repos[i].fork) repoIndices.push(i);
-      }
-
-      var columns = [
-        { label: 'Repository', key: 'name', type: 'string' },
-        { label: 'Language', key: 'language', type: 'string' },
-        { label: 'Stars', key: 'stars', type: 'number' },
-        { label: 'Total files', key: 'total', type: 'number' },
-        { label: 'Source files', key: 'source', type: 'number' },
-        { label: 'Test files', key: 'test', type: 'number' },
-        { label: 'Test ratio', key: 'ratio', type: 'number' },
-      ];
-
+    function buildOwnerTableHTML(repos, repoIndices) {
       var html = '<div class="owner-table-wrap"><table class="owner-table" id="owner-table">'
         + '<thead><tr>';
-      for (var ci = 0; ci < columns.length; ci++) {
-        html += '<th class="sortable-th" data-col="' + ci + '">' + columns[ci].label + ' <span class="sort-arrow"></span></th>';
+      for (var ci = 0; ci < ownerTableColumns.length; ci++) {
+        var words = ownerTableColumns[ci].label.split(' ');
+        var labelHtml = '<span class="th-label th-full">' + words.map(function(w) { return '<span>' + w + '</span>'; }).join(' ') + '</span>';
+        if (ownerTableColumns[ci].shortLabel) {
+          labelHtml += '<span class="th-label th-short">' + ownerTableColumns[ci].shortLabel + '</span>';
+        }
+        var thClass = 'sortable-th' + (ownerTableColumns[ci].shortLabel ? ' has-short-label' : '');
+        html += '<th class="' + thClass + '" data-col="' + ci + '">' + labelHtml + ' <span class="sort-arrow"></span></th>';
       }
       html += '<th></th>';
       html += '</tr></thead><tbody>';
@@ -689,9 +731,8 @@
         var repo = repos[repoIndices[j]];
         html += '<tr class="owner-table-row" data-repo="' + repo.full_name + '" id="repo-row-' + repoIndices[j] + '">'
           + '<td class="repo-name-cell">' + repo.name + '</td>'
-          + '<td>' + (repo.language ? '<i class="' + getDeviconClass(repo.language) + ' colored lang-icon"></i> ' + repo.language : '') + '</td>'
+          + '<td>' + (repo.language ? '<i class="' + getDeviconClass(repo.language) + ' colored lang-icon"></i> <span class="lang-text">' + repo.language + '</span>' : '') + '</td>'
           + '<td data-sort-value="' + repo.stargazers_count + '">' + repo.stargazers_count.toLocaleString() + '</td>'
-          + '<td id="repo-total-' + repoIndices[j] + '" data-sort-value="">-</td>'
           + '<td id="repo-source-' + repoIndices[j] + '" data-sort-value="">-</td>'
           + '<td id="repo-test-' + repoIndices[j] + '" data-sort-value="">-</td>'
           + '<td id="repo-ratio-' + repoIndices[j] + '" data-sort-value="">-</td>'
@@ -699,17 +740,16 @@
           + '</tr>';
       }
       html += '</tbody></table></div>';
+      return html;
+    }
 
-      grid.innerHTML = html;
-      resultsEl.style.display = 'block';
-
-      // Sortable columns
+    function setupTableSorting(grid) {
       var currentSort = { col: -1, asc: true };
       function sortTable(colIdx, asc) {
         var table = document.getElementById('owner-table');
         var tbody = table.querySelector('tbody');
         var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
-        var colType = columns[colIdx].type;
+        var colType = ownerTableColumns[colIdx].type;
         rows.sort(function (a, b) {
           var cellA = a.children[colIdx];
           var cellB = b.children[colIdx];
@@ -744,43 +784,77 @@
           sortTable(currentSort.col, currentSort.asc);
         });
       });
+    }
 
+    function setupTableRowClicks(grid) {
       grid.querySelectorAll('.owner-table-row').forEach(function (row) {
         row.addEventListener('click', function () {
           document.getElementById('repo-input').value = this.getAttribute('data-repo');
           analyze();
         });
       });
+    }
 
-      // Fetch file stats for each repo
+    function fixLangIcons(grid) {
+      setTimeout(function () {
+        grid.querySelectorAll('.lang-icon').forEach(function (icon) {
+          if (icon.offsetWidth <= 1) {
+            icon.style.display = 'none';
+            var text = icon.nextElementSibling;
+            if (text && text.classList.contains('lang-text')) {
+              text.classList.add('no-icon');
+            }
+          }
+        });
+      }, 500);
+    }
+
+    function fetchOwnerRepoStats(repos, repoIndices) {
       for (var k = 0; k < repoIndices.length; k++) {
         (function (repo, index) {
-          fetchJsDelivrFiles(repo.full_name).then(function (data) {
-            var totalEl = document.getElementById('repo-total-' + index);
-            if (!totalEl) return;
-            if (!data || data.error) {
+          ensureAnalyzeRepo(repo.full_name).then(function (response) {
+            var sourceEl = document.getElementById('repo-source-' + index);
+            if (!sourceEl) return;
+            if (response.error) {
               var row = document.getElementById('repo-row-' + index);
               if (row) row.remove();
               return;
             }
-            var files = parseJsDelivrFiles(data);
-            var stats = computeTestStats(files);
-            var repoRatio = testRatio(stats.testFiles, stats.sourceFiles);
-            totalEl.textContent = stats.total;
-            totalEl.setAttribute('data-sort-value', stats.total);
-            var sourceEl = document.getElementById('repo-source-' + index);
-            sourceEl.textContent = stats.sourceFiles;
+            var result = response.result;
+            var stats = result.stats;
+            sourceEl.textContent = stats.sourceFiles.toLocaleString();
             sourceEl.setAttribute('data-sort-value', stats.sourceFiles);
             var testEl = document.getElementById('repo-test-' + index);
-            testEl.textContent = stats.testFiles;
+            testEl.textContent = stats.testFiles.toLocaleString();
             testEl.setAttribute('data-sort-value', stats.testFiles);
             var ratioEl = document.getElementById('repo-ratio-' + index);
-            ratioEl.textContent = repoRatio + '%';
-            ratioEl.setAttribute('data-sort-value', repoRatio);
+            ratioEl.textContent = stats.testRatio + '%';
+            ratioEl.setAttribute('data-sort-value', stats.testRatio);
             document.getElementById('repo-status-' + index).textContent = '\u2705';
           });
         })(repos[repoIndices[k]], repoIndices[k]);
       }
+    }
+
+    function renderOwnerRepos(owner, repos) {
+      var resultsEl = document.getElementById('results');
+      var grid = document.getElementById('stats-grid');
+      var ownerIcon = '<i class="devicon-' + owner.toLowerCase() + '-plain colored" style="font-size:1.3rem;margin-right:6px;"></i>';
+      var ownerGhLink = ' <a href="https://github.com/' + owner + '" target="_blank" rel="noopener" style="margin-left:8px;color:#1e293b;text-decoration:none;"><i class="devicon-github-original" style="font-size:1.1rem;"></i></a>';
+      document.getElementById('results-title-text').innerHTML = ownerIcon + owner + ownerGhLink;
+
+      var repoIndices = [];
+      for (var i = 0; i < repos.length; i++) {
+        if (!repos[i].fork) repoIndices.push(i);
+      }
+
+      grid.innerHTML = buildOwnerTableHTML(repos, repoIndices);
+      resultsEl.style.display = 'block';
+
+      fixLangIcons(grid);
+      setupTableSorting(grid);
+      setupTableRowClicks(grid);
+      fetchOwnerRepoStats(repos, repoIndices);
     }
 
     // Recent searches
@@ -830,6 +904,8 @@
 
     document.getElementById('recent-clear').addEventListener('click', function () {
       localStorage.removeItem('testminer_recent');
+      localStorage.removeItem('testminer_analyze_cache');
+      analyzeRepoCache = {};
       renderRecent();
     });
 
@@ -931,6 +1007,39 @@
       return text.substring(0, idx) + '<mark>' + text.substring(idx, idx + query.length) + '</mark>' + text.substring(idx + query.length);
     }
 
+    function buildOwnerItemHTML(r, q, index) {
+      var ownerName = highlightMatch(r.name, q);
+      var ownerIconClass = 'devicon-' + r.name.toLowerCase() + '-plain';
+      return '<div class="autocomplete-item" data-index="' + index + '"><i class="' + ownerIconClass + ' colored lang-icon owner-devicon"></i><span>' + ownerName + '<span class="match-detail">owner</span></span></div>';
+    }
+
+    function buildRepoItemHTML(r, q, index) {
+      var detail = '';
+      if (r.repo.language) {
+        detail += '<span class="match-detail">' + r.repo.language + '</span>';
+      }
+      if (r.matchedOn.indexOf('topics') >= 0) {
+        var matched = r.repo.topics.split(';').filter(function (t) { return t.toLowerCase().includes(q); });
+        if (matched.length > 0) {
+          detail += '<span class="match-detail">topics: ' + matched.map(function (t) { return highlightMatch(t, q); }).join(', ') + '</span>';
+        }
+      }
+      var name = r.matchedOn.indexOf('name') >= 0 ? highlightMatch(r.repo.name, q) : r.repo.name;
+      var iconClass = getDeviconClass(r.repo.language);
+      var icon = iconClass ? '<i class="' + iconClass + ' colored lang-icon"></i>' : '<i class="devicon-github-original lang-icon"></i>';
+      return '<div class="autocomplete-item" data-index="' + index + '">' + icon + '<span>' + name + detail + '</span></div>';
+    }
+
+    function fixOwnerDevicons() {
+      var ownerIcons = acList.querySelectorAll('.owner-devicon');
+      for (var j = 0; j < ownerIcons.length; j++) {
+        var content = window.getComputedStyle(ownerIcons[j], '::before').getPropertyValue('content');
+        if (!content || content === 'none' || content === 'normal') {
+          ownerIcons[j].className = 'devicon-github-original lang-icon';
+        }
+      }
+    }
+
     function renderAutocomplete(results) {
       if (results.length === 0) {
         acList.style.display = 'none';
@@ -940,39 +1049,12 @@
       var html = '';
       for (var i = 0; i < results.length; i++) {
         var r = results[i];
-        if (r.type === 'owner') {
-          var ownerName = highlightMatch(r.name, q);
-          var ownerIconClass = 'devicon-' + r.name.toLowerCase() + '-plain';
-          html += '<div class="autocomplete-item" data-index="' + i + '"><i class="' + ownerIconClass + ' colored lang-icon owner-devicon"></i><span>' + ownerName + '<span class="match-detail">owner</span></span></div>';
-        } else {
-          var detail = '';
-          if (r.repo.language) {
-            detail += '<span class="match-detail">' + r.repo.language + '</span>';
-          }
-          if (r.matchedOn.indexOf('topics') >= 0) {
-            var matched = r.repo.topics.split(';').filter(function (t) { return t.toLowerCase().includes(q); });
-            if (matched.length > 0) {
-              detail += '<span class="match-detail">topics: ' + matched.map(function (t) { return highlightMatch(t, q); }).join(', ') + '</span>';
-            }
-          }
-          var name = r.matchedOn.indexOf('name') >= 0 ? highlightMatch(r.repo.name, q) : r.repo.name;
-          var iconClass = getDeviconClass(r.repo.language);
-          var icon = iconClass ? '<i class="' + iconClass + ' colored lang-icon"></i>' : '<i class="devicon-github-original lang-icon"></i>';
-          html += '<div class="autocomplete-item" data-index="' + i + '">' + icon + '<span>' + name + detail + '</span></div>';
-        }
+        html += r.type === 'owner' ? buildOwnerItemHTML(r, q, i) : buildRepoItemHTML(r, q, i);
       }
       acList.innerHTML = html;
       acList.style.display = 'block';
       activeIndex = -1;
-
-      // Fallback: replace owner devicons that didn't render with github icon
-      var ownerIcons = acList.querySelectorAll('.owner-devicon');
-      for (var j = 0; j < ownerIcons.length; j++) {
-        var content = window.getComputedStyle(ownerIcons[j], '::before').getPropertyValue('content');
-        if (!content || content === 'none' || content === 'normal') {
-          ownerIcons[j].className = 'devicon-github-original lang-icon';
-        }
-      }
+      fixOwnerDevicons();
     }
 
     repoInput.addEventListener('input', function () {

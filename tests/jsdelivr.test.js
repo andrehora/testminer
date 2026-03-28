@@ -49,11 +49,12 @@ describe('computeTestStats', function () {
     extensionSet = new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml', '.sh', '.snap']);
   });
 
-  it('should return zeros for an empty file list', function () {
-    const result = computeTestStats([]);
+  it('should return zeros for an empty classified object', function () {
+    const result = computeTestStats({});
     expect(result.total).toEqual(0);
     expect(result.sourceFiles).toEqual(0);
     expect(result.testFiles).toEqual(0);
+    expect(result.testRatio).toEqual(0);
     expect(result.mockFiles).toEqual(0);
     expect(result.e2eFiles).toEqual(0);
     expect(result.snapshotFiles).toEqual(0);
@@ -65,58 +66,64 @@ describe('computeTestStats', function () {
   });
 
   it('should return correct total count', function () {
-    const result = computeTestStats(['src/app.js', 'src/utils.js', 'tests/test_app.js']);
+    const result = computeTestStats({ source: ['src/app.js', 'src/utils.js'], test: ['tests/test_app.js'] });
     expect(result.total).toEqual(3);
   });
 
   it('should return correct test file count', function () {
-    const result = computeTestStats(['src/app.js', 'src/utils.js', 'tests/test_app.js']);
+    const result = computeTestStats({ source: ['src/app.js', 'src/utils.js'], test: ['tests/test_app.js'] });
     expect(result.testFiles).toEqual(1);
   });
 
+  it('should return correct test ratio', function () {
+    const result = computeTestStats({ source: ['src/app.js', 'src/utils.js'], test: ['tests/test_app.js'] });
+    expect(result.testRatio).toEqual(50);
+  });
+
   it('should return correct mock file count', function () {
-    const result = computeTestStats(['src/app.js', 'tests/mock_db.js', 'tests/fake_api.js']);
+    const result = computeTestStats({ source: ['src/app.js'], mock: ['tests/mock_db.js', 'tests/fake_api.js'] });
     expect(result.mockFiles).toEqual(2);
   });
 
   it('should return correct e2e file count', function () {
-    const result = computeTestStats(['src/app.js', 'e2e/login.js', 'tests/app.e2e.js']);
+    const result = computeTestStats({ source: ['src/app.js'], e2e: ['e2e/login.js', 'tests/app.e2e.js'] });
     expect(result.e2eFiles).toEqual(2);
   });
 
   it('should return correct snapshot file count', function () {
-    const result = computeTestStats(['src/app.js', 'tests/__snapshots__/app.snap', 'tests/output.snap']);
+    const result = computeTestStats({ source: ['src/app.js'], snapshot: ['tests/__snapshots__/app.snap', 'tests/output.snap'] });
     expect(result.snapshotFiles).toEqual(2);
   });
 
   it('should return correct ci test file count', function () {
-    const result = computeTestStats(['src/app.js', '.github/workflows/test.yml', '.circleci/test_config.yml']);
+    const result = computeTestStats({ source: ['src/app.js'], 'ci-test': ['.github/workflows/test.yml', '.circleci/test_config.yml'] });
     expect(result.ciTestFiles).toEqual(2);
   });
 
   it('should return correct smoke file count', function () {
-    const result = computeTestStats(['src/app.js', 'smoke/login.js', 'tests/smoke_test.js']);
+    const result = computeTestStats({ source: ['src/app.js'], smoke: ['smoke/login.js', 'tests/smoke_test.js'] });
     expect(result.smokeFiles).toEqual(2);
   });
 
   it('should return correct fixture file count', function () {
-    const result = computeTestStats(['src/app.js', 'tests/fixtures/user.json', 'fixture_data.js']);
+    const result = computeTestStats({ source: ['src/app.js'], fixture: ['tests/fixtures/user.json', 'fixture_data.js'] });
     expect(result.fixtureFiles).toEqual(2);
   });
 
   it('should return correct benchmark file count', function () {
-    const result = computeTestStats(['src/app.js', 'benchmarks/sort.js', 'benchmark_sort.js']);
+    const result = computeTestStats({ source: ['src/app.js'], benchmark: ['benchmarks/sort.js', 'benchmark_sort.js'] });
     expect(result.benchmarkFiles).toEqual(2);
   });
 
   it('should return correct test related file count', function () {
-    const result = computeTestStats(['src/app.js', 'tests/utils.js', 'spec/helpers.js']);
+    const result = computeTestStats({ source: ['src/app.js'], 'test-related': ['tests/utils.js', 'spec/helpers.js'] });
     expect(result.testRelatedFiles).toEqual(2);
   });
 
   it('should return correct stats from real jsdelivr data', function () {
     const files = parseJsDelivrFiles(jsdelivrGitevoData);
-    const result = computeTestStats(files);
+    const classified = classifyFiles(files);
+    const result = computeTestStats(classified);
     expect(result.total).toEqual(8);
     expect(result.testFiles).toEqual(1);
     expect(result.mockFiles).toEqual(0);
@@ -126,7 +133,51 @@ describe('computeTestStats', function () {
     expect(result.smokeFiles).toEqual(0);
     expect(result.fixtureFiles).toEqual(0);
     expect(result.benchmarkFiles).toEqual(0);
-    expect(result.testRelatedFiles).toEqual(1);
+    expect(result.testRelatedFiles).toEqual(0);
+  });
+
+});
+
+describe('analyzeRepo', function () {
+
+  beforeAll(function () {
+    extensionSet = new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml', '.snap']);
+  });
+
+  beforeEach(function () {
+    analyzeRepoCache = {};
+  });
+
+  it('should return an object with repo, stats and files', function () {
+    var result = analyzeRepo('owner/repo', ['src/app.js', 'tests/test_app.js']);
+    expect(result.repo).toEqual('owner/repo');
+    expect(result.stats).toBeDefined();
+    expect(result.files).toBeDefined();
+  });
+
+  it('should have correct stats', function () {
+    var result = analyzeRepo('owner/repo', ['src/app.js', 'tests/test_app.js']);
+    expect(result.stats.total).toEqual(2);
+    expect(result.stats.sourceFiles).toEqual(1);
+    expect(result.stats.testFiles).toEqual(1);
+  });
+
+  it('should have correct classified files', function () {
+    var result = analyzeRepo('owner/repo', ['src/app.js', 'tests/test_app.js']);
+    expect(result.files.source).toEqual(['src/app.js']);
+    expect(result.files.test).toEqual(['tests/test_app.js']);
+  });
+
+  it('should handle empty input', function () {
+    var result = analyzeRepo('owner/empty', []);
+    expect(result.stats.total).toEqual(0);
+    expect(result.files).toEqual({});
+  });
+
+  it('should return cached result on second call', function () {
+    var first = analyzeRepo('owner/repo', ['src/app.js', 'tests/test_app.js']);
+    var second = analyzeRepo('owner/repo', []);
+    expect(second).toBe(first);
   });
 
 });
@@ -586,14 +637,14 @@ describe('classifyFile', function () {
     expect(classifyFile('spec/helpers.js')).toEqual('test-related');
   });
 
-  it('should return "not-test" for regular source files', function () {
-    expect(classifyFile('src/app.js')).toEqual('not-test');
-    expect(classifyFile('lib/utils.py')).toEqual('not-test');
+  it('should return "source" for regular source files', function () {
+    expect(classifyFile('src/app.js')).toEqual('source');
+    expect(classifyFile('lib/utils.py')).toEqual('source');
   });
 
-  it('should return "not-test" for files without extensions', function () {
-    expect(classifyFile('Makefile')).toEqual('not-test');
-    expect(classifyFile('LICENSE')).toEqual('not-test');
+  it('should return "other" for files without extensions', function () {
+    expect(classifyFile('Makefile')).toEqual('other');
+    expect(classifyFile('LICENSE')).toEqual('other');
   });
 
   it('should prioritize benchmark over test', function () {
@@ -620,15 +671,14 @@ describe('classifyFiles', function () {
     extensionSet = new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml', '.snap']);
   });
 
-  it('should return an empty array for empty input', function () {
-    expect(classifyFiles([])).toEqual([]);
+  it('should return an empty object for empty input', function () {
+    expect(classifyFiles([])).toEqual({});
   });
 
-  it('should return classified objects with filepath and classification', function () {
+  it('should group filepaths by classification', function () {
     var result = classifyFiles(['src/app.js', 'tests/test_app.js']);
-    expect(result.length).toEqual(2);
-    expect(result[0]).toEqual({ filepath: 'src/app.js', classification: 'not-test' });
-    expect(result[1]).toEqual({ filepath: 'tests/test_app.js', classification: 'test' });
+    expect(result.source).toEqual(['src/app.js']);
+    expect(result.test).toEqual(['tests/test_app.js']);
   });
 
   it('should classify multiple file types correctly', function () {
@@ -645,33 +695,28 @@ describe('classifyFiles', function () {
       'tests/utils.js'
     ];
     var result = classifyFiles(filepaths);
-    expect(result[0].classification).toEqual('not-test');
-    expect(result[1].classification).toEqual('test');
-    expect(result[2].classification).toEqual('mock');
-    expect(result[3].classification).toEqual('e2e');
-    expect(result[4].classification).toEqual('benchmark');
-    expect(result[5].classification).toEqual('fixture');
-    expect(result[6].classification).toEqual('smoke');
-    expect(result[7].classification).toEqual('ci-test');
-    expect(result[8].classification).toEqual('snapshot');
-    expect(result[9].classification).toEqual('test-related');
+    expect(result.source).toEqual(['src/app.js']);
+    expect(result.test).toEqual(['tests/test_app.js']);
+    expect(result.mock).toEqual(['tests/mock_db.js']);
+    expect(result.e2e).toEqual(['e2e/login.js']);
+    expect(result.benchmark).toEqual(['benchmarks/sort.js']);
+    expect(result.fixture).toEqual(['tests/fixtures/user.json']);
+    expect(result.smoke).toEqual(['smoke/login.js']);
+    expect(result['ci-test']).toEqual(['.github/workflows/test.yml']);
+    expect(result.snapshot).toEqual(['tests/__snapshots__/app.snap']);
+    expect(result['test-related']).toEqual(['tests/utils.js']);
   });
 
-  it('should preserve original filepaths in the result', function () {
-    var filepaths = ['src/app.js', 'tests/test_app.js'];
-    var result = classifyFiles(filepaths);
-    expect(result[0].filepath).toEqual('src/app.js');
-    expect(result[1].filepath).toEqual('tests/test_app.js');
+  it('should group multiple files under the same classification', function () {
+    var result = classifyFiles(['src/app.js', 'src/utils.js']);
+    expect(result.source).toEqual(['src/app.js', 'src/utils.js']);
   });
 
   it('should classify real jsdelivr data', function () {
     var filepaths = parseJsDelivrFiles(jsdelivrGitevoData);
     var result = classifyFiles(filepaths);
-    expect(result.length).toEqual(8);
-    var testFile = result.find(function (r) { return r.filepath === 'tests/test_main.py'; });
-    expect(testFile.classification).toEqual('test');
-    var sourceFile = result.find(function (r) { return r.filepath === 'gitevo/main.py'; });
-    expect(sourceFile.classification).toEqual('not-test');
+    expect(result.test).toContain('tests/test_main.py');
+    expect(result.source).toContain('gitevo/main.py');
   });
 
 });

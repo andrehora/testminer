@@ -1,24 +1,47 @@
-function parseGitHubOwnerRepo(url) {
-  let match = url.match(/(?:https?:\/\/)?github\.com\/([^/]+)\/([^/]+)/);
-  if (!match) {
-    match = url.match(/^([^/]+)\/([^/]+)$/);
+var ownerReposCache = {};
+var analyzeRepoCache = loadAnalyzeRepoCache();
+var extensionSet = null;
+
+function ensureAnalyzeRepo(repoKey) {
+  if (analyzeRepoCache[repoKey]) {
+    return Promise.resolve({ result: analyzeRepoCache[repoKey] });
   }
-  if (!match) {
-    return null;
-  }
-  const repo = match[2].replace(/\.git$/, '');
-  return match[1] + '/' + repo;
+  return fetchJsDelivrFiles(repoKey).then(function (data) {
+    if (!data) {
+      return { error: 'not_found' };
+    }
+    if (data.error) {
+      return { error: data.error };
+    }
+    var files = parseJsDelivrFiles(data);
+    return { result: analyzeRepo(repoKey, files) };
+  });
 }
 
-function parseGitHubOwner(url) {
-  let match = url.match(/(?:https?:\/\/)?github\.com\/([^/]+)/);
-  if (!match) {
-    match = url.match(/^([^/]+)$/);
+function fetchOwnerRepos(owner) {
+  var key = owner.toLowerCase();
+  if (ownerReposCache[key]) {
+    return Promise.resolve(ownerReposCache[key]);
   }
-  if (!match) {
-    return null;
-  }
-  return match[1];
+  var url = 'https://api.github.com/users/' + owner + '/repos?sort=pushed&per_page=30';
+  return fetch(url, {
+    headers: { 'Accept': 'application/vnd.github.mercy-preview+json' }
+  })
+    .then(function (response) {
+      if (!response.ok) {
+        return null;
+      }
+      return response.json();
+    })
+    .then(function (data) {
+      if (data) {
+        ownerReposCache[key] = data;
+      }
+      return data;
+    })
+    .catch(function () {
+      return null;
+    });
 }
 
 function fetchJsDelivrFiles(ownerRepo) {
@@ -44,24 +67,6 @@ function fetchJsDelivrFiles(ownerRepo) {
     });
 }
 
-function parseJsDelivrFiles(data) {
-  var filepaths = [];
-  collectFilePaths(data.files, '', filepaths);
-  return filepaths;
-}
-
-function collectFilePaths(files, prefix, result) {
-  for (var i = 0; i < files.length; i++) {
-    var entry = files[i];
-    var path = prefix + entry.name;
-    if (entry.type === 'file') {
-      result.push(path);
-    } else if (entry.type === 'directory') {
-      collectFilePaths(entry.files, path + '/', result);
-    }
-  }
-}
-
 function fetchSBOM(ownerRepo) {
   const url = 'https://api.github.com/repos/' + ownerRepo + '/dependency-graph/sbom';
   return fetch(url)
@@ -71,6 +76,64 @@ function fetchSBOM(ownerRepo) {
       }
       return response.json();
     });
+}
+
+function loadExtensions() {
+  if (extensionSet) return Promise.resolve(extensionSet);
+  return fetch('data/extensions.csv')
+    .then(function (r) { return r.text(); })
+    .then(function (text) {
+      extensionSet = new Set();
+      var lines = text.trim().split('\n');
+      for (var i = 1; i < lines.length; i++) {
+        var ext = lines[i].trim();
+        if (ext) {
+          extensionSet.add(ext.toLowerCase());
+        }
+      }
+      return extensionSet;
+    });
+}
+
+function parseGitHubOwnerRepo(url) {
+  let match = url.match(/(?:https?:\/\/)?github\.com\/([^/]+)\/([^/]+)/);
+  if (!match) {
+    match = url.match(/^([^/]+)\/([^/]+)$/);
+  }
+  if (!match) {
+    return null;
+  }
+  const repo = match[2].replace(/\.git$/, '');
+  return match[1] + '/' + repo;
+}
+
+function parseGitHubOwner(url) {
+  let match = url.match(/(?:https?:\/\/)?github\.com\/([^/]+)/);
+  if (!match) {
+    match = url.match(/^([^/]+)$/);
+  }
+  if (!match) {
+    return null;
+  }
+  return match[1];
+}
+
+function analyzeRepo(repoKey, filepaths) {
+  if (analyzeRepoCache[repoKey]) {
+    return analyzeRepoCache[repoKey];
+  }
+  var classified = classifyFiles(filepaths);
+  var stats = computeTestStats(classified);
+  var result = { repo: repoKey, stats: stats, files: classified };
+  analyzeRepoCache[repoKey] = result;
+  saveAnalyzeRepoCache();
+  return result;
+}
+
+function parseJsDelivrFiles(data) {
+  var filepaths = [];
+  collectFilePaths(data.files, '', filepaths);
+  return filepaths;
 }
 
 function parseSBOM(data) {
@@ -86,31 +149,87 @@ function parseSBOM(data) {
   return packages;
 }
 
-function testRatio(testFiles, sourceFiles) {
-  if (sourceFiles === 0) return 0;
-  return Math.round((testFiles / sourceFiles) * 100);
+function classifyFiles(filepaths) {
+  var result = {};
+  filepaths.forEach(function (filepath) {
+    var classification = classifyFile(filepath);
+    if (!result[classification]) {
+      result[classification] = [];
+    }
+    result[classification].push(filepath);
+  });
+  return result;
 }
 
-function computeTestStats(filepaths) {
-  var total = filepaths.length;
-  var sourceCount = filepaths.filter(isSourceFile).length;
-  var testCount = filepaths.filter(isTestFile).length;
-  var mockCount = filepaths.filter(isMockFile).length;
-  var e2eCount = filepaths.filter(isE2EFile).length;
-  var snapshotCount = filepaths.filter(isSnapshotFile).length;
-  var ciTestCount = filepaths.filter(isCITestFile).length;
-  var smokeCount = filepaths.filter(isSmokeFile).length;
-  var fixtureCount = filepaths.filter(isFixtureFile).length;
-  var benchmarkCount = filepaths.filter(isBenchmarkFile).length;
-  var testRelatedCount = filepaths.filter(isTestRelatedFile).length;
-  return { total: total, sourceFiles: sourceCount, testFiles: testCount, mockFiles: mockCount, e2eFiles: e2eCount, snapshotFiles: snapshotCount, ciTestFiles: ciTestCount, smokeFiles: smokeCount, fixtureFiles: fixtureCount, benchmarkFiles: benchmarkCount, testRelatedFiles: testRelatedCount };
+function computeTestStats(classified) {
+  var total = 0;
+  Object.keys(classified).forEach(function (key) {
+    total += classified[key].length;
+  });
+  var sourceCount = (classified['source'] || []).length;
+  var testCount = (classified['test'] || []).length;
+  return {
+    total: total,
+    sourceFiles: sourceCount,
+    testFiles: testCount,
+    testRatio: testRatio(testCount, sourceCount),
+    mockFiles: (classified['mock'] || []).length,
+    e2eFiles: (classified['e2e'] || []).length,
+    snapshotFiles: (classified['snapshot'] || []).length,
+    ciTestFiles: (classified['ci-test'] || []).length,
+    smokeFiles: (classified['smoke'] || []).length,
+    fixtureFiles: (classified['fixture'] || []).length,
+    benchmarkFiles: (classified['benchmark'] || []).length,
+    testRelatedFiles: (classified['test-related'] || []).length
+  };
 }
 
-function containsTest(str) {
-  var lower = str.toLowerCase();
-  var excludePatterns = ['latest', 'contest', 'attestation'];
-  if (excludePatterns.some(function (pattern) { return lower.includes(pattern); })) return false;
-  return lower.includes('test');
+function classifyFile(filepath) {
+  if (isBenchmarkFile(filepath)) return 'benchmark';
+  if (isSmokeFile(filepath)) return 'smoke';
+  if (isCITestFile(filepath)) return 'ci-test';
+  if (isFixtureFile(filepath)) return 'fixture';
+  if (isE2EFile(filepath)) return 'e2e';
+  if (isMockFile(filepath)) return 'mock';
+  if (isSnapshotFile(filepath)) return 'snapshot';
+  if (isTestFile(filepath)) return 'test';
+  if (isTestRelatedFile(filepath)) return 'test-related';
+  if (isSourceFile(filepath)) return 'source';
+  return 'other';
+}
+
+function collectFilePaths(files, prefix, result) {
+  for (var i = 0; i < files.length; i++) {
+    var entry = files[i];
+    var path = prefix + entry.name;
+    if (entry.type === 'file') {
+      result.push(path);
+    } else if (entry.type === 'directory') {
+      collectFilePaths(entry.files, path + '/', result);
+    }
+  }
+}
+
+function parseEcosystemFromPurl(pkg) {
+  if (!pkg.externalRefs) {
+    return null;
+  }
+  for (var i = 0; i < pkg.externalRefs.length; i++) {
+    var ref = pkg.externalRefs[i];
+    if (ref.referenceType === 'purl') {
+      var match = ref.referenceLocator.match(/^pkg:([^/]+)\//);
+      if (match) {
+        return match[1];
+      }
+    }
+  }
+  return null;
+}
+
+function isTestFile(filepath) {
+  if (!isSourceFile(filepath)) return false;
+  var filename = filepath.split('/').pop();
+  return containsTest(filename) || filename.toLowerCase().includes('spec.');
 }
 
 function isTestRelatedFile(filepath) {
@@ -119,33 +238,6 @@ function isTestRelatedFile(filepath) {
   return parts.some(function (dir) {
     return containsTest(dir) || dir.toLowerCase() === 'spec';
   });
-}
-
-function isSmokeFile(filepath) {
-  return filepath.toLowerCase().includes('smoke');
-}
-
-function isFixtureFile(filepath) {
-  return filepath.toLowerCase().includes('fixture');
-}
-
-function isBenchmarkFile(filepath) {
-  return filepath.toLowerCase().includes('benchmark');
-}
-
-function isCITestFile(filepath) {
-  var parts = filepath.split('/');
-  var filename = parts.pop();
-  var ciPatterns = ['.github', '.travis', '.circleci'];
-  var inCIFolder = parts.some(function (dir) {
-    return ciPatterns.some(function (pattern) {
-      return dir.toLowerCase() === pattern;
-    });
-  });
-  if (!inCIFolder) {
-    return false;
-  }
-  return containsTest(filename);
 }
 
 function isMockFile(filepath) {
@@ -176,57 +268,31 @@ function isSnapshotFile(filepath) {
   return inSnapshotFolder || filename.toLowerCase().endsWith('.snap');
 }
 
-function isTestFile(filepath) {
-  if (!isSourceFile(filepath)) return false;
-  var filename = filepath.split('/').pop();
-  return containsTest(filename) || filename.toLowerCase().includes('spec.');
+function isSmokeFile(filepath) {
+  return filepath.toLowerCase().includes('smoke');
 }
 
-var ownerReposCache = {};
+function isFixtureFile(filepath) {
+  return filepath.toLowerCase().includes('fixture');
+}
 
-function fetchOwnerRepos(owner) {
-  var key = owner.toLowerCase();
-  if (ownerReposCache[key]) {
-    return Promise.resolve(ownerReposCache[key]);
+function isBenchmarkFile(filepath) {
+  return filepath.toLowerCase().includes('benchmark');
+}
+
+function isCITestFile(filepath) {
+  var parts = filepath.split('/');
+  var filename = parts.pop();
+  var ciPatterns = ['.github', '.travis', '.circleci'];
+  var inCIFolder = parts.some(function (dir) {
+    return ciPatterns.some(function (pattern) {
+      return dir.toLowerCase() === pattern;
+    });
+  });
+  if (!inCIFolder) {
+    return false;
   }
-  var url = 'https://api.github.com/users/' + owner + '/repos?sort=pushed&per_page=30';
-  return fetch(url, {
-    headers: { 'Accept': 'application/vnd.github.mercy-preview+json' }
-  })
-    .then(function (response) {
-      if (!response.ok) {
-        return null;
-      }
-      return response.json();
-    })
-    .then(function (data) {
-      if (data) {
-        ownerReposCache[key] = data;
-      }
-      return data;
-    })
-    .catch(function () {
-      return null;
-    });
-}
-
-var extensionSet = null;
-
-function loadExtensions() {
-  if (extensionSet) return Promise.resolve(extensionSet);
-  return fetch('data/extensions.csv')
-    .then(function (r) { return r.text(); })
-    .then(function (text) {
-      extensionSet = new Set();
-      var lines = text.trim().split('\n');
-      for (var i = 1; i < lines.length; i++) {
-        var ext = lines[i].trim();
-        if (ext) {
-          extensionSet.add(ext.toLowerCase());
-        }
-      }
-      return extensionSet;
-    });
+  return containsTest(filename);
 }
 
 function isSourceFile(filepath) {
@@ -237,37 +303,33 @@ function isSourceFile(filepath) {
   return extensionSet ? extensionSet.has(ext) : false;
 }
 
-function classifyFiles(filepaths) {
-  return filepaths.map(function (filepath) {
-    return { filepath: filepath, classification: classifyFile(filepath) };
-  });
+function containsTest(str) {
+  var lower = str.toLowerCase();
+  var excludePatterns = ['latest', 'contest', 'attestation'];
+  if (excludePatterns.some(function (pattern) { return lower.includes(pattern); })) return false;
+  return lower.includes('test');
 }
 
-function classifyFile(filepath) {
-  if (isBenchmarkFile(filepath)) return 'benchmark';
-  if (isFixtureFile(filepath)) return 'fixture';
-  if (isSmokeFile(filepath)) return 'smoke';
-  if (isCITestFile(filepath)) return 'ci-test';
-  if (isSnapshotFile(filepath)) return 'snapshot';
-  if (isE2EFile(filepath)) return 'e2e';
-  if (isMockFile(filepath)) return 'mock';
-  if (isTestFile(filepath)) return 'test';
-  if (isTestRelatedFile(filepath)) return 'test-related';
-  return 'not-test';
+function testRatio(testFiles, sourceFiles) {
+  if (sourceFiles === 0) return 0;
+  return Math.round((testFiles / sourceFiles) * 100);
 }
 
-function parseEcosystemFromPurl(pkg) {
-  if (!pkg.externalRefs) {
-    return null;
-  }
-  for (var i = 0; i < pkg.externalRefs.length; i++) {
-    var ref = pkg.externalRefs[i];
-    if (ref.referenceType === 'purl') {
-      var match = ref.referenceLocator.match(/^pkg:([^/]+)\//);
-      if (match) {
-        return match[1];
+function loadAnalyzeRepoCache() {
+  try {
+    return JSON.parse(localStorage.getItem('testminer_analyze_cache') || '{}');
+  } catch (e) { return {}; }
+}
+
+function saveAnalyzeRepoCache() {
+  try {
+    var keys = Object.keys(analyzeRepoCache);
+    if (keys.length > 100) {
+      var excess = keys.length - 100;
+      for (var i = 0; i < excess; i++) {
+        delete analyzeRepoCache[keys[i]];
       }
     }
-  }
-  return null;
+    localStorage.setItem('testminer_analyze_cache', JSON.stringify(analyzeRepoCache));
+  } catch (e) {}
 }
