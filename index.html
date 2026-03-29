@@ -8,913 +8,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #f9fefb 0%, #f3fcf6 50%, #f9fefb 100%);
-      color: #1e293b;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      padding: 60px 20px 40px;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 720px;
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-
-    .header h1 {
-      font-size: 2.4rem;
-      font-weight: 700;
-      color: #1e293b;
-      letter-spacing: -0.5px;
-    }
-
-    .header p {
-      font-size: 1rem;
-      color: #64748b;
-      margin-top: 8px;
-    }
-
-    .search {
-      position: relative;
-      display: flex;
-      gap: 10px;
-      margin-bottom: 28px;
-      max-width: 720px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .search-input-wrap {
-      flex: 1;
-      position: relative;
-    }
-
-    .search input {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 14px 18px;
-      font-size: 1rem;
-      font-family: 'Inter', sans-serif;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      background: #fff;
-      color: #1e293b;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      outline: none;
-    }
-
-    .search input:focus {
-      border-color: #22c55e;
-      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
-    }
-
-    .search input::placeholder { color: #94a3b8; }
-
-    .search button {
-      padding: 14px 28px;
-      font-size: 1rem;
-      font-family: 'Inter', sans-serif;
-      font-weight: 600;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s;
-      white-space: nowrap;
-    }
-
-    .search button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
-    }
-
-    .search button:active { transform: translateY(0); }
-
-    .search button:disabled {
-      background: #86efac;
-      cursor: default;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .autocomplete-list {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      margin-top: 4px;
-      max-height: 300px;
-      overflow-y: auto;
-      z-index: 10;
-      display: none;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-    }
-
-    .autocomplete-item {
-      padding: 10px 16px;
-      cursor: pointer;
-      font-size: 0.93rem;
-      border-bottom: 1px solid #f1f5f9;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: background 0.12s;
-    }
-
-    .autocomplete-item .lang-icon {
-      font-size: 1.2rem;
-      width: 22px;
-      text-align: center;
-      flex-shrink: 0;
-    }
-
-    .autocomplete-item:first-child { border-radius: 12px 12px 0 0; }
-    .autocomplete-item:last-child { border-bottom: none; border-radius: 0 0 12px 12px; }
-    .autocomplete-item:only-child { border-radius: 12px; }
-
-    .autocomplete-item:hover,
-    .autocomplete-item.active { background: #f0fdf4; }
-
-    .autocomplete-item mark {
-      background: #fef9c3;
-      color: inherit;
-      padding: 0;
-      border-radius: 3px;
-    }
-
-    .autocomplete-item .match-detail {
-      font-size: 0.78rem;
-      color: #94a3b8;
-      margin-left: 8px;
-    }
-
-    .autocomplete-item .ac-tag {
-      font-size: 0.72rem;
-      color: #94a3b8;
-      flex-shrink: 0;
-      width: 36px;
-      text-align: center;
-    }
-
-    .autocomplete-item .ac-name {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .autocomplete-item .ac-lang {
-      font-size: 0.78rem;
-      color: #94a3b8;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      flex-shrink: 0;
-    }
-
-    .autocomplete-item .ac-lang .lang-icon {
-      font-size: 0.95rem;
-      width: auto;
-    }
-
-    .recent {
-      margin-bottom: 24px;
-      display: none;
-      padding-top: 12px;
-      border-top: 1px solid #e2e8f0;
-    }
-
-    .recent-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-
-    .recent-label {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .recent-clear {
-      font-size: 0.75rem;
-      color: #94a3b8;
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-family: 'Inter', sans-serif;
-      font-weight: 500;
-      padding: 2px 6px;
-      border-radius: 4px;
-      transition: color 0.15s, background 0.15s;
-    }
-
-    .recent-clear:hover {
-      color: #ef4444;
-      background: #fef2f2;
-    }
-
-    .recent-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .recent-item {
-      font-size: 0.85rem;
-      color: #16a34a;
-      background: #f0fdf4;
-      border: 1px solid #dcfce7;
-      border-radius: 8px;
-      padding: 6px 12px;
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
-    }
-
-    .recent-item:hover {
-      background: #dcfce7;
-      border-color: #bbf7d0;
-    }
-
-    .recent-item .recent-remove {
-      margin-left: 6px;
-      color: #86efac;
-      font-weight: 600;
-      font-size: 0.9rem;
-      line-height: 1;
-    }
-
-    .recent-item:hover .recent-remove {
-      color: #ef4444;
-    }
-
-    #error {
-      color: #ef4444;
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      border-radius: 10px;
-      padding: 12px 16px;
-      font-size: 0.9rem;
-      margin-bottom: 20px;
-      display: none;
-    }
-
-    #results { display: none; }
-
-    .results-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: #1e293b;
-      margin-bottom: 16px;
-      padding-top: 12px;
-      border-top: 1px solid #e2e8f0;
-    }
-
-    .owner-link {
-      color: #16a34a;
-      text-decoration: none;
-    }
-
-    .owner-link:hover {
-      text-decoration: underline;
-    }
-
-    .results-title-actions {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .copy-link-btn {
-      background: none;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      cursor: pointer;
-      padding: 4px 8px;
-      font-size: 0.75rem;
-      font-family: 'Inter', sans-serif;
-      font-weight: 500;
-      color: #64748b;
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
-      white-space: nowrap;
-    }
-
-    .copy-link-btn:hover {
-      background: #f0fdf4;
-      border-color: #bbf7d0;
-      color: #16a34a;
-    }
-
-    .version-select {
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      cursor: pointer;
-      padding: 4px 8px;
-      font-size: 0.75rem;
-      font-family: 'Inter', sans-serif;
-      font-weight: 500;
-      color: #64748b;
-      transition: border-color 0.15s, color 0.15s;
-      max-width: 160px;
-    }
-
-    .version-select:hover, .version-select:focus {
-      border-color: #bbf7d0;
-      color: #16a34a;
-      outline: none;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 10px;
-    }
-
-    .stat-card {
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      transition: transform 0.15s, box-shadow 0.15s;
-    }
-
-    .stat-card:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    }
-
-    .stat-card.clickable {
-      cursor: pointer;
-    }
-
-    .stat-card.clickable:hover {
-      border-color: #bbf7d0;
-    }
-
-    .stat-card.active {
-      border-color: #22c55e;
-      box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
-    }
-
-    .file-list-panel {
-      grid-column: 1 / -1;
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 16px;
-      max-height: 350px;
-      overflow-y: auto;
-      display: none;
-    }
-
-    .file-list-panel.visible {
-      display: block;
-    }
-
-    .file-list-panel .file-list-header {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #64748b;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .file-list-panel .file-list-close {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 1.1rem;
-      color: #94a3b8;
-      padding: 0 4px;
-      line-height: 1;
-    }
-
-    .file-list-panel .file-list-close:hover {
-      color: #ef4444;
-    }
-
-    .file-list-panel ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .file-list-panel li {
-      font-size: 0.82rem;
-      color: #1e293b;
-      padding: 3px 0;
-      font-family: monospace;
-      border-bottom: 1px solid #f8fafc;
-    }
-
-    .stat-card .label {
-      font-size: 0.8rem;
-      color: #64748b;
-      font-weight: 500;
-      margin-bottom: 4px;
-    }
-
-    .stat-card .value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #22c55e;
-    }
-
-    .repo-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .repo-item {
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 16px 20px;
-      cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
-    }
-
-    .repo-item:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-      border-color: #bbf7d0;
-    }
-
-    .repo-item-name {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #16a34a;
-    }
-
-    .repo-item-meta {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-top: 6px;
-      font-size: 0.82rem;
-      color: #64748b;
-    }
-
-    .repo-item-stars {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      font-weight: 500;
-    }
-
-    .repo-item-topics {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 8px;
-    }
-
-    .repo-topic {
-      font-size: 0.75rem;
-      background: #f0fdf4;
-      color: #16a34a;
-      border-radius: 6px;
-      padding: 3px 8px;
-      font-weight: 500;
-    }
-
-    .repo-item-stats {
-      display: flex;
-      gap: 14px;
-      margin-top: 8px;
-      font-size: 0.82rem;
-      color: #64748b;
-    }
-
-    .repo-item-stats span {
-      font-weight: 500;
-    }
-
-    .repo-item-stats .stat-value {
-      color: #22c55e;
-      font-weight: 700;
-    }
-
-    .owner-table-wrap {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      grid-column: 1 / -1;
-    }
-
-    .owner-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.88rem;
-      white-space: nowrap;
-    }
-
-    .owner-table th {
-      text-align: left;
-      padding: 8px 8px;
-      font-weight: 600;
-      color: #64748b;
-      border-bottom: 2px solid #e2e8f0;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-      width: 1%;
-      white-space: nowrap;
-    }
-
-    .owner-table th:first-child {
-      width: auto;
-      white-space: normal;
-    }
-
-    .owner-table td {
-      padding: 8px 8px;
-      border-bottom: 1px solid #f1f5f9;
-      color: #1e293b;
-      font-size: 0.82rem;
-    }
-
-    .owner-table th:nth-child(n+3):nth-child(-n+6),
-    .owner-table td:nth-child(n+3):nth-child(-n+6) {
-      text-align: right;
-    }
-
-    .owner-table-row {
-      cursor: pointer;
-      transition: background 0.12s;
-    }
-
-    .owner-table-row:hover {
-      background: #f0fdf4;
-    }
-
-    .repo-name-cell {
-      font-weight: 600;
-      color: #16a34a;
-      width: 180px;
-      max-width: 180px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .suggestions {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 24px;
-    }
-
-    .suggestion-label {
-      font-size: 0.82rem;
-      color: #94a3b8;
-      font-weight: 500;
-    }
-
-    .suggestion-btn {
-      font-size: 0.85rem;
-      font-family: 'Inter', sans-serif;
-      font-weight: 500;
-      color: #16a34a;
-      background: #f0fdf4;
-      border: 1px solid #dcfce7;
-      border-radius: 8px;
-      padding: 6px 14px;
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
-    }
-
-    .suggestion-btn:hover {
-      background: #dcfce7;
-      border-color: #bbf7d0;
-    }
-
-    .spinner {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid #e2e8f0;
-      border-top-color: #22c55e;
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .sortable-th {
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .sortable-th:hover {
-      color: #16a34a;
-    }
-
-    .sort-arrow {
-      font-size: 0.7rem;
-    }
-    @media (max-width: 600px) {
-      .owner-table th,
-      .owner-table td {
-        padding: 6px 4px;
-        font-size: 0.72rem;
-      }
-      .owner-table th .th-label span {
-        display: block;
-      }
-      .lang-text {
-        display: none;
-      }
-      .lang-text.no-icon {
-        display: inline;
-      }
-    }
-
-    .th-short { display: none; }
-
-    @media (max-width: 600px) {
-      .has-short-label .th-full { display: none; }
-      .has-short-label .th-short { display: inline; }
-    }
-
-    #tree-chart {
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 16px;
-      max-height: 600px;
-      overflow-y: auto;
-    }
-
-    .tree-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 2px;
-      flex-shrink: 0;
-    }
-
-    .tree-legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 14px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #f1f5f9;
-      justify-content: center;
-    }
-
-    .tree-legend-item {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 0.75rem;
-      color: #64748b;
-    }
-
-    .block-map {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .block-dir {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .block-dir-label {
-      font-size: 0.72rem;
-      font-family: monospace;
-      color: #64748b;
-      text-align: left;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .block-cells {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 2px;
-    }
-
-    .block-cell {
-      width: 8px;
-      height: 8px;
-      border-radius: 2px;
-      cursor: default;
-      transition: transform 0.1s, border-radius 0.15s;
-      position: relative;
-    }
-
-    .block-map.circles .block-cell {
-      border-radius: 50%;
-    }
-
-    .block-cell:hover {
-      transform: scale(1.8);
-      z-index: 10;
-    }
-
-    .block-tooltip {
-      position: fixed;
-      pointer-events: none;
-      background: #1e293b;
-      color: #fff;
-      font-size: 0.65rem;
-      font-family: monospace;
-      padding: 3px 7px;
-      border-radius: 4px;
-      white-space: nowrap;
-      z-index: 1000;
-      opacity: 0;
-      transition: opacity 0.1s;
-    }
-
-    .block-tooltip.visible {
-      opacity: 1;
-    }
-
-    .block-sort {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 12px;
-      font-size: 0.75rem;
-      color: #94a3b8;
-      flex-wrap: wrap;
-    }
-
-    .block-sort-btn {
-      font-size: 0.73rem;
-      font-family: 'Inter', sans-serif;
-      font-weight: 500;
-      color: #64748b;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      padding: 3px 8px;
-      cursor: pointer;
-      transition: background 0.12s, border-color 0.12s, color 0.12s;
-    }
-
-    .block-sort-btn:hover {
-      background: #f0fdf4;
-      border-color: #bbf7d0;
-      color: #16a34a;
-    }
-
-    .block-sort-btn.active {
-      background: #22c55e;
-      border-color: #22c55e;
-      color: #fff;
-    }
-
-    .block-sort-sep {
-      color: #e2e8f0;
-      margin: 0 2px;
-    }
-
-    .block-separator {
-      border-bottom: 1px solid #f1f5f9;
-      margin-bottom: 12px;
-    }
-
-    .depth-nav {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-      font-size: 0.75rem;
-      color: #94a3b8;
-    }
-
-    .depth-nav-label {
-      font-family: monospace;
-      font-size: 0.73rem;
-      color: #64748b;
-    }
-
-    .export-btns {
-      display: flex;
-      gap: 1px;
-    }
-
-    .export-png-btn {
-      font-size: 0.73rem;
-      font-family: 'Inter', sans-serif;
-      font-weight: 500;
-      color: #64748b;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      padding: 3px 10px;
-      cursor: pointer;
-      transition: background 0.12s, border-color 0.12s, color 0.12s;
-    }
-
-    .export-btns .export-png-btn:first-child {
-      border-radius: 6px 0 0 6px;
-      border-right: none;
-    }
-
-    .export-btns .export-png-btn:last-child {
-      border-radius: 0 6px 6px 0;
-    }
-
-    .export-png-btn:hover {
-      background: #f0fdf4;
-      border-color: #bbf7d0;
-      color: #16a34a;
-    }
-
-    .export-png-btn:disabled {
-      opacity: 0.5;
-      cursor: default;
-    }
-
-    .export-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #1e293b;
-      margin-bottom: 14px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #f1f5f9;
-    }
-
-    .export-title i {
-      font-size: 1.3rem;
-    }
-
-    .shape-toggle {
-      width: 22px;
-      height: 22px;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      background: #f8fafc;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.12s, border-color 0.12s;
-      padding: 0;
-      margin-left: auto;
-    }
-
-    .shape-toggle:hover {
-      background: #f0fdf4;
-      border-color: #bbf7d0;
-    }
-
-    .shape-toggle-icon {
-      width: 10px;
-      height: 10px;
-      background: #64748b;
-      border-radius: 2px;
-      transition: border-radius 0.15s;
-    }
-
-    .shape-toggle.active .shape-toggle-icon {
-      border-radius: 50%;
-    }
-
-  </style>
+  <link rel="stylesheet" href="src/styles.css">
 </head>
 <body>
   <div class="container">
 
+    <div style="text-align:right;padding-bottom:8px;">
+      <a href="https://github.com/andrehora/testminer" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-size:0.85rem;color:#64748b;text-decoration:none;">
+        <i class="devicon-github-original" style="font-size:1.1rem;"></i>andrehora/testminer
+      </a>
+    </div>
     <div class="header">
       <h1>TestMiner</h1>
       <p>Analyze test practices in GitHub repositories</p>
@@ -963,13 +66,491 @@
       </div>
     </div>
 
+    <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0 0 0;">
+    <p style="text-align:center;padding:16px 0 0;font-size:0.8rem;color:#94a3b8;margin:0;">Data from jsDelivr API, GitHub API, and <a href="https://github.com/andrehora/testminer" target="_blank" rel="noopener" style="color:#64748b;text-decoration:underline;">TestMiner</a>.</p>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <script src="js/app.js?v=5"></script>
+  <script src="src/testminer.js"></script>
   <script>
+    var versionChartInstance = null;
+    var versionChartStats = null;
+    var versionChartLabels = null;
+    var versionChartGeneration = 0;
+
+    var versionMetricOptions = [
+      { key: 'testFiles', label: 'Test files', category: 'test' },
+      { key: 'testRatio', label: 'Test ratio (%)', category: null },
+      { key: 'mockFiles', label: 'Mock files', category: 'mock' },
+      { key: 'e2eFiles', label: 'E2E files', category: 'e2e' },
+      { key: 'snapshotFiles', label: 'Snapshot files', category: 'snapshot' },
+      { key: 'fixtureFiles', label: 'Fixture files', category: 'fixture' },
+      { key: 'benchmarkFiles', label: 'Benchmark files', category: 'benchmark' },
+      { key: 'testRelatedFiles', label: 'Test-related files', category: 'test-related' },
+      { key: 'ciTestFiles', label: 'CI test files', category: 'ci-test' },
+      { key: 'smokeFiles', label: 'Smoke files', category: 'smoke' },
+      { key: 'sourceFiles', label: 'Source files', category: 'source' },
+      { key: 'total', label: 'Total files', category: null }
+    ];
+
+    var versionMetricLabels = {};
+    versionMetricOptions.forEach(function (o) { versionMetricLabels[o.key] = o.label; });
+
+    function renderFileTree(ownerRepo) {
+      var chartEl = document.getElementById('tree-chart');
+      if (!chartEl) return;
+
+      var cached = analyzeRepoCache[ownerRepo];
+      if (!cached || !cached.files) {
+        chartEl.style.display = 'none';
+        return;
+      }
+
+      var oldTooltip = document.querySelector('.block-tooltip');
+      if (oldTooltip) oldTooltip.remove();
+
+      var maxDepth = getMaxDepth(cached.files);
+      var currentDepth = Math.min(1, maxDepth);
+
+      var legendHTML = '<div class="tree-legend">';
+      var legendShown = {};
+      Object.keys(classificationColors).forEach(function (key) {
+        if (cached.files[key] && cached.files[key].length > 0) {
+          var label = classificationLabels[key] || key;
+          if (legendShown[label]) return;
+          legendShown[label] = true;
+          legendHTML += '<span class="tree-legend-item"><span class="tree-dot" style="background:' + classificationColors[key] + '"></span>' + label + '</span>';
+        }
+      });
+      legendHTML += '</div>';
+
+      var currentSort = 'files-desc';
+
+      function buildBlockMapHTML(activeFilters) {
+        var dirs = groupFilesByDepth(cached.files, currentDepth);
+        var dirKeys = Object.keys(dirs);
+        var html = '';
+        var sortedDirs = dirKeys.slice().sort();
+        if (currentSort === 'alpha-desc') {
+          sortedDirs.reverse();
+        } else if (currentSort === 'files-asc' || currentSort === 'files-desc') {
+          sortedDirs.sort(function (a, b) {
+            var countA = dirs[a].filter(function (f) { return activeFilters.indexOf(f.category) >= 0; }).length;
+            var countB = dirs[b].filter(function (f) { return activeFilters.indexOf(f.category) >= 0; }).length;
+            return currentSort === 'files-asc' ? countA - countB : countB - countA;
+          });
+        }
+        for (var i = 0; i < sortedDirs.length; i++) {
+          var dir = sortedDirs[i];
+          var files = dirs[dir].filter(function (f) {
+            return activeFilters.indexOf(f.category) >= 0;
+          });
+          if (files.length === 0) continue;
+          var catCounts = {};
+          files.forEach(function (f) { catCounts[f.category] = (catCounts[f.category] || 0) + 1; });
+          files.sort(function (a, b) {
+            if (a.category !== b.category) return (catCounts[b.category] || 0) - (catCounts[a.category] || 0);
+            return a.name.localeCompare(b.name);
+          });
+          html += '<div class="block-dir">';
+          html += '<div class="block-dir-label" title="' + dir + '">' + dir + '</div>';
+          html += '<div class="block-cells">';
+          for (var j = 0; j < files.length; j++) {
+            var f = files[j];
+            var color = classificationColors[f.category] || '#94a3b8';
+            var catLabel = classificationLabels[f.category] || f.category;
+            html += '<div class="block-cell" style="background:' + color + '" data-tip="' + f.path + '" data-category="' + catLabel + '" data-color="' + color + '"></div>';
+          }
+          html += '</div></div>';
+        }
+        return html;
+      }
+
+      var sortOptions = [];
+      Object.keys(classificationColors).forEach(function (cat) {
+        if (cached.files[cat] && cached.files[cat].length > 0) {
+          var label = classificationLabels[cat] || cat;
+          if (!sortOptions.some(function (s) { return s.label === label; })) {
+            sortOptions.push({ key: cat, label: label });
+          }
+        }
+      });
+
+      var filterLabelToKeys = {};
+      sortOptions.forEach(function (opt) {
+        if (!filterLabelToKeys[opt.label]) filterLabelToKeys[opt.label] = [];
+        filterLabelToKeys[opt.label].push(opt.key);
+      });
+
+      var allCategoryKeys = [];
+      Object.keys(filterLabelToKeys).forEach(function (label) {
+        allCategoryKeys = allCategoryKeys.concat(filterLabelToKeys[label]);
+      });
+
+      var testCategoryKeys = allCategoryKeys.filter(function (k) { return k !== 'source' && k !== 'other'; });
+
+      var showHTML = 'Show: ';
+      showHTML += '<button class="block-sort-btn active" data-show-preset="tests">tests</button>';
+      showHTML += '<button class="block-sort-btn" data-show-preset="all">all files</button>';
+
+      var showOnlyHTML = '<div class="block-sort">Filter: ';
+      Object.keys(filterLabelToKeys).forEach(function (label) {
+        var keys = filterLabelToKeys[label];
+        showOnlyHTML += '<button class="block-sort-btn" data-showonly="' + keys.join(',') + '">' + label + '</button>';
+      });
+      showOnlyHTML += '</div>';
+
+      var defaultCategories = testCategoryKeys;
+      var sortHTML = '<div class="block-sort">';
+      sortHTML += showHTML;
+      sortHTML += '<span class="block-sort-sep">|</span>';
+      sortHTML += 'Sort by: ';
+      sortHTML += '<button class="block-sort-btn active" data-sort="files" id="sort-files">files \u2193</button>';
+      sortHTML += '<button class="block-sort-btn" data-sort="alpha" id="sort-alpha">name \u2191</button>';
+      sortHTML += '</div>';
+
+      var depthNavHTML = '<div class="depth-nav">';
+      depthNavHTML += 'Depth: ';
+      depthNavHTML += '<button class="block-sort-btn" id="depth-left"' + (currentDepth <= 0 ? ' disabled' : '') + '>\u25C0</button>';
+      depthNavHTML += '<span class="depth-nav-label" id="depth-label">' + currentDepth + ' / ' + maxDepth + '</span>';
+      depthNavHTML += '<button class="block-sort-btn" id="depth-right"' + (currentDepth >= maxDepth ? ' disabled' : '') + '>\u25B6</button>';
+      depthNavHTML += '<button class="shape-toggle" id="shape-toggle" title="Toggle circles/squares"><span class="shape-toggle-icon"></span></button>';
+      depthNavHTML += '<span class="export-btns"><button class="export-png-btn" id="export-png-btn">PNG</button><button class="export-png-btn" id="export-pdf-btn">PDF</button></span>';
+      depthNavHTML += '</div>';
+
+      var blockMapEl = document.createElement('div');
+      blockMapEl.className = 'block-map';
+      blockMapEl.innerHTML = buildBlockMapHTML(defaultCategories);
+
+      chartEl.innerHTML = legendHTML + sortHTML + showOnlyHTML + depthNavHTML + '<div class="block-separator"></div>';
+      chartEl.appendChild(blockMapEl);
+      chartEl.style.display = 'block';
+
+      var tooltipEl = document.createElement('div');
+      tooltipEl.className = 'block-tooltip';
+      document.body.appendChild(tooltipEl);
+
+      blockMapEl.addEventListener('mouseover', function (e) {
+        var cell = e.target.closest('.block-cell');
+        if (!cell) return;
+        var tip = cell.getAttribute('data-tip');
+        if (!tip) return;
+        var category = cell.getAttribute('data-category') || '';
+        var color = cell.getAttribute('data-color') || '';
+        tooltipEl.innerHTML = '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + color + ';margin-right:4px;vertical-align:middle;"></span>' +
+          '<strong>' + category + '</strong> · ' + tip;
+        tooltipEl.classList.add('visible');
+        var rect = cell.getBoundingClientRect();
+        var tipRect = tooltipEl.getBoundingClientRect();
+        var left = rect.left + rect.width / 2 - tipRect.width / 2;
+        if (left < 4) left = 4;
+        if (left + tipRect.width > window.innerWidth - 4) left = window.innerWidth - 4 - tipRect.width;
+        tooltipEl.style.left = left + 'px';
+        tooltipEl.style.top = (rect.top - tipRect.height - 6) + 'px';
+      });
+
+      blockMapEl.addEventListener('mouseout', function (e) {
+        var cell = e.target.closest('.block-cell');
+        if (cell) tooltipEl.classList.remove('visible');
+      });
+
+      function getActiveFilters() {
+        var filterBtns = chartEl.querySelectorAll('.block-sort-btn.active[data-showonly]');
+        if (filterBtns.length > 0) {
+          var filters = [];
+          filterBtns.forEach(function (btn) {
+            btn.getAttribute('data-showonly').split(',').forEach(function (k) { filters.push(k); });
+          });
+          return filters;
+        }
+        var presetBtn = chartEl.querySelector('.block-sort-btn.active[data-show-preset]');
+        if (presetBtn) {
+          var preset = presetBtn.getAttribute('data-show-preset');
+          if (preset === 'tests') return testCategoryKeys;
+        }
+        return allCategoryKeys;
+      }
+
+      function updateDepthUI() {
+        var label = document.getElementById('depth-label');
+        var leftBtn = document.getElementById('depth-left');
+        var rightBtn = document.getElementById('depth-right');
+        if (label) label.textContent = currentDepth + ' / ' + maxDepth;
+        if (leftBtn) leftBtn.disabled = currentDepth <= 0;
+        if (rightBtn) rightBtn.disabled = currentDepth >= maxDepth;
+      }
+
+      var depthNavEl = document.querySelector('.depth-nav');
+      depthNavEl.addEventListener('click', function (e) {
+        var depthBtn = e.target.closest('#depth-left, #depth-right');
+        if (depthBtn && !depthBtn.disabled) {
+          if (depthBtn.id === 'depth-left' && currentDepth > 0) {
+            currentDepth--;
+          } else if (depthBtn.id === 'depth-right' && currentDepth < maxDepth) {
+            currentDepth++;
+          }
+          updateDepthUI();
+          blockMapEl.innerHTML = buildBlockMapHTML(getActiveFilters());
+        }
+      });
+
+      function captureChart(btn, originalLabel, callback) {
+        btn.disabled = true;
+        btn.textContent = 'Saving...';
+        tooltipEl.classList.remove('visible');
+
+        var hideEls = chartEl.querySelectorAll('.block-sort, .depth-nav, .block-separator');
+        hideEls.forEach(function (el) { el.style.display = 'none'; });
+
+        var origMaxHeight = chartEl.style.maxHeight;
+        var origOverflow = chartEl.style.overflowY;
+        chartEl.style.maxHeight = 'none';
+        chartEl.style.overflowY = 'visible';
+
+        var titleEl = document.createElement('div');
+        titleEl.className = 'export-title';
+        var titleIcon = document.querySelector('#results-title-text i');
+        if (titleIcon) {
+          titleEl.appendChild(titleIcon.cloneNode(true));
+        }
+        var titleText = document.createElement('span');
+        titleText.textContent = ownerRepo;
+        titleEl.appendChild(titleText);
+        chartEl.insertBefore(titleEl, chartEl.firstChild);
+
+        html2canvas(chartEl, { backgroundColor: '#ffffff', scale: 2 }).then(function (canvas) {
+          callback(canvas);
+        }).finally(function () {
+          chartEl.removeChild(titleEl);
+          chartEl.style.maxHeight = origMaxHeight;
+          chartEl.style.overflowY = origOverflow;
+          hideEls.forEach(function (el) { el.style.display = ''; });
+          btn.disabled = false;
+          btn.textContent = originalLabel;
+        });
+      }
+
+      var exportPngBtn = document.getElementById('export-png-btn');
+      exportPngBtn.addEventListener('click', function () {
+        captureChart(exportPngBtn, 'PNG', function (canvas) {
+          var link = document.createElement('a');
+          link.download = ownerRepo.replace('/', '-') + '-testminer.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        });
+      });
+
+      var exportPdfBtn = document.getElementById('export-pdf-btn');
+      exportPdfBtn.addEventListener('click', function () {
+        captureChart(exportPdfBtn, 'PDF', function (canvas) {
+          var imgData = canvas.toDataURL('image/png');
+          var imgWidth = canvas.width;
+          var imgHeight = canvas.height;
+          var pdfWidth = imgWidth * 0.264583;
+          var pdfHeight = imgHeight * 0.264583;
+          var orientation = pdfWidth > pdfHeight ? 'landscape' : 'portrait';
+          var pdf = new jspdf.jsPDF({ orientation: orientation, unit: 'mm', format: [pdfWidth, pdfHeight] });
+          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+          pdf.save(ownerRepo.replace('/', '-') + '-testminer.pdf');
+        });
+      });
+
+      document.getElementById('shape-toggle').addEventListener('click', function () {
+        this.classList.toggle('active');
+        blockMapEl.classList.toggle('circles');
+      });
+
+      var sortBars = chartEl.querySelectorAll('.block-sort');
+      sortBars.forEach(function (bar) {
+        bar.addEventListener('click', function (e) {
+          var btn = e.target.closest('.block-sort-btn');
+          if (!btn) return;
+          if (btn.hasAttribute('data-sort')) {
+            var sort = btn.getAttribute('data-sort');
+            chartEl.querySelectorAll('[data-sort]').forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            if (sort === 'alpha') {
+              if (currentSort === 'alpha-asc') {
+                currentSort = 'alpha-desc';
+                btn.textContent = 'name \u2193';
+              } else {
+                currentSort = 'alpha-asc';
+                btn.textContent = 'name \u2191';
+              }
+              document.getElementById('sort-files').textContent = 'files \u2191';
+            } else if (sort === 'files') {
+              if (currentSort === 'files-desc') {
+                currentSort = 'files-asc';
+                btn.textContent = 'files \u2191';
+              } else {
+                currentSort = 'files-desc';
+                btn.textContent = 'files \u2193';
+              }
+              document.getElementById('sort-alpha').textContent = 'name \u2191';
+            }
+          } else if (btn.hasAttribute('data-show-preset')) {
+            chartEl.querySelectorAll('[data-show-preset]').forEach(function (b) { b.classList.remove('active'); });
+            chartEl.querySelectorAll('[data-showonly]').forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+          } else if (btn.hasAttribute('data-showonly')) {
+            btn.classList.toggle('active');
+            var anyFilter = chartEl.querySelector('.block-sort-btn.active[data-showonly]');
+            chartEl.querySelectorAll('[data-show-preset]').forEach(function (b) { b.classList.remove('active'); });
+            if (!anyFilter) {
+              chartEl.querySelector('[data-show-preset="tests"]').classList.add('active');
+            }
+          }
+          blockMapEl.innerHTML = buildBlockMapHTML(getActiveFilters());
+        });
+      });
+    }
+
+    function populateMetricSelect(classifiedFiles) {
+      var container = document.getElementById('version-metric-btns');
+      if (!container) return;
+      var prevActive = container.querySelector('.active');
+      var prev = prevActive ? prevActive.getAttribute('data-metric') : null;
+      container.innerHTML = '';
+      var firstBtn = null;
+      versionMetricOptions.forEach(function (opt) {
+        if (opt.category === null || (classifiedFiles && classifiedFiles[opt.category] && classifiedFiles[opt.category].length > 0)) {
+          var btn = document.createElement('button');
+          btn.setAttribute('data-metric', opt.key);
+          btn.textContent = opt.label;
+          btn.className = 'block-sort-btn';
+          if (!firstBtn) firstBtn = btn;
+          container.appendChild(btn);
+        }
+      });
+      var restoreBtn = prev ? container.querySelector('[data-metric="' + prev + '"]') : null;
+      var activeBtn = restoreBtn || firstBtn;
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    function buildVersionChart(metric, chartType) {
+      chartType = chartType || 'line';
+      var container = document.getElementById('version-chart-container');
+      var canvas = document.getElementById('version-chart');
+      if (!container || !canvas || !versionChartStats || !versionChartLabels) return;
+
+      if (versionChartInstance) {
+        versionChartInstance.destroy();
+        versionChartInstance = null;
+      }
+
+      var data = versionChartStats.map(function (s) {
+        return s ? s[metric] : null;
+      });
+
+      var label = versionMetricLabels[metric] || metric;
+
+      var datasetOptions = chartType === 'bar' ? {
+        label: label,
+        data: data,
+        backgroundColor: '#22c55e',
+        borderColor: '#16a34a',
+        borderWidth: 1,
+        borderRadius: 4
+      } : {
+        label: label,
+        data: data,
+        borderColor: '#22c55e',
+        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4,
+        pointBackgroundColor: '#22c55e',
+        spanGaps: true
+      };
+
+      var ctx = canvas.getContext('2d');
+      versionChartInstance = new Chart(ctx, {
+        type: chartType,
+        data: {
+          labels: versionChartLabels,
+          datasets: [datasetOptions]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: { display: true, text: label },
+              ticks: { precision: 0 }
+            },
+            x: {
+              title: { display: true, text: 'Version' }
+            }
+          }
+        }
+      });
+    }
+
+    function renderVersionChart(ownerRepo, versions) {
+      var container = document.getElementById('version-chart-container');
+      if (!container) return;
+
+      if (versionChartInstance) {
+        versionChartInstance.destroy();
+        versionChartInstance = null;
+      }
+
+      versionChartStats = null;
+      versionChartLabels = null;
+
+      var cached = analyzeRepoCache[ownerRepo];
+      populateMetricSelect(cached ? cached.files : null);
+
+      if (!versions || versions.length === 0) {
+        container.style.display = 'none';
+        return;
+      }
+
+      var recent = versions.slice(0, 10).reverse();
+      container.style.display = 'block';
+
+      versionChartLabels = recent;
+      var statsArr = new Array(recent.length).fill(null);
+      var pending = recent.length;
+      var gen = ++versionChartGeneration;
+
+      function tryRender() {
+        if (versionChartGeneration !== gen) return;
+        if (pending > 0) return;
+
+        if (statsArr.every(function (v) { return v === null; })) {
+          container.style.display = 'none';
+          return;
+        }
+
+        versionChartStats = statsArr;
+        var metricBtn = document.querySelector('#version-metric-btns .active');
+        var metric = metricBtn ? metricBtn.getAttribute('data-metric') : 'testFiles';
+        var activeBtn = document.querySelector('#version-chart-type-btns button.active');
+        var chartType = activeBtn ? activeBtn.getAttribute('data-type') : 'line';
+        buildVersionChart(metric, chartType);
+      }
+
+      recent.forEach(function (version, idx) {
+        ensureAnalyzeRepo(ownerRepo, version).then(function (response) {
+          if (versionChartGeneration !== gen) return;
+          if (response.result) {
+            statsArr[idx] = response.result.stats;
+          }
+        }).catch(function () {}).then(function () {
+          pending--;
+          tryRender();
+        });
+      });
+    }
+
     loadExtensions();
 
     var analyzing = false;
@@ -1327,6 +908,9 @@
       var versionSelect = document.getElementById('version-select');
       versionSelect.style.display = 'none';
       versionSelect.dataset.repo = '';
+      document.getElementById('version-chart-container').style.display = 'none';
+      if (versionChartInstance) { versionChartInstance.destroy(); versionChartInstance = null; }
+      versionChartGeneration++;
 
       var repoIndices = [];
       for (var i = 0; i < repos.length; i++) {
