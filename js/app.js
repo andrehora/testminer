@@ -2,11 +2,12 @@ var ownerReposCache = {};
 var analyzeRepoCache = loadAnalyzeRepoCache();
 var extensionSet = null;
 
-function ensureAnalyzeRepo(repoKey) {
-  if (analyzeRepoCache[repoKey]) {
-    return Promise.resolve({ result: analyzeRepoCache[repoKey] });
+function ensureAnalyzeRepo(repoKey, version) {
+  var cacheKey = version ? repoKey + '@' + version : repoKey;
+  if (analyzeRepoCache[cacheKey]) {
+    return Promise.resolve({ result: analyzeRepoCache[cacheKey] });
   }
-  return fetchJsDelivrFiles(repoKey).then(function (data) {
+  return fetchJsDelivrFiles(repoKey, version).then(function (data) {
     if (!data) {
       return { error: 'not_found' };
     }
@@ -14,8 +15,24 @@ function ensureAnalyzeRepo(repoKey) {
       return { error: data.error };
     }
     var files = parseJsDelivrFiles(data);
-    return { result: analyzeRepo(repoKey, files) };
+    return { result: analyzeRepo(cacheKey, files) };
   });
+}
+
+function fetchJsDelivrVersions(ownerRepo) {
+  var url = 'https://data.jsdelivr.com/v1/packages/gh/' + ownerRepo;
+  return fetch(url)
+    .then(function (response) {
+      if (!response.ok) return null;
+      return response.json();
+    })
+    .then(function (data) {
+      if (!data || !data.versions) return [];
+      return data.versions.map(function (v) { return v.version; });
+    })
+    .catch(function () {
+      return [];
+    });
 }
 
 function fetchOwnerRepos(owner) {
@@ -44,10 +61,14 @@ function fetchOwnerRepos(owner) {
     });
 }
 
-function fetchJsDelivrFiles(ownerRepo) {
-  const url = 'https://data.jsdelivr.com/v1/packages/gh/' + ownerRepo + '@master';
-  return fetch(url)
+function fetchJsDelivrFiles(ownerRepo, version) {
+  var ref = version || 'master';
+  var filesUrl = 'https://data.jsdelivr.com/v1/packages/gh/' + ownerRepo + '@' + ref;
+  return fetch(filesUrl)
     .then(function (response) {
+      if (!response) {
+        return null;
+      }
       if (response.status === 403) {
         return { error: 'too_large' };
       }
@@ -166,8 +187,8 @@ function computeTestStats(classified) {
   Object.keys(classified).forEach(function (key) {
     total += classified[key].length;
   });
-  var sourceCount = (classified['source'] || []).length;
   var testCount = (classified['test'] || []).length;
+  var sourceCount = (classified['source'] || []).length + testCount;
   return {
     total: total,
     sourceFiles: sourceCount,
@@ -449,7 +470,8 @@ function renderFileTree(ownerRepo) {
       for (var j = 0; j < files.length; j++) {
         var f = files[j];
         var color = classificationColors[f.category] || '#94a3b8';
-        html += '<div class="block-cell" style="background:' + color + '" data-tip="' + f.path + '"></div>';
+        var catLabel = classificationLabels[f.category] || f.category;
+        html += '<div class="block-cell" style="background:' + color + '" data-tip="' + f.path + '" data-category="' + catLabel + '" data-color="' + color + '"></div>';
       }
       html += '</div></div>';
     }
@@ -529,7 +551,10 @@ function renderFileTree(ownerRepo) {
     if (!cell) return;
     var tip = cell.getAttribute('data-tip');
     if (!tip) return;
-    tooltipEl.textContent = tip;
+    var category = cell.getAttribute('data-category') || '';
+    var color = cell.getAttribute('data-color') || '';
+    tooltipEl.innerHTML = '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + color + ';margin-right:4px;vertical-align:middle;"></span>' +
+      '<strong>' + category + '</strong> · ' + tip;
     tooltipEl.classList.add('visible');
     var rect = cell.getBoundingClientRect();
     var tipRect = tooltipEl.getBoundingClientRect();
@@ -697,6 +722,169 @@ function renderFileTree(ownerRepo) {
         }
       }
       blockMapEl.innerHTML = buildBlockMapHTML(getActiveFilters());
+    });
+  });
+}
+
+var versionChartInstance = null;
+var versionChartStats = null;
+var versionChartLabels = null;
+
+var versionMetricOptions = [
+  { key: 'testFiles', label: 'Test files', category: 'test' },
+  { key: 'testRatio', label: 'Test ratio (%)', category: null },
+  { key: 'mockFiles', label: 'Mock files', category: 'mock' },
+  { key: 'e2eFiles', label: 'E2E files', category: 'e2e' },
+  { key: 'snapshotFiles', label: 'Snapshot files', category: 'snapshot' },
+  { key: 'fixtureFiles', label: 'Fixture files', category: 'fixture' },
+  { key: 'benchmarkFiles', label: 'Benchmark files', category: 'benchmark' },
+  { key: 'testRelatedFiles', label: 'Test-related files', category: 'test-related' },
+  { key: 'ciTestFiles', label: 'CI test files', category: 'ci-test' },
+  { key: 'smokeFiles', label: 'Smoke files', category: 'smoke' },
+  { key: 'sourceFiles', label: 'Source files', category: 'source' },
+  { key: 'total', label: 'Total files', category: null }
+];
+
+var versionMetricLabels = {};
+versionMetricOptions.forEach(function (o) { versionMetricLabels[o.key] = o.label; });
+
+function populateMetricSelect(classifiedFiles) {
+  var container = document.getElementById('version-metric-btns');
+  if (!container) return;
+  var prevActive = container.querySelector('.active');
+  var prev = prevActive ? prevActive.getAttribute('data-metric') : null;
+  container.innerHTML = '';
+  var firstBtn = null;
+  versionMetricOptions.forEach(function (opt) {
+    if (opt.category === null || (classifiedFiles && classifiedFiles[opt.category] && classifiedFiles[opt.category].length > 0)) {
+      var btn = document.createElement('button');
+      btn.setAttribute('data-metric', opt.key);
+      btn.textContent = opt.label;
+      btn.className = 'block-sort-btn';
+      if (!firstBtn) firstBtn = btn;
+      container.appendChild(btn);
+    }
+  });
+  var restoreBtn = prev ? container.querySelector('[data-metric="' + prev + '"]') : null;
+  var activeBtn = restoreBtn || firstBtn;
+  if (activeBtn) activeBtn.classList.add('active');
+}
+
+function buildVersionChart(metric, chartType) {
+  chartType = chartType || 'line';
+  var container = document.getElementById('version-chart-container');
+  var canvas = document.getElementById('version-chart');
+  if (!container || !canvas || !versionChartStats || !versionChartLabels) return;
+
+  if (versionChartInstance) {
+    versionChartInstance.destroy();
+    versionChartInstance = null;
+  }
+
+  var data = versionChartStats.map(function (s) {
+    return s ? s[metric] : null;
+  });
+
+  var label = versionMetricLabels[metric] || metric;
+
+  var datasetOptions = chartType === 'bar' ? {
+    label: label,
+    data: data,
+    backgroundColor: '#22c55e',
+    borderColor: '#16a34a',
+    borderWidth: 1,
+    borderRadius: 4
+  } : {
+    label: label,
+    data: data,
+    borderColor: '#22c55e',
+    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+    fill: true,
+    tension: 0.3,
+    pointRadius: 4,
+    pointBackgroundColor: '#22c55e',
+    spanGaps: true
+  };
+
+  var ctx = canvas.getContext('2d');
+  versionChartInstance = new Chart(ctx, {
+    type: chartType,
+    data: {
+      labels: versionChartLabels,
+      datasets: [datasetOptions]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: label },
+          ticks: { precision: 0 }
+        },
+        x: {
+          title: { display: true, text: 'Version' }
+        }
+      }
+    }
+  });
+}
+
+function renderVersionChart(ownerRepo, versions) {
+  var container = document.getElementById('version-chart-container');
+  if (!container) return;
+
+  if (versionChartInstance) {
+    versionChartInstance.destroy();
+    versionChartInstance = null;
+  }
+
+  versionChartStats = null;
+  versionChartLabels = null;
+
+  // Populate metric dropdown based on master branch data
+  var cached = analyzeRepoCache[ownerRepo];
+  populateMetricSelect(cached ? cached.files : null);
+
+  if (!versions || versions.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+
+  var recent = versions.slice(0, 10).reverse();
+  container.style.display = 'block';
+
+  versionChartLabels = recent;
+  var statsArr = new Array(recent.length).fill(null);
+  var pending = recent.length;
+
+  function tryRender() {
+    if (pending > 0) return;
+
+    if (statsArr.every(function (v) { return v === null; })) {
+      container.style.display = 'none';
+      return;
+    }
+
+    versionChartStats = statsArr;
+    var metricBtn = document.querySelector('#version-metric-btns .active');
+    var metric = metricBtn ? metricBtn.getAttribute('data-metric') : 'testFiles';
+    var activeBtn = document.querySelector('#version-chart-type-btns button.active');
+    var chartType = activeBtn ? activeBtn.getAttribute('data-type') : 'line';
+    buildVersionChart(metric, chartType);
+  }
+
+  recent.forEach(function (version, idx) {
+    ensureAnalyzeRepo(ownerRepo, version).then(function (response) {
+      if (response.result) {
+        statsArr[idx] = response.result.stats;
+      }
+    }).catch(function () {}).then(function () {
+      pending--;
+      tryRender();
     });
   });
 }

@@ -77,7 +77,7 @@ describe('computeTestStats', function () {
 
   it('should return correct test ratio', function () {
     const result = computeTestStats({ source: ['src/app.js', 'src/utils.js'], test: ['tests/test_app.js'] });
-    expect(result.testRatio).toEqual(50);
+    expect(result.testRatio).toEqual(33);
   });
 
   it('should return correct mock file count', function () {
@@ -158,7 +158,7 @@ describe('analyzeRepo', function () {
   it('should have correct stats', function () {
     var result = analyzeRepo('owner/repo', ['src/app.js', 'tests/test_app.js']);
     expect(result.stats.total).toEqual(2);
-    expect(result.stats.sourceFiles).toEqual(1);
+    expect(result.stats.sourceFiles).toEqual(2);
     expect(result.stats.testFiles).toEqual(1);
   });
 

@@ -324,6 +324,26 @@
       color: #16a34a;
     }
 
+    .version-select {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      color: #64748b;
+      transition: border-color 0.15s, color 0.15s;
+      max-width: 160px;
+    }
+
+    .version-select:hover, .version-select:focus {
+      border-color: #bbf7d0;
+      color: #16a34a;
+      outline: none;
+    }
+
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -709,8 +729,8 @@
     }
 
     .block-cell {
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       border-radius: 2px;
       cursor: default;
       transition: transform 0.1s, border-radius 0.15s;
@@ -889,6 +909,7 @@
     .shape-toggle.active .shape-toggle-icon {
       border-radius: 50%;
     }
+
   </style>
 </head>
 <body>
@@ -926,13 +947,25 @@
     <div id="error"></div>
 
     <div id="results">
-      <h2 id="results-title" class="results-title"><span id="results-title-text"></span><span class="results-title-actions"><a id="gh-link" target="_blank" rel="noopener" style="color:#1e293b;text-decoration:none;"><i class="devicon-github-original" style="font-size:1.1rem;"></i></a><button class="copy-link-btn" id="copy-link-btn">Copy link</button></span></h2>
+      <h2 id="results-title" class="results-title"><span id="results-title-text"></span><span class="results-title-actions"><select id="version-select" class="version-select" style="display:none;"></select><a id="gh-link" target="_blank" rel="noopener" style="color:#1e293b;text-decoration:none;"><i class="devicon-github-original" style="font-size:1.1rem;"></i></a><button class="copy-link-btn" id="copy-link-btn">Copy link</button></span></h2>
       <div class="stats-grid" id="stats-grid"></div>
       <div id="tree-chart" style="display:none;margin-top:16px;"></div>
+      <div id="version-chart-container" style="display:none;margin-top:24px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <h3 style="font-size:0.95rem;font-weight:600;color:#1e293b;margin:0;">Versions</h3>
+          <span id="version-metric-btns" style="display:inline-flex;flex-wrap:wrap;gap:4px;"></span>
+          <span id="version-chart-type-btns" style="display:inline-flex;gap:0;">
+            <button data-type="line" class="active" title="Line chart" style="font-size:0.85rem;font-family:'Inter',sans-serif;padding:4px 10px;border:1px solid #e2e8f0;border-radius:6px 0 0 6px;background:#22c55e;color:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 6 13 14 9 8 2 18"/></svg></button>
+            <button data-type="bar" title="Bar chart" style="font-size:0.85rem;font-family:'Inter',sans-serif;padding:4px 10px;border:1px solid #e2e8f0;border-left:none;border-radius:0 6px 6px 0;background:#fff;color:#1e293b;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="5" width="4" height="16" rx="1"/><rect x="17" y="9" width="4" height="12" rx="1"/></svg></button>
+          </span>
+        </div>
+        <div style="position:relative;height:300px;"><canvas id="version-chart"></canvas></div>
+      </div>
     </div>
 
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="js/app.js?v=5"></script>
@@ -971,9 +1004,9 @@
       history.replaceState(null, '', '#' + owner);
     }
 
-    async function analyzeSingleRepo(ownerRepo) {
+    async function analyzeSingleRepo(ownerRepo, version) {
       setBtnLoading('Analyzing...');
-      var response = await ensureAnalyzeRepo(ownerRepo);
+      var response = await ensureAnalyzeRepo(ownerRepo, version);
       setBtnReady();
 
       if (response.error === 'too_large') {
@@ -991,11 +1024,61 @@
         return;
       }
 
-      renderRepoStats(ownerRepo, response.result.stats);
-      try { renderFileTree(ownerRepo); } catch (e) { console.error('Tree render error:', e); }
+      var cacheKey = version ? ownerRepo + '@' + version : ownerRepo;
+      renderRepoStats(cacheKey, response.result.stats);
+      try { renderFileTree(cacheKey); } catch (e) { console.error('Tree render error:', e); }
       saveRecent(ownerRepo);
       history.replaceState(null, '', '#' + ownerRepo);
+
+      // Load versions dropdown
+      var versionSelect = document.getElementById('version-select');
+      if (versionSelect.dataset.repo !== ownerRepo) {
+        versionSelect.style.display = 'none';
+        var versions = await fetchJsDelivrVersions(ownerRepo);
+        versionSelect.innerHTML = '<option value="">main</option>' +
+          versions.map(function (v) {
+            return '<option value="' + v + '"' + (v === version ? ' selected' : '') + '>' + v + '</option>';
+          }).join('');
+        versionSelect.dataset.repo = ownerRepo;
+        versionSelect.style.display = '';
+        renderVersionChart(ownerRepo, versions);
+      } else {
+        versionSelect.value = version || '';
+      }
     }
+
+    document.getElementById('version-metric-btns').addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-metric]');
+      if (!btn) return;
+      this.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      var typeBtn = document.querySelector('#version-chart-type-btns button.active');
+      var chartType = typeBtn ? typeBtn.getAttribute('data-type') : 'line';
+      buildVersionChart(btn.getAttribute('data-metric'), chartType);
+    });
+
+    document.getElementById('version-chart-type-btns').addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-type]');
+      if (!btn) return;
+      this.querySelectorAll('button').forEach(function (b) {
+        b.classList.remove('active');
+        b.style.background = '#fff';
+        b.style.color = '#1e293b';
+      });
+      btn.classList.add('active');
+      btn.style.background = '#22c55e';
+      btn.style.color = '#fff';
+      var metricBtn = document.querySelector('#version-metric-btns .active');
+      var metric = metricBtn ? metricBtn.getAttribute('data-metric') : 'testFiles';
+      buildVersionChart(metric, btn.getAttribute('data-type'));
+    });
+
+    document.getElementById('version-select').addEventListener('change', function () {
+      var repo = this.dataset.repo;
+      if (!repo) return;
+      var version = this.value || undefined;
+      analyzeSingleRepo(repo, version);
+    });
 
     function renderRepoStats(ownerRepo, stats) {
       var cards = [
@@ -1241,6 +1324,9 @@
       var ownerIcon = '<i class="devicon-' + owner.toLowerCase() + '-plain colored" style="font-size:1.3rem;margin-right:6px;"></i>';
       document.getElementById('results-title-text').innerHTML = ownerIcon + owner;
       document.getElementById('gh-link').href = 'https://github.com/' + owner;
+      var versionSelect = document.getElementById('version-select');
+      versionSelect.style.display = 'none';
+      versionSelect.dataset.repo = '';
 
       var repoIndices = [];
       for (var i = 0; i < repos.length; i++) {
