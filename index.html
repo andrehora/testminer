@@ -19,9 +19,30 @@
         <i class="devicon-github-original" style="font-size:1rem;"></i>testminer
       </a>
     </div>
+
+    <div id="gh-token-modal-overlay" class="file-list-modal-overlay" style="display:none;" onclick="if(event.target===this)closeTokenModal()">
+      <div class="file-list-modal" style="max-height:none;">
+        <div class="file-list-modal-header">
+          <span>GitHub Personal Access Token</span>
+          <button onclick="closeTokenModal()" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:1.2rem;line-height:1;">&#x2715;</button>
+        </div>
+        <div style="padding:16px;">
+          <p style="font-size:0.82rem;color:#64748b;margin:0 0 8px;">A read-only token increases the API rate limit from 60 to 5,000 requests/hour. The token is stored only in your browser's localStorage.</p>
+          <p style="font-size:0.82rem;margin:0 0 12px;">
+            <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;font-weight:600;">Fine-grained personal access token</a><br>
+            <a href="https://github.com/settings/tokens/new" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;font-weight:600;">Personal access token (classic)</a>
+          </p>
+          <input id="gh-token-input" type="password" placeholder="GitHub read-only token..." style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:0.85rem;font-family:'Inter',sans-serif;outline:none;" />
+          <div style="display:flex;gap:8px;margin-top:10px;">
+            <button onclick="saveToken()" style="flex:1;padding:8px;background:#22c55e;color:#fff;border:none;border-radius:6px;font-size:0.85rem;font-family:'Inter',sans-serif;cursor:pointer;font-weight:500;">Save token</button>
+            <button id="gh-token-remove-btn" onclick="removeToken()" style="padding:8px 14px;background:#f1f5f9;color:#64748b;border:none;border-radius:6px;font-size:0.85rem;font-family:'Inter',sans-serif;cursor:pointer;">Remove</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="header">
       <h1>TestMiner</h1>
-      <p>Explore test practices in GitHub repositories</p>
+      <p>Explore Testing on GitHub</p>
     </div>
 
     <div class="search">
@@ -63,10 +84,10 @@
       <h2 id="results-title" class="results-title"><span id="results-title-text"></span><button class="copy-link-btn" id="copy-link-btn">Copy link</button><span class="results-title-actions"><select id="version-select" class="version-select" style="display:none;"></select><a id="gh-link" target="_blank" rel="noopener" style="color:#1e293b;text-decoration:none;"><i class="devicon-github-original" style="font-size:1.1rem;"></i></a></span></h2>
       <h3 class="section-title" id="section-title-overview" style="display:none;">Overview</h3>
       <div class="stats-grid" id="stats-grid"></div>
-      <h3 class="section-title" id="section-title-state" style="display:none;">Test State</h3>
+      <h3 class="section-title" id="section-title-state" style="display:none;">Test Location</h3>
       <div id="tree-chart" style="display:none;margin-top:16px;"></div>
       <h3 class="section-title" id="section-title-history" style="display:none;">Test History</h3>
-      <div id="version-chart-container" style="display:none;margin-top:24px;">
+      <div id="version-chart-container" style="display:none;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
           <span id="version-metric-btns" style="display:inline-flex;flex-wrap:wrap;gap:4px;"></span>
           <span id="version-chart-type-btns" style="display:inline-flex;gap:0;">
@@ -82,7 +103,9 @@
     </div>
 
     <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0 0 0;">
-    <p style="text-align:center;padding:16px 0 0;font-size:0.8rem;color:#94a3b8;margin:0;">Data from GitHub API, GitHub Linguist, jsDelivr API, and <a href="https://github.com/andrehora/testminer" target="_blank" rel="noopener" style="color:#64748b;text-decoration:underline;">TestMiner</a>.</p>
+    <p style="text-align:center;padding:16px 0 0;font-size:0.8rem;color:#94a3b8;margin:0;">Data from GitHub API, jsDelivr API, and <a href="https://github.com/andrehora/testminer" target="_blank" rel="noopener" style="color:#64748b;text-decoration:underline;">TestMiner</a>.</p>
+    <p id="github-rate-limit" style="text-align:center;padding:8px 0 0;font-size:0.8rem;color:#94a3b8;margin:0;"><span id="github-rate-limit-text"></span></p>
+    <p style="text-align:center;padding:8px 0 12px;margin:0;"><button id="gh-token-btn" onclick="openTokenModal()" class="gh-token-btn">Add GitHub token</button></p>
 
   </div>
 
@@ -743,8 +766,7 @@
         var dot = '<span class="stat-dot" style="background:' + color + ';"></span>';
         return '<tr class="' + cls + '"' + dataAttr + '><td class="stat-label">' + dot + c.label + '</td><td class="stat-value">' + c.value + '</td></tr>';
       }).join('');
-      grid.innerHTML = '<table class="stats-table"><tbody>' + rows + '</tbody></table>' +
-        '<div class="file-list-panel" id="file-list-panel"><div class="file-list-header"><span id="file-list-title"></span><button class="file-list-close" id="file-list-close">&times;</button></div><ul id="file-list-items"></ul></div>';
+      grid.innerHTML = '<table class="stats-table"><tbody>' + rows + '</tbody></table>';
 
       var atIdx = ownerRepo.indexOf('@');
       var baseRepo = atIdx !== -1 ? ownerRepo.substring(0, atIdx) : ownerRepo;
@@ -767,6 +789,12 @@
 
     }
 
+    function closeFileListModal() {
+      var modal = document.getElementById('file-list-modal');
+      modal.style.display = 'none';
+      document.querySelectorAll('.stat-row.active').forEach(function (r) { r.classList.remove('active'); });
+    }
+
     function setupStatCardClicks(grid, ownerRepo, baseRepo, linkRef) {
       var cached = analyzeRepoCache[ownerRepo];
       if (!cached || !cached.files) return;
@@ -775,32 +803,25 @@
         row.addEventListener('click', function () {
           var category = this.getAttribute('data-category');
           var files = cached.files[category] || [];
-          var panel = document.getElementById('file-list-panel');
-          var wasActive = this.classList.contains('active');
 
           grid.querySelectorAll('.stat-row.active').forEach(function (r) { r.classList.remove('active'); });
-
-          if (wasActive) {
-            panel.classList.remove('visible');
-            return;
-          }
-
           this.classList.add('active');
-          document.getElementById('file-list-title').textContent = this.querySelector('.stat-label').textContent.trim() + ' (' + files.length + ')';
-          document.getElementById('file-list-items').innerHTML = files.map(function (f) {
+
+          var dot = this.querySelector('.stat-dot');
+          var dotHtml = dot ? '<span class="stat-dot" style="background:' + dot.style.background + ';"></span>' : '';
+          document.getElementById('file-list-modal-title').innerHTML = dotHtml + this.querySelector('.stat-label').textContent.trim() + ' (' + files.length + ')';
+          var ownerPart = baseRepo ? baseRepo.split('/')[0] : '';
+          var repoIconHtml = ownerPart ? '<i class="devicon-' + ownerPart.toLowerCase() + '-plain colored" style="font-size:1.1rem;"></i>' : '';
+          document.getElementById('file-list-modal-repo').innerHTML = repoIconHtml + (baseRepo ? baseRepo : '');
+          document.getElementById('file-list-modal-items').innerHTML = files.map(function (f) {
             if (linkRef) {
               var ghUrl = 'https://github.com/' + baseRepo + '/blob/' + linkRef + '/' + f;
               return '<li><a href="' + ghUrl + '" target="_blank" rel="noopener">' + f + '</a></li>';
             }
             return '<li>' + f + '</li>';
           }).join('');
-          panel.classList.add('visible');
+          document.getElementById('file-list-modal').style.display = 'flex';
         });
-      });
-
-      document.getElementById('file-list-close').addEventListener('click', function () {
-        document.getElementById('file-list-panel').classList.remove('visible');
-        grid.querySelectorAll('.stat-row.active').forEach(function (r) { r.classList.remove('active'); });
       });
     }
 
@@ -1217,6 +1238,7 @@
         }
       } else if (e.key === 'Escape') {
         acList.style.display = 'none';
+        closeFileListModal();
       }
     });
 
@@ -1307,7 +1329,68 @@
 
     analyzeFromHash();
     window.addEventListener('hashchange', analyzeFromHash);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { closeFileListModal(); closeTokenModal(); }
+    });
+
+    function updateTokenBtn() {
+      var btn = document.getElementById('gh-token-btn');
+      if (!btn) return;
+      var token = getGitHubToken();
+      if (token) {
+        btn.textContent = 'GitHub token active';
+        btn.classList.add('has-token');
+      } else {
+        btn.textContent = 'Add GitHub token';
+        btn.classList.remove('has-token');
+      }
+    }
+
+    function openTokenModal() {
+      var token = getGitHubToken();
+      document.getElementById('gh-token-input').value = token;
+      document.getElementById('gh-token-remove-btn').style.display = token ? '' : 'none';
+      document.getElementById('gh-token-modal-overlay').style.display = 'flex';
+      document.getElementById('gh-token-input').focus();
+    }
+
+    function closeTokenModal() {
+      document.getElementById('gh-token-modal-overlay').style.display = 'none';
+    }
+
+    function saveToken() {
+      var token = document.getElementById('gh-token-input').value.trim();
+      if (token) {
+        saveGitHubToken(token);
+      } else {
+        removeGitHubToken();
+      }
+      updateTokenBtn();
+      closeTokenModal();
+    }
+
+    function removeToken() {
+      removeGitHubToken();
+      document.getElementById('gh-token-input').value = '';
+      updateTokenBtn();
+      closeTokenModal();
+    }
+
+    updateTokenBtn();
+    fetchRateLimit();
   </script>
+
+  <!-- File list modal -->
+  <div id="file-list-modal" class="file-list-modal-overlay" style="display:none;" onclick="if(event.target===this){closeFileListModal();}">
+    <div class="file-list-modal">
+      <div class="file-list-modal-header">
+        <span id="file-list-modal-title" style="display:flex;align-items:center;gap:6px;"></span>
+        <span id="file-list-modal-repo" style="display:flex;align-items:center;gap:5px;margin-left:auto;color:#94a3b8;font-size:0.8rem;font-weight:400;white-space:nowrap;padding-right:8px;"></span>
+        <button class="file-list-close" onclick="closeFileListModal()">&times;</button>
+      </div>
+      <ul id="file-list-modal-items"></ul>
+    </div>
+  </div>
 
 </body>
 </html>

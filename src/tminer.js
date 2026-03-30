@@ -2,6 +2,43 @@ var ownerReposCache = {};
 var analyzeRepoCache = loadAnalyzeRepoCache();
 var extensionSet = null;
 
+function getGitHubToken() {
+  try { return localStorage.getItem('testminer_gh_token') || ''; } catch (e) { return ''; }
+}
+
+function saveGitHubToken(token) {
+  try { localStorage.setItem('testminer_gh_token', token); } catch (e) {}
+}
+
+function removeGitHubToken() {
+  try { localStorage.removeItem('testminer_gh_token'); } catch (e) {}
+}
+
+function githubFetch(url, options) {
+  options = options || {};
+  var token = getGitHubToken();
+  if (token) {
+    options.headers = Object.assign({ 'Authorization': 'Bearer ' + token }, options.headers || {});
+  }
+  return fetch(url, options);
+}
+
+function updateRateLimit(response) {
+  var remaining = response.headers.get('X-RateLimit-Remaining');
+  var limit = response.headers.get('X-RateLimit-Limit');
+  if (remaining === null || limit === null) return;
+  var el = document.getElementById('github-rate-limit-text');
+  if (el) el.textContent = 'GitHub API requests: ' + remaining + ' / ' + limit + ' remaining.';
+}
+
+function fetchRateLimit() {
+  githubFetch('https://api.github.com/rate_limit')
+    .then(function (response) {
+      updateRateLimit(response);
+    })
+    .catch(function () {});
+}
+
 function ensureAnalyzeRepo(repoKey, version) {
   var cacheKey = version ? repoKey + '@' + version : repoKey;
   if (analyzeRepoCache[cacheKey]) {
@@ -41,10 +78,11 @@ function fetchOwnerRepos(owner) {
     return Promise.resolve(ownerReposCache[key]);
   }
   var url = 'https://api.github.com/users/' + owner + '/repos?sort=pushed&per_page=50';
-  return fetch(url, {
+  return githubFetch(url, {
     headers: { 'Accept': 'application/vnd.github.mercy-preview+json' }
   })
     .then(function (response) {
+      updateRateLimit(response);
       if (!response.ok) {
         return null;
       }
@@ -90,8 +128,9 @@ function fetchJsDelivrFiles(ownerRepo, version) {
 
 function fetchDefaultBranch(ownerRepo) {
   var url = 'https://api.github.com/repos/' + ownerRepo;
-  return fetch(url)
+  return githubFetch(url)
     .then(function (response) {
+      updateRateLimit(response);
       if (!response.ok) return null;
       return response.json();
     })
@@ -105,8 +144,9 @@ function fetchDefaultBranch(ownerRepo) {
 
 function fetchSBOM(ownerRepo) {
   const url = 'https://api.github.com/repos/' + ownerRepo + '/dependency-graph/sbom';
-  return fetch(url)
+  return githubFetch(url)
     .then(function (response) {
+      updateRateLimit(response);
       if (!response.ok) {
         return null;
       }
