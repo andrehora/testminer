@@ -61,12 +61,14 @@
     <div id="error"></div>
 
     <div id="results">
-      <h2 id="results-title" class="results-title"><span id="results-title-text"></span><span class="results-title-actions"><select id="version-select" class="version-select" style="display:none;"></select><a id="gh-link" target="_blank" rel="noopener" style="color:#1e293b;text-decoration:none;"><i class="devicon-github-original" style="font-size:1.1rem;"></i></a><button class="copy-link-btn" id="copy-link-btn">Copy link</button></span></h2>
+      <h2 id="results-title" class="results-title"><span id="results-title-text"></span><button class="copy-link-btn" id="copy-link-btn">Copy link</button><span class="results-title-actions"><select id="version-select" class="version-select" style="display:none;"></select><a id="gh-link" target="_blank" rel="noopener" style="color:#1e293b;text-decoration:none;"><i class="devicon-github-original" style="font-size:1.1rem;"></i></a></span></h2>
+      <h3 class="section-title" id="section-title-overview" style="display:none;">Overview</h3>
       <div class="stats-grid" id="stats-grid"></div>
+      <h3 class="section-title" id="section-title-state" style="display:none;">Test State</h3>
       <div id="tree-chart" style="display:none;margin-top:16px;"></div>
+      <h3 class="section-title" id="section-title-history" style="display:none;">Test History</h3>
       <div id="version-chart-container" style="display:none;margin-top:24px;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-          <h3 style="font-size:0.95rem;font-weight:600;color:#1e293b;margin:0;"></h3>
           <span id="version-metric-btns" style="display:inline-flex;flex-wrap:wrap;gap:4px;"></span>
           <span id="version-chart-type-btns" style="display:inline-flex;gap:0;">
             <button data-type="line" class="active" title="Line chart" style="font-size:0.85rem;font-family:'Inter',sans-serif;padding:4px 10px;border:1px solid #e2e8f0;border-radius:6px 0 0 6px;background:#22c55e;color:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 6 13 14 9 8 2 18"/></svg></button>
@@ -726,11 +728,17 @@
 
       setupStatCardClicks(grid, ownerRepo);
 
-      var ownerPart = ownerRepo.split('/')[0];
-      var repoPart = ownerRepo.split('/')[1];
+      var atIdx = ownerRepo.indexOf('@');
+      var baseRepo = atIdx !== -1 ? ownerRepo.substring(0, atIdx) : ownerRepo;
+      var versionTag = atIdx !== -1 ? ownerRepo.substring(atIdx + 1) : '';
+      var ownerPart = baseRepo.split('/')[0];
+      var repoPart = baseRepo.split('/')[1];
       var ownerIcon = '<i class="devicon-' + ownerPart.toLowerCase() + '-plain colored" style="font-size:1.3rem;margin-right:6px;"></i>';
       document.getElementById('results-title-text').innerHTML = ownerIcon + '<a class="owner-link" href="#' + ownerPart + '">' + ownerPart + '</a> / ' + repoPart;
-      document.getElementById('gh-link').href = 'https://github.com/' + ownerRepo;
+      document.getElementById('gh-link').href = 'https://github.com/' + baseRepo + (versionTag ? '/tree/' + versionTag : '');
+      document.getElementById('section-title-overview').style.display = '';
+      document.getElementById('section-title-state').style.display = '';
+      document.getElementById('section-title-history').style.display = '';
       document.getElementById('results').style.display = 'block';
       document.getElementById('home-link').style.visibility = 'visible';
     }
@@ -779,6 +787,9 @@
         document.getElementById('results').style.display = 'none';
         document.getElementById('home-link').style.visibility = 'hidden';
         document.getElementById('tree-chart').style.display = 'none';
+        document.getElementById('section-title-overview').style.display = 'none';
+        document.getElementById('section-title-state').style.display = 'none';
+        document.getElementById('section-title-history').style.display = 'none';
         document.getElementById('autocomplete-list').style.display = 'none';
 
         if (!input) {
@@ -945,6 +956,9 @@
       versionSelect.style.display = 'none';
       versionSelect.dataset.repo = '';
       document.getElementById('version-chart-container').style.display = 'none';
+      document.getElementById('section-title-overview').style.display = 'none';
+      document.getElementById('section-title-state').style.display = 'none';
+      document.getElementById('section-title-history').style.display = 'none';
       if (versionChartInstance) { versionChartInstance.destroy(); versionChartInstance = null; }
       versionChartGeneration++;
 
