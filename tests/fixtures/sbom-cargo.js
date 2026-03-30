@@ -63,3 +63,4 @@ var cargoData = {
     ]
   }
 };
+if (typeof module !== 'undefined') module.exports = cargoData;

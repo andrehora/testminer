@@ -1,3 +1,24 @@
+var tm = require('../src/tminer');
+var parseJsDelivrFiles = tm.parseJsDelivrFiles;
+var computeTestStats = tm.computeTestStats;
+var classifyFiles = tm.classifyFiles;
+var classifyFile = tm.classifyFile;
+var analyzeRepo = tm.analyzeRepo;
+var testRatio = tm.testRatio;
+var containsTest = tm.containsTest;
+var isTestRelatedFile = tm.isTestRelatedFile;
+var isBenchmarkFile = tm.isBenchmarkFile;
+var isFixtureFile = tm.isFixtureFile;
+var isSmokeFile = tm.isSmokeFile;
+var isCITestFile = tm.isCITestFile;
+var isMockFile = tm.isMockFile;
+var isE2EFile = tm.isE2EFile;
+var isSnapshotFile = tm.isSnapshotFile;
+var isTestFile = tm.isTestFile;
+var isSourceFile = tm.isSourceFile;
+
+var jsdelivrGitevoData = require('./fixtures/jsdelivr-gitevo');
+
 describe('parseJsDelivrFiles', function () {
 
   it('should return all root-level files', function () {
@@ -46,7 +67,7 @@ describe('parseJsDelivrFiles', function () {
 describe('computeTestStats', function () {
 
   beforeAll(function () {
-    extensionSet = new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml', '.sh', '.snap']);
+    tm.setExtensionSet(new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml', '.sh', '.snap']));
   });
 
   it('should return zeros for an empty classified object', function () {
@@ -141,11 +162,11 @@ describe('computeTestStats', function () {
 describe('analyzeRepo', function () {
 
   beforeAll(function () {
-    extensionSet = new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml', '.snap']);
+    tm.setExtensionSet(new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml', '.snap']));
   });
 
   beforeEach(function () {
-    analyzeRepoCache = {};
+    tm.resetAnalyzeRepoCache();
   });
 
   it('should return an object with repo, stats and files', function () {
@@ -521,13 +542,13 @@ describe('isSnapshotFile', function () {
 describe('isTestFile', function () {
 
   beforeAll(function () {
-    extensionSet = new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml']);
+    tm.setExtensionSet(new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml']));
   });
 
   it('should return true for a file with "test" in the name', function () {
     expect(isTestFile('test_main.py')).toBe(true);
     expect(isTestFile('main_test.py')).toBe(true);
-    expect(isTestFile('TEST_helper.py')).toBe(true);   
+    expect(isTestFile('TEST_helper.py')).toBe(true);
     expect(isTestFile('my_test_file.js')).toBe(true);
     expect(isTestFile('myTESTfile.java')).toBe(true);
   });
@@ -568,7 +589,6 @@ describe('isTestFile', function () {
     expect(isTestFile('foo_spec.rb')).toBe(true);
     expect(isTestFile('SPEC.rb')).toBe(true);
     expect(isTestFile('app.SPEC.js')).toBe(true);
-    
   });
 
   it('should return false for a file where only the directory contains "spec"', function () {
@@ -588,7 +608,7 @@ describe('isTestFile', function () {
 describe('classifyFile', function () {
 
   beforeAll(function () {
-    extensionSet = new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml', '.snap']);
+    tm.setExtensionSet(new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml', '.snap']));
   });
 
   it('should return "benchmark" for benchmark files', function () {
@@ -668,7 +688,7 @@ describe('classifyFile', function () {
 describe('classifyFiles', function () {
 
   beforeAll(function () {
-    extensionSet = new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml', '.snap']);
+    tm.setExtensionSet(new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml', '.snap']));
   });
 
   it('should return an empty object for empty input', function () {
@@ -724,7 +744,7 @@ describe('classifyFiles', function () {
 describe('isSourceFile', function () {
 
   beforeAll(function () {
-    extensionSet = new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml']);
+    tm.setExtensionSet(new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml']));
   });
 
   it('should return true for files with known source extensions', function () {
@@ -766,10 +786,9 @@ describe('isSourceFile', function () {
   });
 
   it('should return false when extensionSet is null', function () {
-    var saved = extensionSet;
-    extensionSet = null;
+    tm.setExtensionSet(null);
     expect(isSourceFile('app.js')).toBe(false);
-    extensionSet = saved;
+    tm.setExtensionSet(new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml']));
   });
 
 });

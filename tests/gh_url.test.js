@@ -1,3 +1,8 @@
+var tm = require('../src/tminer');
+var parseGitHubOwnerRepo = tm.parseGitHubOwnerRepo;
+var parseGitHubOwner = tm.parseGitHubOwner;
+var parseEcosystemFromPurl = tm.parseEcosystemFromPurl;
+
 describe('parseGitHubOwnerRepo', function () {
 
   it('should parse an https GitHub URL', function () {

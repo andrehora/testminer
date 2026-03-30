@@ -69,3 +69,4 @@ var pypiData = {
     ]
   }
 };
+if (typeof module !== 'undefined') module.exports = pypiData;

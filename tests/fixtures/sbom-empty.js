@@ -20,3 +20,4 @@ var emptyData = {
     ]
   }
 };
+if (typeof module !== 'undefined') module.exports = emptyData;

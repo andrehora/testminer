@@ -69,3 +69,4 @@ var golangData = {
     ]
   }
 };
+if (typeof module !== 'undefined') module.exports = golangData;

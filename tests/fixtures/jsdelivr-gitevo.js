@@ -30,4 +30,4 @@ var jsdelivrGitevoData = {
       ]
     }
   ]
-};
+};if (typeof module !== 'undefined') module.exports = jsdelivrGitevoData;

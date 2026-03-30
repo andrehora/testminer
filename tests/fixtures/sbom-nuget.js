@@ -60,3 +60,4 @@ var nugetData = {
     ]
   }
 };
+if (typeof module !== 'undefined') module.exports = nugetData;

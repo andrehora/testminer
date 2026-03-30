@@ -1,3 +1,15 @@
+var tm = require('../src/tminer');
+var parseSBOM = tm.parseSBOM;
+
+var npmData = require('./fixtures/sbom-npm');
+var golangData = require('./fixtures/sbom-golang');
+var pypiData = require('./fixtures/sbom-pypi');
+var composerData = require('./fixtures/sbom-composer');
+var cargoData = require('./fixtures/sbom-cargo');
+var gemData = require('./fixtures/sbom-gem');
+var nugetData = require('./fixtures/sbom-nuget');
+var emptyData = require('./fixtures/sbom-empty');
+
 describe('parseSBOM', function () {
 
   it('should parse npm packages (expressjs/express)', function () {

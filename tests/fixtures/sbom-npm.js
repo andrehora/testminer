@@ -67,3 +67,4 @@ var npmData = {
     ]
   }
 };
+if (typeof module !== 'undefined') module.exports = npmData;

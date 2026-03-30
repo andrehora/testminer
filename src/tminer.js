@@ -418,3 +418,31 @@ function saveAnalyzeRepoCache() {
     localStorage.setItem('testminer_analyze_cache', JSON.stringify(analyzeRepoCache));
   } catch (e) {}
 }
+
+if (typeof module !== 'undefined') {
+  module.exports = {
+    parseGitHubOwnerRepo: parseGitHubOwnerRepo,
+    parseGitHubOwner: parseGitHubOwner,
+    parseEcosystemFromPurl: parseEcosystemFromPurl,
+    parseSBOM: parseSBOM,
+    parseJsDelivrFiles: parseJsDelivrFiles,
+    classifyFiles: classifyFiles,
+    classifyFile: classifyFile,
+    computeTestStats: computeTestStats,
+    analyzeRepo: analyzeRepo,
+    testRatio: testRatio,
+    containsTest: containsTest,
+    isTestRelatedFile: isTestRelatedFile,
+    isTestFile: isTestFile,
+    isMockFile: isMockFile,
+    isE2EFile: isE2EFile,
+    isSnapshotFile: isSnapshotFile,
+    isSmokeFile: isSmokeFile,
+    isFixtureFile: isFixtureFile,
+    isBenchmarkFile: isBenchmarkFile,
+    isCITestFile: isCITestFile,
+    isSourceFile: isSourceFile,
+    setExtensionSet: function(s) { extensionSet = s; },
+    resetAnalyzeRepoCache: function() { analyzeRepoCache = {}; }
+  };
+}

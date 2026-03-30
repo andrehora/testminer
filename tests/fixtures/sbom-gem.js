@@ -63,3 +63,4 @@ var gemData = {
     ]
   }
 };
+if (typeof module !== 'undefined') module.exports = gemData;
