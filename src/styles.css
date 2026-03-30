@@ -734,7 +734,7 @@ body {
 @media (max-width: 600px) {
   .owner-table th,
   .owner-table td {
-    padding: 10px 16px;
+    padding: 8px 6px;
     font-size: 0.72rem;
   }
   .owner-table th:first-child {
