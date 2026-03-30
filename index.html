@@ -55,19 +55,6 @@
 
     <div id="suggestions" class="suggestions">
       <span class="suggestion-label">Try:</span>
-      <button class="suggestion-btn" data-value="google">google</button>
-      <button class="suggestion-btn" data-value="microsoft">microsoft</button>
-      <button class="suggestion-btn" data-value="apple">apple</button>
-      <button class="suggestion-btn" data-value="facebook">facebook</button>
-      <button class="suggestion-btn" data-value="netflix">netflix</button>
-      <button class="suggestion-btn" data-value="github">github</button>
-      <button class="suggestion-btn" data-value="apache">apache</button>
-      <button class="suggestion-btn" data-value="huggingface">huggingface</button>
-
-      <button class="suggestion-btn" data-value="facebook/react">facebook/react</button>
-      <button class="suggestion-btn" data-value="fastapi/fastapi">fastapi/fastapi</button>
-      <button class="suggestion-btn" data-value="electron/electron">electron/electron</button>
-
     </div>
 
     <div id="recent" class="recent">
@@ -1028,7 +1015,7 @@
     function saveRecent(repo) {
       var recent = getRecent().filter(function (r) { return r !== repo; });
       recent.unshift(repo);
-      if (recent.length > 5) recent = recent.slice(0, 5);
+      if (recent.length > tminerConfig.max_search_cache) recent = recent.slice(0, tminerConfig.max_search_cache);
       localStorage.setItem('testminer_search_cache', JSON.stringify(recent));
       renderRecent();
     }
@@ -1073,12 +1060,22 @@
     renderRecent();
 
     // Suggestions
-    document.querySelectorAll('.suggestion-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        document.getElementById('repo-input').value = this.getAttribute('data-value');
-        analyze();
+    function renderSuggestions() {
+      var container = document.getElementById('suggestions');
+      var suggestions = tminerConfig.search_suggestions;
+      suggestions.forEach(function(val) {
+        var btn = document.createElement('button');
+        btn.className = 'suggestion-btn';
+        btn.setAttribute('data-value', val);
+        btn.textContent = val;
+        btn.addEventListener('click', function() {
+          document.getElementById('repo-input').value = val;
+          analyze();
+        });
+        container.appendChild(btn);
       });
-    });
+    }
+    tminerConfigReady.then(renderSuggestions);
 
     // Autocomplete
     var repoData = [];
