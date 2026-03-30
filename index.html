@@ -17,8 +17,8 @@
     <div class="header">
       <h1>TestMiner</h1>
       <p>Explore test practices in GitHub repositories</p>
-      <a href="https://github.com/andrehora/testminer" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-size:0.85rem;color:#64748b;text-decoration:none;margin-top:10px;">
-        <i class="devicon-github-original" style="font-size:1.1rem;"></i>andrehora/testminer
+      <a href="https://github.com/andrehora/testminer" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-size:1rem;color:#000000;text-decoration:none;margin-top:10px;">
+        <i class="devicon-github-original" style="font-size:1rem;"></i>testminer
       </a>
     </div>
 
@@ -980,7 +980,7 @@
     // Recent searches
     function getRecent() {
       try {
-        return JSON.parse(localStorage.getItem('testminer_recent') || '[]');
+        return JSON.parse(localStorage.getItem('testminer_search_cache') || '[]');
       } catch (e) { return []; }
     }
 
@@ -988,7 +988,7 @@
       var recent = getRecent().filter(function (r) { return r !== repo; });
       recent.unshift(repo);
       if (recent.length > 5) recent = recent.slice(0, 5);
-      localStorage.setItem('testminer_recent', JSON.stringify(recent));
+      localStorage.setItem('testminer_search_cache', JSON.stringify(recent));
       renderRecent();
     }
 
@@ -1011,7 +1011,7 @@
         var item = e.target.closest('.recent-item');
         var repo = item.getAttribute('data-repo');
         var recent = getRecent().filter(function (r) { return r !== repo; });
-        localStorage.setItem('testminer_recent', JSON.stringify(recent));
+        localStorage.setItem('testminer_search_cache', JSON.stringify(recent));
         renderRecent();
         return;
       }
@@ -1023,7 +1023,7 @@
     });
 
     document.getElementById('recent-clear').addEventListener('click', function () {
-      localStorage.removeItem('testminer_recent');
+      localStorage.removeItem('testminer_search_cache');
       localStorage.removeItem('testminer_analyze_cache');
       analyzeRepoCache = {};
       renderRecent();
