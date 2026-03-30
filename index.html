@@ -13,14 +13,13 @@
 <body>
   <div class="container">
 
-    <div style="text-align:right;padding-bottom:8px;">
-      <a href="https://github.com/andrehora/testminer" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-size:0.85rem;color:#64748b;text-decoration:none;">
-        <i class="devicon-github-original" style="font-size:1.1rem;"></i>andrehora/testminer
-      </a>
-    </div>
+    <a id="home-link" href="#" onclick="document.getElementById('results').style.display='none';document.getElementById('home-link').style.visibility='hidden';document.getElementById('repo-input').value='';history.replaceState(null,'',location.pathname);return false;" style="font-size:0.85rem;color:#64748b;text-decoration:none;visibility:hidden;display:inline-flex;align-items:center;gap:4px;padding-bottom:8px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</a>
     <div class="header">
       <h1>TestMiner</h1>
-      <p>Analyze test practices in GitHub repositories</p>
+      <p>Explore test practices in GitHub repositories</p>
+      <a href="https://github.com/andrehora/testminer" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-size:0.85rem;color:#64748b;text-decoration:none;margin-top:10px;">
+        <i class="devicon-github-original" style="font-size:1.1rem;"></i>andrehora/testminer
+      </a>
     </div>
 
     <div class="search">
@@ -28,15 +27,27 @@
         <input id="repo-input" type="text" placeholder="GitHub URL, owner/repo, or owner" autocomplete="off" />
         <div id="autocomplete-list" class="autocomplete-list"></div>
       </div>
-      <button id="analyze-btn" onclick="analyze()">Analyze</button>
+      <button id="analyze-btn" onclick="analyze()">Explore</button>
     </div>
 
     <div id="suggestions" class="suggestions">
       <span class="suggestion-label">Try:</span>
       <button class="suggestion-btn" data-value="google">google</button>
       <button class="suggestion-btn" data-value="microsoft">microsoft</button>
+      <button class="suggestion-btn" data-value="apple">apple</button>
+      <button class="suggestion-btn" data-value="facebook">facebook</button>
+      <button class="suggestion-btn" data-value="netflix">netflix</button>
+      <button class="suggestion-btn" data-value="github">github</button>
+      <button class="suggestion-btn" data-value="apache">apache</button>
+      <button class="suggestion-btn" data-value="huggingface">huggingface</button>
+      <button class="suggestion-btn" data-value="airbnb">airbnb</button>
+
       <button class="suggestion-btn" data-value="facebook/react">facebook/react</button>
-      <button class="suggestion-btn" data-value="openai/codex">openai/codex</button>
+      <button class="suggestion-btn" data-value="fastapi/fastapi">fastapi/fastapi</button>
+      <button class="suggestion-btn" data-value="apple/servicetalk">apple/servicetalk</button>
+      <button class="suggestion-btn" data-value="redis/RedisInsight">redis/RedisInsight</button>
+      <button class="suggestion-btn" data-value="microsoft/rushstack">microsoft/rushstack</button>
+
     </div>
 
     <div id="recent" class="recent">
@@ -55,19 +66,22 @@
       <div id="tree-chart" style="display:none;margin-top:16px;"></div>
       <div id="version-chart-container" style="display:none;margin-top:24px;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-          <h3 style="font-size:0.95rem;font-weight:600;color:#1e293b;margin:0;">Versions</h3>
+          <h3 style="font-size:0.95rem;font-weight:600;color:#1e293b;margin:0;"></h3>
           <span id="version-metric-btns" style="display:inline-flex;flex-wrap:wrap;gap:4px;"></span>
           <span id="version-chart-type-btns" style="display:inline-flex;gap:0;">
             <button data-type="line" class="active" title="Line chart" style="font-size:0.85rem;font-family:'Inter',sans-serif;padding:4px 10px;border:1px solid #e2e8f0;border-radius:6px 0 0 6px;background:#22c55e;color:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 6 13 14 9 8 2 18"/></svg></button>
             <button data-type="bar" title="Bar chart" style="font-size:0.85rem;font-family:'Inter',sans-serif;padding:4px 10px;border:1px solid #e2e8f0;border-left:none;border-radius:0 6px 6px 0;background:#fff;color:#1e293b;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="5" width="4" height="16" rx="1"/><rect x="17" y="9" width="4" height="12" rx="1"/></svg></button>
           </span>
         </div>
-        <div style="position:relative;height:300px;"><canvas id="version-chart"></canvas></div>
+        <div style="position:relative;height:300px;">
+          <div id="version-chart-loading" style="display:none;position:absolute;inset:0;background:rgba(255,255,255,0.85);z-index:2;align-items:center;justify-content:center;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></path></svg></div>
+          <canvas id="version-chart"></canvas>
+        </div>
       </div>
     </div>
 
     <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0 0 0;">
-    <p style="text-align:center;padding:16px 0 0;font-size:0.8rem;color:#94a3b8;margin:0;">Data from jsDelivr API, GitHub API, and <a href="https://github.com/andrehora/testminer" target="_blank" rel="noopener" style="color:#64748b;text-decoration:underline;">TestMiner</a>.</p>
+    <p style="text-align:center;padding:16px 0 0;font-size:0.8rem;color:#94a3b8;margin:0;">Data from GitHub API, GitHub Linguist, jsDelivr API, and <a href="https://github.com/andrehora/testminer" target="_blank" rel="noopener" style="color:#64748b;text-decoration:underline;">TestMiner</a>.</p>
 
   </div>
 
@@ -513,8 +527,26 @@
         return;
       }
 
-      var recent = versions.slice(0, 10).reverse();
+      var semverRe = /^v?\d+\.\d+\.\d+$/;
+      versions = versions.filter(function (v) { return semverRe.test(v); });
+
+      if (versions.length === 0) {
+        container.style.display = 'none';
+        return;
+      }
+
+      var n = versions.length;
+      var selectedIndices;
+      if (n <= 5) {
+        selectedIndices = versions.map(function(_, i) { return i; });
+      } else {
+        selectedIndices = [0, Math.round(n / 4), Math.round(n / 2), Math.round(3 * n / 4), n - 1];
+      }
+      var recent = selectedIndices.map(function(i) { return versions[i]; }).reverse();
       container.style.display = 'block';
+
+      var loadingEl = document.getElementById('version-chart-loading');
+      loadingEl.style.display = 'flex';
 
       versionChartLabels = recent;
       var statsArr = new Array(recent.length).fill(null);
@@ -524,6 +556,8 @@
       function tryRender() {
         if (versionChartGeneration !== gen) return;
         if (pending > 0) return;
+
+        loadingEl.style.display = 'none';
 
         if (statsArr.every(function (v) { return v === null; })) {
           container.style.display = 'none';
@@ -698,6 +732,7 @@
       document.getElementById('results-title-text').innerHTML = ownerIcon + '<a class="owner-link" href="#' + ownerPart + '">' + ownerPart + '</a> / ' + repoPart;
       document.getElementById('gh-link').href = 'https://github.com/' + ownerRepo;
       document.getElementById('results').style.display = 'block';
+      document.getElementById('home-link').style.visibility = 'visible';
     }
 
     function setupStatCardClicks(grid, ownerRepo) {
@@ -742,6 +777,7 @@
 
         document.getElementById('error').style.display = 'none';
         document.getElementById('results').style.display = 'none';
+        document.getElementById('home-link').style.visibility = 'hidden';
         document.getElementById('tree-chart').style.display = 'none';
         document.getElementById('autocomplete-list').style.display = 'none';
 
@@ -919,6 +955,7 @@
 
       grid.innerHTML = buildOwnerTableHTML(repos, repoIndices);
       resultsEl.style.display = 'block';
+      document.getElementById('home-link').style.visibility = 'visible';
 
       fixLangIcons(grid);
       setupTableSorting(grid);

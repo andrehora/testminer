@@ -576,25 +576,26 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
   margin-bottom: 24px;
 }
 
 .suggestion-label {
-  font-size: 0.82rem;
+  font-size: 0.75rem;
   color: #94a3b8;
   font-weight: 500;
 }
 
 .suggestion-btn {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-family: 'Inter', sans-serif;
   font-weight: 500;
   color: #16a34a;
   background: #f0fdf4;
   border: 1px solid #dcfce7;
-  border-radius: 8px;
-  padding: 6px 14px;
+  border-radius: 6px;
+  padding: 4px 10px;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 }
