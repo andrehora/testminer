@@ -3,7 +3,7 @@ var analyzeRepoCache = loadAnalyzeRepoCache();
 var extensionSet = null;
 
 var tminerConfig = {
-  owner_repos_per_page: 30,
+  max_repos_per_page: 30,
   max_search_cache: 5,
   max_analyze_cache: 100,
   search_suggestions: []
@@ -13,8 +13,8 @@ var tminerConfigReady = fetch('tminer.yml')
   .then(function(r) { return r.text(); })
   .then(function(text) {
     var m;
-    m = text.match(/owner_repos_per_page\s*:\s*(\d+)/);
-    if (m) tminerConfig.owner_repos_per_page = parseInt(m[1], 10);
+    m = text.match(/max_repos_per_page\s*:\s*(\d+)/);
+    if (m) tminerConfig.max_repos_per_page = parseInt(m[1], 10);
     m = text.match(/max_search_cache\s*:\s*(\d+)/);
     if (m) tminerConfig.max_search_cache = parseInt(m[1], 10);
     m = text.match(/max_analyze_cache\s*:\s*(\d+)/);
@@ -105,7 +105,7 @@ function fetchOwnerRepos(owner) {
   if (ownerReposCache[key]) {
     return Promise.resolve(ownerReposCache[key]);
   }
-  var url = 'https://api.github.com/users/' + owner + '/repos?sort=pushed&per_page=' + tminerConfig.owner_repos_per_page;
+  var url = 'https://api.github.com/users/' + owner + '/repos?sort=pushed&per_page=' + tminerConfig.max_repos_per_page;
   return githubFetch(url, {
     headers: { 'Accept': 'application/vnd.github.mercy-preview+json' }
   })
