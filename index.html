@@ -13,13 +13,15 @@
 <body>
   <div class="container">
 
-    <a id="home-link" href="#" onclick="document.getElementById('results').style.display='none';document.getElementById('home-link').style.visibility='hidden';document.getElementById('repo-input').value='';history.replaceState(null,'',location.pathname);return false;" style="font-size:0.85rem;color:#64748b;text-decoration:none;visibility:hidden;display:inline-flex;align-items:center;gap:4px;padding-bottom:8px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</a>
+    <div style="display:flex;justify-content:center;align-items:center;gap:20px;padding-top:4px;padding-bottom:12px;margin-bottom:40px;">
+      <a id="home-link" href="#" onclick="document.getElementById('results').style.display='none';document.getElementById('repo-input').value='';history.replaceState(null,'',location.pathname);return false;" style="font-size:1rem;color:#64748b;text-decoration:none;display:inline-flex;align-items:center;gap:4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</a>
+      <a href="https://github.com/andrehora/testminer" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-size:1rem;color:#64748b;text-decoration:none;">
+        <i class="devicon-github-original" style="font-size:1rem;"></i>testminer
+      </a>
+    </div>
     <div class="header">
       <h1>TestMiner</h1>
       <p>Explore test practices in GitHub repositories</p>
-      <a href="https://github.com/andrehora/testminer" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-size:1rem;color:#000000;text-decoration:none;margin-top:10px;">
-        <i class="devicon-github-original" style="font-size:1rem;"></i>testminer
-      </a>
     </div>
 
     <div class="search">
@@ -27,7 +29,7 @@
         <input id="repo-input" type="text" placeholder="GitHub URL, owner/repo, or owner" autocomplete="off" />
         <div id="autocomplete-list" class="autocomplete-list"></div>
       </div>
-      <button id="analyze-btn" onclick="analyze()">Explore</button>
+      <button id="analyze-btn" onclick="analyze()"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
     </div>
 
     <div id="suggestions" class="suggestions">
@@ -40,13 +42,10 @@
       <button class="suggestion-btn" data-value="github">github</button>
       <button class="suggestion-btn" data-value="apache">apache</button>
       <button class="suggestion-btn" data-value="huggingface">huggingface</button>
-      <button class="suggestion-btn" data-value="airbnb">airbnb</button>
 
       <button class="suggestion-btn" data-value="facebook/react">facebook/react</button>
       <button class="suggestion-btn" data-value="fastapi/fastapi">fastapi/fastapi</button>
-      <button class="suggestion-btn" data-value="apple/servicetalk">apple/servicetalk</button>
-      <button class="suggestion-btn" data-value="redis/RedisInsight">redis/RedisInsight</button>
-      <button class="suggestion-btn" data-value="microsoft/rushstack">microsoft/rushstack</button>
+      <button class="suggestion-btn" data-value="electron/electron">electron/electron</button>
 
     </div>
 
@@ -90,7 +89,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <script src="src/testminer.js"></script>
+  <script src="src/tminer.js"></script>
   <script>
     var versionChartInstance = null;
     var versionChartStats = null;
@@ -98,24 +97,22 @@
     var versionChartGeneration = 0;
 
     var versionMetricOptions = [
-      { key: 'testFiles', label: 'Test files', category: 'test' },
-      { key: 'testRatio', label: 'Test ratio (%)', category: null },
-      { key: 'mockFiles', label: 'Mock files', category: 'mock' },
-      { key: 'e2eFiles', label: 'E2E files', category: 'e2e' },
-      { key: 'snapshotFiles', label: 'Snapshot files', category: 'snapshot' },
-      { key: 'fixtureFiles', label: 'Fixture files', category: 'fixture' },
-      { key: 'benchmarkFiles', label: 'Benchmark files', category: 'benchmark' },
-      { key: 'testRelatedFiles', label: 'Test-related files', category: 'test-related' },
-      { key: 'ciTestFiles', label: 'CI test files', category: 'ci-test' },
-      { key: 'smokeFiles', label: 'Smoke files', category: 'smoke' },
-      { key: 'sourceFiles', label: 'Source files', category: 'source' },
-      { key: 'total', label: 'Total files', category: null }
+      { key: 'testFiles', label: 'test', category: 'test' },
+      { key: 'testRelatedFiles', label: 'test-related', category: 'test-related' },
+      { key: 'mockFiles', label: 'mock', category: 'mock' },
+      { key: 'e2eFiles', label: 'e2e', category: 'e2e' },
+      { key: 'snapshotFiles', label: 'snapshot', category: 'snapshot' },
+      { key: 'ciTestFiles', label: 'ci-test', category: 'ci-test' },
+      { key: 'smokeFiles', label: 'smoke', category: 'smoke' },
+      { key: 'fixtureFiles', label: 'fixture', category: 'fixture' },
+      { key: 'benchmarkFiles', label: 'benchmark', category: 'benchmark' },
+      { key: 'sourceFiles', label: 'source', category: 'source' },
     ];
 
     var versionMetricLabels = {};
     versionMetricOptions.forEach(function (o) { versionMetricLabels[o.key] = o.label; });
 
-    function renderFileTree(ownerRepo) {
+    function renderFileTree(ownerRepo, gitRef) {
       var chartEl = document.getElementById('tree-chart');
       if (!chartEl) return;
 
@@ -124,6 +121,11 @@
         chartEl.style.display = 'none';
         return;
       }
+
+      var atIdx = ownerRepo.indexOf('@');
+      var baseRepo = atIdx !== -1 ? ownerRepo.substring(0, atIdx) : ownerRepo;
+      var versionTag = atIdx !== -1 ? ownerRepo.substring(atIdx + 1) : '';
+      var linkRef = versionTag || gitRef || '';
 
       var oldTooltip = document.querySelector('.block-tooltip');
       if (oldTooltip) oldTooltip.remove();
@@ -134,6 +136,7 @@
       var legendHTML = '<div class="tree-legend">';
       var legendShown = {};
       Object.keys(classificationColors).forEach(function (key) {
+        if (key === 'other') return;
         if (cached.files[key] && cached.files[key].length > 0) {
           var label = classificationLabels[key] || key;
           if (legendShown[label]) return;
@@ -187,6 +190,7 @@
 
       var sortOptions = [];
       Object.keys(classificationColors).forEach(function (cat) {
+        if (cat === 'other') return;
         if (cached.files[cat] && cached.files[cat].length > 0) {
           var label = classificationLabels[cat] || cat;
           if (!sortOptions.some(function (s) { return s.label === label; })) {
@@ -238,7 +242,7 @@
       depthNavHTML += '</div>';
 
       var blockMapEl = document.createElement('div');
-      blockMapEl.className = 'block-map';
+      blockMapEl.className = 'block-map' + (linkRef ? ' clickable' : '');
       blockMapEl.innerHTML = buildBlockMapHTML(defaultCategories);
 
       chartEl.innerHTML = legendHTML + sortHTML + showOnlyHTML + depthNavHTML + '<div class="block-separator"></div>';
@@ -272,6 +276,16 @@
         var cell = e.target.closest('.block-cell');
         if (cell) tooltipEl.classList.remove('visible');
       });
+
+      if (linkRef) {
+        blockMapEl.addEventListener('click', function (e) {
+          var cell = e.target.closest('.block-cell');
+          if (!cell) return;
+          var filepath = cell.getAttribute('data-tip');
+          if (!filepath) return;
+          window.open('https://github.com/' + baseRepo + '/blob/' + linkRef + '/' + filepath, '_blank');
+        });
+      }
 
       function getActiveFilters() {
         var filterBtns = chartEl.querySelectorAll('.block-sort-btn.active[data-showonly]');
@@ -596,16 +610,18 @@
       errorEl.style.display = 'block';
     }
 
+    var SEARCH_ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+
     function setBtnLoading(text) {
       var btn = document.getElementById('analyze-btn');
       btn.disabled = true;
-      btn.textContent = text;
+      btn.innerHTML = SEARCH_ICON_SVG;
     }
 
     function setBtnReady() {
       var btn = document.getElementById('analyze-btn');
       btn.disabled = false;
-      btn.textContent = 'Analyze';
+      btn.innerHTML = SEARCH_ICON_SVG;
     }
 
     async function analyzeOwner(owner) {
@@ -642,8 +658,9 @@
       }
 
       var cacheKey = version ? ownerRepo + '@' + version : ownerRepo;
-      renderRepoStats(cacheKey, response.result.stats);
-      try { renderFileTree(cacheKey); } catch (e) { console.error('Tree render error:', e); }
+      var defaultBranch = await fetchDefaultBranch(ownerRepo);
+      renderRepoStats(cacheKey, response.result.stats, defaultBranch);
+      try { renderFileTree(cacheKey, defaultBranch); } catch (e) { console.error('Tree render error:', e); }
       saveRecent(ownerRepo);
       history.replaceState(null, '', '#' + ownerRepo);
 
@@ -697,12 +714,10 @@
       analyzeSingleRepo(repo, version);
     });
 
-    function renderRepoStats(ownerRepo, stats) {
+    function renderRepoStats(ownerRepo, stats, gitRef) {
       var cards = [
-        { label: 'Total files',       value: stats.total },
         { label: 'Source files',      value: stats.sourceFiles,       category: 'source' },
         { label: 'Test files',        value: stats.testFiles,         category: 'test' },
-        { label: 'Test ratio',        value: stats.testRatio + '%', alwaysShow: true },
         { label: 'Test-related files',value: stats.testRelatedFiles,  category: 'test-related' },
         { label: 'Mock files',        value: stats.mockFiles,         category: 'mock' },
         { label: 'E2E files',         value: stats.e2eFiles,          category: 'e2e' },
@@ -717,44 +732,53 @@
       var hasFiles = cached && cached.files;
 
       var grid = document.getElementById('stats-grid');
-      grid.innerHTML = cards.filter(function (c) {
+      var visibleCards = cards.filter(function (c) {
         return c.alwaysShow || c.value > 0;
-      }).map(function (c) {
+      });
+      var rows = visibleCards.map(function (c) {
         var isClickable = c.category && hasFiles && (hasFiles[c.category] || []).length > 0;
-        var cls = 'stat-card' + (isClickable ? ' clickable' : '');
+        var cls = 'stat-row' + (isClickable ? ' clickable' : '');
         var dataAttr = isClickable ? ' data-category="' + c.category + '"' : '';
-        return '<div class="' + cls + '"' + dataAttr + '><div class="label">' + c.label + '</div><div class="value">' + c.value + '</div></div>';
-      }).join('') + '<div class="file-list-panel" id="file-list-panel"><div class="file-list-header"><span id="file-list-title"></span><button class="file-list-close" id="file-list-close">&times;</button></div><ul id="file-list-items"></ul></div>';
-
-      setupStatCardClicks(grid, ownerRepo);
+        var color = c.category && classificationColors[c.category] ? classificationColors[c.category] : '#1e293b';
+        var dot = '<span class="stat-dot" style="background:' + color + ';"></span>';
+        return '<tr class="' + cls + '"' + dataAttr + '><td class="stat-label">' + dot + c.label + '</td><td class="stat-value">' + c.value + '</td></tr>';
+      }).join('');
+      grid.innerHTML = '<table class="stats-table"><tbody>' + rows + '</tbody></table>' +
+        '<div class="file-list-panel" id="file-list-panel"><div class="file-list-header"><span id="file-list-title"></span><button class="file-list-close" id="file-list-close">&times;</button></div><ul id="file-list-items"></ul></div>';
 
       var atIdx = ownerRepo.indexOf('@');
       var baseRepo = atIdx !== -1 ? ownerRepo.substring(0, atIdx) : ownerRepo;
       var versionTag = atIdx !== -1 ? ownerRepo.substring(atIdx + 1) : '';
+      var linkRef = versionTag || gitRef || '';
+
+      setupStatCardClicks(grid, ownerRepo, baseRepo, linkRef);
       var ownerPart = baseRepo.split('/')[0];
       var repoPart = baseRepo.split('/')[1];
       var ownerIcon = '<i class="devicon-' + ownerPart.toLowerCase() + '-plain colored" style="font-size:1.3rem;margin-right:6px;"></i>';
       document.getElementById('results-title-text').innerHTML = ownerIcon + '<a class="owner-link" href="#' + ownerPart + '">' + ownerPart + '</a> / ' + repoPart;
       document.getElementById('gh-link').href = 'https://github.com/' + baseRepo + (versionTag ? '/tree/' + versionTag : '');
-      document.getElementById('section-title-overview').style.display = '';
-      document.getElementById('section-title-state').style.display = '';
-      document.getElementById('section-title-history').style.display = '';
+      ['section-title-overview', 'section-title-state', 'section-title-history'].forEach(function (id) {
+        var el = document.getElementById(id);
+        el.style.display = '';
+        el.classList.remove('collapsed');
+      });
+      document.getElementById('stats-grid').style.display = '';
       document.getElementById('results').style.display = 'block';
-      document.getElementById('home-link').style.visibility = 'visible';
+
     }
 
-    function setupStatCardClicks(grid, ownerRepo) {
+    function setupStatCardClicks(grid, ownerRepo, baseRepo, linkRef) {
       var cached = analyzeRepoCache[ownerRepo];
       if (!cached || !cached.files) return;
 
-      grid.querySelectorAll('.stat-card.clickable').forEach(function (card) {
-        card.addEventListener('click', function () {
+      grid.querySelectorAll('.stat-row.clickable').forEach(function (row) {
+        row.addEventListener('click', function () {
           var category = this.getAttribute('data-category');
           var files = cached.files[category] || [];
           var panel = document.getElementById('file-list-panel');
           var wasActive = this.classList.contains('active');
 
-          grid.querySelectorAll('.stat-card.active').forEach(function (c) { c.classList.remove('active'); });
+          grid.querySelectorAll('.stat-row.active').forEach(function (r) { r.classList.remove('active'); });
 
           if (wasActive) {
             panel.classList.remove('visible');
@@ -762,8 +786,12 @@
           }
 
           this.classList.add('active');
-          document.getElementById('file-list-title').textContent = this.querySelector('.label').textContent + ' (' + files.length + ')';
+          document.getElementById('file-list-title').textContent = this.querySelector('.stat-label').textContent.trim() + ' (' + files.length + ')';
           document.getElementById('file-list-items').innerHTML = files.map(function (f) {
+            if (linkRef) {
+              var ghUrl = 'https://github.com/' + baseRepo + '/blob/' + linkRef + '/' + f;
+              return '<li><a href="' + ghUrl + '" target="_blank" rel="noopener">' + f + '</a></li>';
+            }
             return '<li>' + f + '</li>';
           }).join('');
           panel.classList.add('visible');
@@ -772,7 +800,7 @@
 
       document.getElementById('file-list-close').addEventListener('click', function () {
         document.getElementById('file-list-panel').classList.remove('visible');
-        grid.querySelectorAll('.stat-card.active').forEach(function (c) { c.classList.remove('active'); });
+        grid.querySelectorAll('.stat-row.active').forEach(function (r) { r.classList.remove('active'); });
       });
     }
 
@@ -785,7 +813,7 @@
 
         document.getElementById('error').style.display = 'none';
         document.getElementById('results').style.display = 'none';
-        document.getElementById('home-link').style.visibility = 'hidden';
+
         document.getElementById('tree-chart').style.display = 'none';
         document.getElementById('section-title-overview').style.display = 'none';
         document.getElementById('section-title-state').style.display = 'none';
@@ -820,7 +848,6 @@
       { label: 'Stars', key: 'stars', type: 'number' },
       { label: 'Source files', key: 'source', type: 'number' },
       { label: 'Test files', key: 'test', type: 'number' },
-      { label: 'Test ratio', key: 'ratio', type: 'number' },
     ];
 
     function buildOwnerTableHTML(repos, repoIndices) {
@@ -845,7 +872,6 @@
           + '<td data-sort-value="' + repo.stargazers_count + '">' + repo.stargazers_count.toLocaleString() + '</td>'
           + '<td id="repo-source-' + repoIndices[j] + '" data-sort-value="">-</td>'
           + '<td id="repo-test-' + repoIndices[j] + '" data-sort-value="">-</td>'
-          + '<td id="repo-ratio-' + repoIndices[j] + '" data-sort-value="">-</td>'
           + '<td id="repo-status-' + repoIndices[j] + '"><span class="spinner"></span></td>'
           + '</tr>';
       }
@@ -937,9 +963,6 @@
             var testEl = document.getElementById('repo-test-' + index);
             testEl.textContent = stats.testFiles.toLocaleString();
             testEl.setAttribute('data-sort-value', stats.testFiles);
-            var ratioEl = document.getElementById('repo-ratio-' + index);
-            ratioEl.textContent = stats.testRatio + '%';
-            ratioEl.setAttribute('data-sort-value', stats.testRatio);
             document.getElementById('repo-status-' + index).textContent = '\u2705';
           });
         })(repos[repoIndices[k]], repoIndices[k]);
@@ -969,7 +992,7 @@
 
       grid.innerHTML = buildOwnerTableHTML(repos, repoIndices);
       resultsEl.style.display = 'block';
-      document.getElementById('home-link').style.visibility = 'visible';
+
 
       fixLangIcons(grid);
       setupTableSorting(grid);
@@ -1145,7 +1168,7 @@
       if (r.repo.language) {
         var langIconClass = getDeviconClass(r.repo.language);
         var langIcon = langIconClass ? '<i class="' + langIconClass + ' colored lang-icon"></i>' : '';
-        langRight = '<span class="ac-lang">' + r.repo.language + langIcon + '</span>';
+        langRight = '<span class="ac-lang"><span class="ac-lang-name">' + r.repo.language + '</span>' + langIcon + '</span>';
       }
       return '<div class="autocomplete-item" data-index="' + index + '"><span class="ac-tag">repo</span><span class="ac-name">' + name + topicDetail + '</span>' + langRight + '</div>';
     }
@@ -1231,10 +1254,45 @@
 
     document.getElementById('copy-link-btn').addEventListener('click', function () {
       var url = location.href.split('#')[0] + location.hash;
-      navigator.clipboard.writeText(url).then(function () {
-        var btn = document.getElementById('copy-link-btn');
+      var btn = document.getElementById('copy-link-btn');
+      function showCopied() {
         btn.textContent = 'Copied!';
         setTimeout(function () { btn.textContent = 'Copy link'; }, 1500);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(showCopied).catch(function () {
+          fallbackCopy(url);
+          showCopied();
+        });
+      } else {
+        fallbackCopy(url);
+        showCopied();
+      }
+    });
+
+    function fallbackCopy(text) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+
+    // Section title toggle
+    var sectionToggleMap = {
+      'section-title-overview': 'stats-grid',
+      'section-title-state': 'tree-chart',
+      'section-title-history': 'version-chart-container'
+    };
+    Object.keys(sectionToggleMap).forEach(function (titleId) {
+      document.getElementById(titleId).addEventListener('click', function () {
+        var content = document.getElementById(sectionToggleMap[titleId]);
+        var collapsed = this.classList.toggle('collapsed');
+        content.style.display = collapsed ? 'none' : '';
       });
     });
 

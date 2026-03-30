@@ -88,6 +88,21 @@ function fetchJsDelivrFiles(ownerRepo, version) {
     });
 }
 
+function fetchDefaultBranch(ownerRepo) {
+  var url = 'https://api.github.com/repos/' + ownerRepo;
+  return fetch(url)
+    .then(function (response) {
+      if (!response.ok) return null;
+      return response.json();
+    })
+    .then(function (data) {
+      return data ? data.default_branch : null;
+    })
+    .catch(function () {
+      return null;
+    });
+}
+
 function fetchSBOM(ownerRepo) {
   const url = 'https://api.github.com/repos/' + ownerRepo + '/dependency-graph/sbom';
   return fetch(url)
@@ -193,7 +208,6 @@ function computeTestStats(classified) {
     total: total,
     sourceFiles: sourceCount,
     testFiles: testCount,
-    testRatio: testRatio(testCount, sourceCount),
     mockFiles: (classified['mock'] || []).length,
     e2eFiles: (classified['e2e'] || []).length,
     snapshotFiles: (classified['snapshot'] || []).length,
@@ -331,10 +345,6 @@ function containsTest(str) {
   return lower.includes('test');
 }
 
-function testRatio(testFiles, sourceFiles) {
-  if (sourceFiles === 0) return 0;
-  return Math.round((testFiles / sourceFiles) * 100);
-}
 
 function loadAnalyzeRepoCache() {
   try {
@@ -357,8 +367,8 @@ var classificationColors = {
 };
 
 var classificationLabels = {
-  'source': 'source/other',
-  'other': 'source/other'
+  'source': 'source',
+  'other': 'other'
 };
 
 function groupFilesByDir(classifiedFiles) {
@@ -430,7 +440,6 @@ if (typeof module !== 'undefined') {
     classifyFile: classifyFile,
     computeTestStats: computeTestStats,
     analyzeRepo: analyzeRepo,
-    testRatio: testRatio,
     containsTest: containsTest,
     isTestRelatedFile: isTestRelatedFile,
     isTestFile: isTestFile,

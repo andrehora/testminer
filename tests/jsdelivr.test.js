@@ -4,7 +4,6 @@ var computeTestStats = tm.computeTestStats;
 var classifyFiles = tm.classifyFiles;
 var classifyFile = tm.classifyFile;
 var analyzeRepo = tm.analyzeRepo;
-var testRatio = tm.testRatio;
 var containsTest = tm.containsTest;
 var isTestRelatedFile = tm.isTestRelatedFile;
 var isBenchmarkFile = tm.isBenchmarkFile;
@@ -75,7 +74,6 @@ describe('computeTestStats', function () {
     expect(result.total).toEqual(0);
     expect(result.sourceFiles).toEqual(0);
     expect(result.testFiles).toEqual(0);
-    expect(result.testRatio).toEqual(0);
     expect(result.mockFiles).toEqual(0);
     expect(result.e2eFiles).toEqual(0);
     expect(result.snapshotFiles).toEqual(0);
@@ -94,11 +92,6 @@ describe('computeTestStats', function () {
   it('should return correct test file count', function () {
     const result = computeTestStats({ source: ['src/app.js', 'src/utils.js'], test: ['tests/test_app.js'] });
     expect(result.testFiles).toEqual(1);
-  });
-
-  it('should return correct test ratio', function () {
-    const result = computeTestStats({ source: ['src/app.js', 'src/utils.js'], test: ['tests/test_app.js'] });
-    expect(result.testRatio).toEqual(33);
   });
 
   it('should return correct mock file count', function () {
@@ -199,34 +192,6 @@ describe('analyzeRepo', function () {
     var first = analyzeRepo('owner/repo', ['src/app.js', 'tests/test_app.js']);
     var second = analyzeRepo('owner/repo', []);
     expect(second).toBe(first);
-  });
-
-});
-
-describe('testRatio', function () {
-
-  it('should return 0 when there are no source files', function () {
-    expect(testRatio(0, 0)).toEqual(0);
-    expect(testRatio(5, 0)).toEqual(0);
-  });
-
-  it('should return 100 when test files equal source files', function () {
-    expect(testRatio(10, 10)).toEqual(100);
-  });
-
-  it('should return correct percentage', function () {
-    expect(testRatio(1, 3)).toEqual(33);
-    expect(testRatio(1, 4)).toEqual(25);
-    expect(testRatio(3, 10)).toEqual(30);
-  });
-
-  it('should round to nearest integer', function () {
-    expect(testRatio(1, 3)).toEqual(33);
-    expect(testRatio(2, 3)).toEqual(67);
-  });
-
-  it('should handle ratio greater than 100', function () {
-    expect(testRatio(20, 10)).toEqual(200);
   });
 
 });
