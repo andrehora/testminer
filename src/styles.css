@@ -615,7 +615,7 @@ body {
 
 .owner-table th {
   text-align: left;
-  padding: 8px 8px;
+  padding: 10px 16px;
   font-weight: 600;
   color: #64748b;
   border-bottom: 2px solid #e2e8f0;
@@ -627,12 +627,22 @@ body {
 }
 
 .owner-table th:first-child {
-  width: auto;
+  width: 120px;
   white-space: normal;
 }
 
+.repo-name-cell {
+  max-width: 120px;
+  white-space: normal;
+  word-break: break-all;
+}
+
+[class*="devicon-"] {
+  font-size: 1rem;
+}
+
 .owner-table td {
-  padding: 8px 8px;
+  padding: 10px 16px;
   border-bottom: 1px solid #f1f5f9;
   color: #1e293b;
   font-size: 0.82rem;
@@ -724,8 +734,16 @@ body {
 @media (max-width: 600px) {
   .owner-table th,
   .owner-table td {
-    padding: 6px 4px;
+    padding: 10px 16px;
     font-size: 0.72rem;
+  }
+  .owner-table th:first-child {
+    width: 120px;
+  }
+  .repo-name-cell {
+    max-width: 120px;
+    white-space: normal;
+    word-break: break-all;
   }
   .owner-table th .th-label span {
     display: block;

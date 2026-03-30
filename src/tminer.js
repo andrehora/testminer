@@ -77,7 +77,7 @@ function fetchOwnerRepos(owner) {
   if (ownerReposCache[key]) {
     return Promise.resolve(ownerReposCache[key]);
   }
-  var url = 'https://api.github.com/users/' + owner + '/repos?sort=pushed&per_page=50';
+  var url = 'https://api.github.com/users/' + owner + '/repos?sort=pushed&per_page=30';
   return githubFetch(url, {
     headers: { 'Accept': 'application/vnd.github.mercy-preview+json' }
   })
