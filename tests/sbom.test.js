@@ -81,6 +81,14 @@ describe('parseSBOM', function () {
     expect(result).toEqual([]);
   });
 
+  it('should exclude githubactions packages', function () {
+    const data = { sbom: { packages: [
+      { name: 'actions/checkout', externalRefs: [{ referenceType: 'purl', referenceLocator: 'pkg:githubactions/actions/checkout@v4' }] },
+      { name: 'jest', externalRefs: [{ referenceType: 'purl', referenceLocator: 'pkg:npm/jest@29.0.0' }] }
+    ]}};
+    expect(parseSBOM(data)).toEqual([{ name: 'jest', ecosystem: 'npm' }]);
+  });
+
 });
 
 describe('filterTestDependencies', function () {
@@ -128,5 +136,6 @@ describe('filterTestDependencies', function () {
   it('should return empty array for empty input', function () {
     expect(filterTestDependencies([], new Set(['jest']))).toEqual([]);
   });
+
 
 });

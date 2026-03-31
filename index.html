@@ -797,27 +797,24 @@
         container.innerHTML = '<span class="no-data-msg">No test dependencies detected.</span>';
         return;
       }
-      var seen = {};
-      var unique = [];
-      for (var i = 0; i < testDeps.length; i++) {
-        var key = testDeps[i].name.toLowerCase();
-        if (!seen[key]) {
-          seen[key] = true;
-          unique.push(testDeps[i]);
-        }
-      }
       var groups = {};
-      for (var j = 0; j < unique.length; j++) {
-        var eco = unique[j].ecosystem;
+      for (var i = 0; i < testDeps.length; i++) {
+        var eco = testDeps[i].ecosystem;
         if (!groups[eco]) groups[eco] = [];
-        groups[eco].push(unique[j]);
+        groups[eco].push(testDeps[i]);
       }
       var ecoKeys = Object.keys(groups).sort();
       var rows = '';
       for (var k = 0; k < ecoKeys.length; k++) {
         var deps = groups[ecoKeys[k]];
         deps.sort(function (a, b) { return a.name.toLowerCase().localeCompare(b.name.toLowerCase()); });
-        var badges = deps.map(function (dep) {
+        var seenShort = {};
+        var badges = deps.filter(function (dep) {
+          var s = dep.name.split('/').pop().split(':').pop().toLowerCase();
+          if (seenShort[s]) return false;
+          seenShort[s] = true;
+          return true;
+        }).map(function (dep) {
           var shortName = dep.name.split('/').pop().split(':').pop();
           var searchUrl = 'https://www.google.com/search?btnI&q=' + encodeURIComponent(shortName + ' github');
           return '<span class="dep-badge" onclick="window.open(\'' + searchUrl + '\',\'_blank\')">' + shortName + '</span>';

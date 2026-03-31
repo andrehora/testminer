@@ -205,37 +205,34 @@ function loadTestLibs() {
   return fetch('data/test_libs.csv')
     .then(function (r) { return r.text(); })
     .then(function (text) {
-      testLibsSet = new Set();
-      var lines = text.trim().split('\n');
-      for (var i = 0; i < lines.length; i++) {
-        var lib = lines[i].trim();
-        if (lib) {
-          testLibsSet.add(lib.toLowerCase());
-        }
-      }
+      var lines = text.trim().split('\n')
+        .map(function (l) { return l.trim().toLowerCase(); })
+        .filter(function (l) { return l; })
+        .sort();
+      testLibsSet = new Set(lines);
       return testLibsSet;
     });
 }
 
 function filterTestDependencies(sbomPackages, testLibs) {
-  var results = [];
+  var results = new Set();
   for (var i = 0; i < sbomPackages.length; i++) {
     var pkg = sbomPackages[i];
     var nameLower = pkg.name.toLowerCase();
     var shortName = nameLower.split('/').pop().split(':').pop();
     if (shortName.indexOf('test') !== -1 || shortName.indexOf('mock') !== -1) {
-      results.push(pkg);
+      results.add(pkg);
       continue;
     }
     for (var it = testLibs.values(), val = it.next(); !val.done; val = it.next()) {
       if (shortName === val.value || nameLower === val.value ||
           shortName.indexOf(val.value + '-') === 0 || shortName.indexOf(val.value + '_') === 0) {
-        results.push(pkg);
+        results.add(pkg);
         break;
       }
     }
   }
-  return results;
+  return [...results];
 }
 
 function parseGitHubOwnerRepo(url) {
@@ -285,7 +282,7 @@ function parseSBOM(data) {
   for (var i = 0; i < sbomPackages.length; i++) {
     var pkg = sbomPackages[i];
     var ecosystem = parseEcosystemFromPurl(pkg);
-    if (ecosystem && ecosystem !== 'github') {
+    if (ecosystem && ecosystem !== 'github' && ecosystem !== 'githubactions') {
       packages.push({ name: pkg.name, ecosystem: ecosystem });
     }
   }
