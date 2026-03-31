@@ -846,7 +846,8 @@
           var searchUrl = 'https://www.google.com/search?btnI&q=' + encodeURIComponent(shortName + ' github');
           return '<span class="dep-badge" onclick="window.open(\'' + searchUrl + '\',\'_blank\')">' + shortName + '</span>';
         }).join('');
-        html += '<div class="dep-group"><span class="dep-ecosystem-label">' + ecoKeys[k] + '</span><div class="dep-badges">' + badges + '</div></div>';
+        var ecoIcon = getEcosystemIcon(ecoKeys[k]);
+        html += '<div class="dep-group"><span class="dep-ecosystem-label">' + ecoIcon + ecoKeys[k] + '</span><div class="dep-badges">' + badges + '</div></div>';
       }
       container.innerHTML = html;
     }
@@ -1238,6 +1239,30 @@
       'vim script': 'vim',
       'emacs lisp': 'emacs',
     };
+
+    var ecosystemDevicons = {
+      npm: 'devicon-npm-original-wordmark',
+      pip: 'devicon-python-plain',
+      pypi: 'devicon-python-plain',
+      gem: 'devicon-ruby-plain',
+      nuget: 'devicon-dot-net-plain',
+      maven: 'devicon-java-plain',
+      gradle: 'devicon-gradle-plain',
+      cargo: 'devicon-rust-plain',
+      composer: 'devicon-composer-line',
+      golang: 'devicon-go-original-wordmark',
+      cocoapods: 'devicon-swift-plain',
+      swift: 'devicon-swift-plain',
+      pub: 'devicon-dart-plain',
+      crate: 'devicon-rust-plain',
+      hex: 'devicon-elixir-plain'
+    };
+
+    function getEcosystemIcon(ecosystem) {
+      var cls = ecosystemDevicons[ecosystem.toLowerCase()];
+      if (!cls) return '';
+      return '<i class="' + cls + ' colored dep-ecosystem-icon"></i>';
+    }
 
     function getDeviconClass(language) {
       if (!language) return '';

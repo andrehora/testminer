@@ -449,12 +449,16 @@ body {
 
 .dep-ecosystem-label {
   display: block;
-  font-size: 0.75rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #6b7280;
-  text-transform: uppercase;
   letter-spacing: 0.03em;
   margin-bottom: 6px;
+}
+
+.dep-ecosystem-icon {
+  margin-right: 5px;
+  font-size: 1rem;
 }
 
 .stat-value {
