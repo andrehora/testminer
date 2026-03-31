@@ -552,6 +552,7 @@ body {
   padding: 8px 16px;
   margin: 0;
   overflow-y: auto;
+  overflow-x: auto;
 }
 
 .file-list-modal li {
@@ -560,6 +561,7 @@ body {
   padding: 4px 0;
   font-family: monospace;
   border-bottom: 1px solid #f1f5f9;
+  white-space: nowrap;
 }
 
 .file-list-modal li a {

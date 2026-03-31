@@ -305,7 +305,7 @@ function computeTestStats(classified) {
     total += classified[key].length;
   });
   var testCount = (classified['test'] || []).length;
-  var sourceCount = (classified['source'] || []).length + testCount;
+  var sourceCount = (classified['source'] || []).length;
   return {
     total: total,
     sourceFiles: sourceCount,

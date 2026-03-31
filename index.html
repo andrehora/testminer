@@ -818,12 +818,13 @@
           var ownerPart = baseRepo ? baseRepo.split('/')[0] : '';
           var repoIconHtml = ownerPart ? '<i class="devicon-' + ownerPart.toLowerCase() + '-plain colored"></i>' : '';
           document.getElementById('file-list-modal-repo').innerHTML = repoIconHtml + (baseRepo ? baseRepo : '');
-          document.getElementById('file-list-modal-items').innerHTML = files.map(function (f) {
+          document.getElementById('file-list-modal-items').innerHTML = files.map(function (f, i) {
+            var num = '<span style="color:#94a3b8;min-width:2em;text-align:right;display:inline-block;margin-right:8px;font-size:0.85em;">' + (i + 1) + '</span>';
             if (linkRef) {
               var ghUrl = 'https://github.com/' + baseRepo + '/blob/' + linkRef + '/' + f;
-              return '<li><a href="' + ghUrl + '" target="_blank" rel="noopener">' + f + '</a></li>';
+              return '<li>' + num + '<a href="' + ghUrl + '" target="_blank" rel="noopener">' + f + '</a></li>';
             }
-            return '<li>' + f + '</li>';
+            return '<li>' + num + f + '</li>';
           }).join('');
           document.getElementById('file-list-modal').style.display = 'flex';
         });
