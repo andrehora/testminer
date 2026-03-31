@@ -418,6 +418,32 @@ body {
   flex-shrink: 0;
 }
 
+.dep-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dep-table tr:not(:last-child) td {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.dep-eco-cell {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6b7280;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  vertical-align: middle;
+  text-align: center;
+  padding: 8px 16px 8px 0;
+  width: 1%;
+}
+
+.dep-badges-cell {
+  vertical-align: middle;
+  padding: 8px 0;
+}
+
 .dep-badges {
   display: flex;
   flex-wrap: wrap;
@@ -441,21 +467,11 @@ body {
   background: #dcfce7;
 }
 
-.dep-group {
-  margin-bottom: 10px;
-}
-
-.dep-group:last-child {
-  margin-bottom: 0;
-}
-
-.dep-ecosystem-label {
+.no-data-msg {
   display: block;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #6b7280;
-  letter-spacing: 0.03em;
-  margin-bottom: 6px;
+  padding: 12px 0;
+  color: #94a3b8;
+  font-size: 0.9rem;
 }
 
 .dep-ecosystem-icon {
@@ -843,6 +859,13 @@ body {
   padding: 16px;
   max-height: 600px;
   overflow-y: auto;
+}
+
+#deps-container {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
 }
 
 .tree-dot {

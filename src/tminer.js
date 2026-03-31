@@ -440,6 +440,11 @@ function isSourceFile(filepath) {
   return extensionSet ? extensionSet.has(ext) : false;
 }
 
+function filterSemverVersions(versions) {
+  var semverRe = /^v?\d+\.\d+\.\d+$/;
+  return versions.filter(function (v) { return semverRe.test(v); });
+}
+
 function containsTest(str) {
   var lower = str.toLowerCase();
   var excludePatterns = ['latest', 'contest', 'attestation'];
@@ -469,7 +474,7 @@ var classificationColors = {
 };
 
 var classificationBgColors = {
-  'test':         '#f0fdf4',
+  'test':         '#dcfce7',
   'test-related': '#f0fdf4',
   'mock':         '#f1f5f9',
   'e2e':          '#f5f3ff',
@@ -568,6 +573,7 @@ if (typeof module !== 'undefined') {
     isCITestFile: isCITestFile,
     isSourceFile: isSourceFile,
     filterTestDependencies: filterTestDependencies,
+    filterSemverVersions: filterSemverVersions,
     setExtensionSet: function(s) { extensionSet = s; },
     setTestLibsSet: function(s) { testLibsSet = s; },
     resetAnalyzeRepoCache: function() { analyzeRepoCache = {}; }

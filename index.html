@@ -502,7 +502,7 @@
         borderColor: '#22c55e',
         backgroundColor: 'rgba(34, 197, 94, 0.1)',
         fill: true,
-        tension: 0.3,
+        tension: 0,
         pointRadius: 4,
         pointBackgroundColor: '#22c55e',
         spanGaps: true
@@ -550,18 +550,24 @@
       var cached = analyzeRepoCache[ownerRepo];
       populateMetricSelect(cached ? cached.files : null);
 
+      var historyTitle = document.getElementById('section-title-history');
+
       if (!versions || versions.length === 0) {
         container.style.display = 'none';
+        historyTitle.style.display = 'none';
         return;
       }
 
-      var semverRe = /^v?\d+\.\d+\.\d+$/;
-      versions = versions.filter(function (v) { return semverRe.test(v); });
+      versions = filterSemverVersions(versions);
 
       if (versions.length === 0) {
         container.style.display = 'none';
+        historyTitle.style.display = 'none';
         return;
       }
+
+      historyTitle.style.display = '';
+      historyTitle.classList.remove('collapsed');
 
       var n = versions.length;
       var selectedIndices;
@@ -589,6 +595,7 @@
 
         if (statsArr.every(function (v) { return v === null; })) {
           container.style.display = 'none';
+          document.getElementById('section-title-history').style.display = 'none';
           return;
         }
 
@@ -768,12 +775,15 @@
       var ownerIcon = '<i class="devicon-' + ownerPart.toLowerCase() + '-plain colored" style="margin-right:6px;"></i>';
       document.getElementById('results-title-text').innerHTML = ownerIcon + '<a class="owner-link" href="#' + ownerPart + '">' + ownerPart + '</a> / ' + repoPart;
       document.getElementById('gh-link').href = 'https://github.com/' + baseRepo + (versionTag ? '/tree/' + versionTag : '');
-      ['section-title-overview', 'section-title-state', 'section-title-deps', 'section-title-history'].forEach(function (id) {
+      ['section-title-overview', 'section-title-state', 'section-title-deps'].forEach(function (id) {
         var el = document.getElementById(id);
         el.style.display = '';
         el.classList.remove('collapsed');
       });
+      document.getElementById('section-title-history').style.display = 'none';
       document.getElementById('stats-grid').style.display = '';
+      document.getElementById('version-chart-container').style.display = 'none';
+      document.getElementById('deps-container').style.display = 'none';
       document.getElementById('results').style.display = 'block';
 
     }
@@ -814,8 +824,7 @@
 
     function renderTestDepsTable(container, sectionTitle, testDeps) {
       if (testDeps.length === 0) {
-        container.style.display = 'none';
-        sectionTitle.style.display = 'none';
+        container.innerHTML = '<span class="no-data-msg">No test dependencies detected.</span>';
         return;
       }
       var seen = {};
@@ -834,7 +843,7 @@
         groups[eco].push(unique[j]);
       }
       var ecoKeys = Object.keys(groups).sort();
-      var html = '';
+      var rows = '';
       for (var k = 0; k < ecoKeys.length; k++) {
         var deps = groups[ecoKeys[k]];
         deps.sort(function (a, b) { return a.name.toLowerCase().localeCompare(b.name.toLowerCase()); });
@@ -844,9 +853,9 @@
           return '<span class="dep-badge" onclick="window.open(\'' + searchUrl + '\',\'_blank\')">' + shortName + '</span>';
         }).join('');
         var ecoIcon = getEcosystemIcon(ecoKeys[k]);
-        html += '<div class="dep-group"><span class="dep-ecosystem-label">' + ecoIcon + ecoKeys[k] + '</span><div class="dep-badges">' + badges + '</div></div>';
+        rows += '<tr><td class="dep-eco-cell">' + ecoIcon + ecoKeys[k] + '</td><td class="dep-badges-cell"><div class="dep-badges">' + badges + '</div></td></tr>';
       }
-      container.innerHTML = html;
+      container.innerHTML = '<table class="dep-table"><tbody>' + rows + '</tbody></table>';
     }
 
     function renderTestDeps(ownerRepo) {
@@ -872,8 +881,7 @@
           var sbomData = results[0];
           var testLibs = results[1];
           if (!sbomData || !sbomData.sbom) {
-            container.style.display = 'none';
-            sectionTitle.style.display = 'none';
+            container.innerHTML = '<span class="no-data-msg">Test dependencies not available.</span>';
             return;
           }
           var packages = parseSBOM(sbomData);
@@ -888,8 +896,7 @@
           renderTestDepsTable(container, sectionTitle, testDeps);
         })
         .catch(function () {
-          container.style.display = 'none';
-          sectionTitle.style.display = 'none';
+          container.innerHTML = '<span class="no-data-msg">Test dependencies not available.</span>';
         });
     }
 
