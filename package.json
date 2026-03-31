@@ -7,10 +7,10 @@
   },
   "scripts": {
     "test": "jest",
-    "serve": "npx serve -l 8080",
-    "serve:e2e": "npx serve -l 8081",
-    "e2e": "start-server-and-test serve:e2e http://localhost:8081 'cypress run'",
-    "e2e:open": "start-server-and-test serve:e2e http://localhost:8081 'cypress open'"
+    "serve": "npx serve -l 8081",
+    "serve:e2e": "npx serve -l 8080",
+    "e2e": "start-server-and-test serve:e2e http://localhost:8080 'cypress run'",
+    "e2e:open": "start-server-and-test serve:e2e http://localhost:8080 'cypress open'"
   },
   "repository": {
     "type": "git",
