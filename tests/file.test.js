@@ -107,7 +107,7 @@ describe('analyzeRepo', function () {
   it('should have correct stats', function () {
     var result = analyzeRepo('owner/repo', ['src/app.js', 'tests/test_app.js']);
     expect(result.stats.total).toEqual(2);
-    expect(result.stats.sourceFiles).toEqual(2);
+    expect(result.stats.sourceFiles).toEqual(1);
     expect(result.stats.testFiles).toEqual(1);
   });
 

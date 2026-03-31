@@ -13,29 +13,29 @@
 <body>
   <div class="container">
 
-    <div style="display:flex;justify-content:center;align-items:center;gap:20px;padding-top:4px;padding-bottom:12px;margin-bottom:40px;">
-      <a id="home-link" href="#" onclick="document.getElementById('results').style.display='none';document.getElementById('repo-input').value='';history.replaceState(null,'',location.pathname);return false;" style="font-size:1rem;color:#64748b;text-decoration:none;display:inline-flex;align-items:center;gap:4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</a>
-      <a href="https://github.com/andrehora/testminer" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-size:1rem;color:#64748b;text-decoration:none;">
+    <div class="top-nav">
+      <a id="home-link" class="nav-link" href="#" onclick="document.getElementById('results').style.display='none';document.getElementById('repo-input').value='';history.replaceState(null,'',location.pathname);return false;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</a>
+      <a class="nav-link nav-link-github" href="https://github.com/andrehora/testminer" target="_blank" rel="noopener">
         <i class="devicon-github-original"></i>testminer
       </a>
     </div>
 
     <div id="gh-token-modal-overlay" class="file-list-modal-overlay" style="display:none;" onclick="if(event.target===this)closeTokenModal()">
-      <div class="file-list-modal" style="max-height:none;">
+      <div class="file-list-modal token-modal">
         <div class="file-list-modal-header">
           <span>GitHub Personal Access Token</span>
-          <button onclick="closeTokenModal()" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:1.2rem;line-height:1;">&#x2715;</button>
+          <button class="file-list-close" onclick="closeTokenModal()">&#x2715;</button>
         </div>
-        <div style="padding:16px;">
-          <p style="font-size:0.82rem;color:#64748b;margin:0 0 8px;">A read-only token increases the API rate limit from 60 to 5,000 requests/hour. The token is stored only in your browser's localStorage.</p>
-          <p style="font-size:0.82rem;margin:0 0 12px;">
-            <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;font-weight:600;">Fine-grained personal access token</a><br>
-            <a href="https://github.com/settings/tokens/new" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;font-weight:600;">Personal access token (classic)</a>
+        <div class="token-modal-body">
+          <p class="token-description">A read-only token increases the API rate limit from 60 to 5,000 requests/hour. The token is stored only in your browser's localStorage.</p>
+          <p class="token-links">
+            <a class="token-link" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Fine-grained personal access token</a><br>
+            <a class="token-link" href="https://github.com/settings/tokens/new" target="_blank" rel="noopener">Personal access token (classic)</a>
           </p>
-          <input id="gh-token-input" type="password" placeholder="GitHub read-only token..." style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:0.85rem;font-family:'Inter',sans-serif;outline:none;" />
-          <div style="display:flex;gap:8px;margin-top:10px;">
-            <button onclick="saveToken()" style="flex:1;padding:8px;background:#22c55e;color:#fff;border:none;border-radius:6px;font-size:0.85rem;font-family:'Inter',sans-serif;cursor:pointer;font-weight:500;">Save token</button>
-            <button id="gh-token-remove-btn" onclick="removeToken()" style="padding:8px 14px;background:#f1f5f9;color:#64748b;border:none;border-radius:6px;font-size:0.85rem;font-family:'Inter',sans-serif;cursor:pointer;">Remove</button>
+          <input id="gh-token-input" class="token-input" type="password" placeholder="GitHub read-only token..." />
+          <div class="token-buttons">
+            <button class="token-save-btn" onclick="saveToken()">Save token</button>
+            <button id="gh-token-remove-btn" class="token-remove-btn" onclick="removeToken()">Remove</button>
           </div>
         </div>
       </div>
@@ -68,22 +68,22 @@
     <div id="error"></div>
 
     <div id="results">
-      <h2 id="results-title" class="results-title"><span id="results-title-text"></span><button class="copy-link-btn" id="copy-link-btn">Copy link</button><span class="results-title-actions"><select id="version-select" class="version-select" style="display:none;"></select><a id="gh-link" target="_blank" rel="noopener" style="color:#1e293b;text-decoration:none;"><i class="devicon-github-original"></i></a></span></h2>
+      <h2 id="results-title" class="results-title"><span id="results-title-text"></span><button class="copy-link-btn" id="copy-link-btn">Copy link</button><span class="results-title-actions"><select id="version-select" class="version-select" style="display:none;"></select><a id="gh-link" class="gh-link" target="_blank" rel="noopener"><i class="devicon-github-original"></i></a></span></h2>
       <h3 class="section-title" id="section-title-overview" style="display:none;">Overview</h3>
       <div class="stats-grid" id="stats-grid"></div>
       <h3 class="section-title" id="section-title-state" style="display:none;">Test Location</h3>
-      <div id="tree-chart" style="display:none;margin-top:16px;"></div>
+      <div id="tree-chart" style="display:none;"></div>
       <h3 class="section-title" id="section-title-history" style="display:none;">Test History</h3>
       <div id="version-chart-container" style="display:none;">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-          <span id="version-metric-btns" style="display:inline-flex;flex-wrap:wrap;gap:4px;"></span>
-          <span id="version-chart-type-btns" style="display:inline-flex;gap:0;">
-            <button data-type="line" class="active" title="Line chart" style="font-size:0.85rem;font-family:'Inter',sans-serif;padding:4px 10px;border:1px solid #e2e8f0;border-radius:6px 0 0 6px;background:#22c55e;color:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 6 13 14 9 8 2 18"/></svg></button>
-            <button data-type="bar" title="Bar chart" style="font-size:0.85rem;font-family:'Inter',sans-serif;padding:4px 10px;border:1px solid #e2e8f0;border-left:none;border-radius:0 6px 6px 0;background:#fff;color:#1e293b;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="5" width="4" height="16" rx="1"/><rect x="17" y="9" width="4" height="12" rx="1"/></svg></button>
+        <div class="version-chart-controls">
+          <span id="version-metric-btns"></span>
+          <span id="version-chart-type-btns">
+            <button data-type="line" class="chart-type-btn active" title="Line chart"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 6 13 14 9 8 2 18"/></svg></button>
+            <button data-type="bar" class="chart-type-btn" title="Bar chart"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="5" width="4" height="16" rx="1"/><rect x="17" y="9" width="4" height="12" rx="1"/></svg></button>
           </span>
         </div>
-        <div style="position:relative;height:300px;">
-          <div id="version-chart-loading" style="display:none;position:absolute;inset:0;background:rgba(255,255,255,0.85);z-index:2;align-items:center;justify-content:center;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></path></svg></div>
+        <div class="version-chart-wrap">
+          <div id="version-chart-loading" class="version-chart-loading"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></path></svg></div>
           <canvas id="version-chart"></canvas>
         </div>
       </div>
@@ -91,10 +91,10 @@
       <div id="deps-container" style="display:none;"></div>
     </div>
 
-    <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0 0 0;">
-    <p style="text-align:center;padding:16px 0 0;font-size:0.8rem;color:#94a3b8;margin:0;">Data from GitHub API, jsDelivr API, and <a href="https://github.com/andrehora/testminer" target="_blank" rel="noopener" style="color:#64748b;text-decoration:underline;">TestMiner</a>.</p>
-    <p id="github-rate-limit" style="text-align:center;padding:8px 0 0;font-size:0.8rem;color:#94a3b8;margin:0;"><span id="github-rate-limit-text"></span></p>
-    <p style="text-align:center;padding:8px 0 12px;margin:0;"><button id="gh-token-btn" onclick="openTokenModal()" class="gh-token-btn">Add GitHub token</button></p>
+    <hr class="footer-divider">
+    <p class="footer-text">Data from GitHub API, jsDelivr API, and <a class="footer-link" href="https://github.com/andrehora/testminer" target="_blank" rel="noopener">TestMiner</a>.</p>
+    <p id="github-rate-limit" class="footer-text"><span id="github-rate-limit-text"></span></p>
+    <p class="footer-token-wrap"><button id="gh-token-btn" onclick="openTokenModal()" class="gh-token-btn">Add GitHub token</button></p>
 
   </div>
 
@@ -103,26 +103,52 @@
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="src/tminer.js"></script>
   <script>
-    var versionChartInstance = null;
-    var versionChartStats = null;
-    var versionChartLabels = null;
-    var versionChartGeneration = 0;
+    // --- Icon Helpers ---
 
-    var versionMetricOptions = [
-      { key: 'testFiles', label: 'test', category: 'test' },
-      { key: 'testRelatedFiles', label: 'test-related', category: 'test-related' },
-      { key: 'mockFiles', label: 'mock', category: 'mock' },
-      { key: 'e2eFiles', label: 'e2e', category: 'e2e' },
-      { key: 'snapshotFiles', label: 'snapshot', category: 'snapshot' },
-      { key: 'ciTestFiles', label: 'ci-test', category: 'ci-test' },
-      { key: 'smokeFiles', label: 'smoke', category: 'smoke' },
-      { key: 'fixtureFiles', label: 'fixture', category: 'fixture' },
-      { key: 'benchmarkFiles', label: 'benchmark', category: 'benchmark' },
-      { key: 'sourceFiles', label: 'source', category: 'source' },
-    ];
+    var deviconAliases = {
+      'c++': 'cplusplus',
+      'c#': 'csharp',
+      'shell': 'bash',
+      'html': 'html5',
+      'css': 'css3',
+      'jupyter notebook': 'jupyter',
+      'objective-c': 'objectivec',
+      'vim script': 'vim',
+      'emacs lisp': 'emacs',
+    };
 
-    var versionMetricLabels = {};
-    versionMetricOptions.forEach(function (o) { versionMetricLabels[o.key] = o.label; });
+    var ecosystemDevicons = {
+      npm: 'devicon-npm-original-wordmark',
+      pip: 'devicon-python-plain',
+      pypi: 'devicon-python-plain',
+      gem: 'devicon-ruby-plain',
+      nuget: 'devicon-dot-net-plain',
+      maven: 'devicon-java-plain',
+      gradle: 'devicon-gradle-plain',
+      cargo: 'devicon-rust-plain',
+      composer: 'devicon-composer-line',
+      golang: 'devicon-go-original-wordmark',
+      cocoapods: 'devicon-swift-plain',
+      swift: 'devicon-swift-plain',
+      pub: 'devicon-dart-plain',
+      crate: 'devicon-rust-plain',
+      hex: 'devicon-elixir-plain'
+    };
+
+    function getEcosystemIcon(ecosystem) {
+      var cls = ecosystemDevicons[ecosystem.toLowerCase()];
+      if (!cls) return '';
+      return '<i class="' + cls + ' colored dep-ecosystem-icon"></i>';
+    }
+
+    function getDeviconClass(language) {
+      if (!language) return '';
+      var key = language.toLowerCase();
+      var name = deviconAliases[key] || key.replace(/[^a-z0-9]/g, '');
+      return 'devicon-' + name + '-plain';
+    }
+
+    // --- File Tree ---
 
     function renderFileTree(ownerRepo, gitRef) {
       var chartEl = document.getElementById('tree-chart');
@@ -458,6 +484,29 @@
       });
     }
 
+    // --- Version Chart ---
+
+    var versionChartInstance = null;
+    var versionChartStats = null;
+    var versionChartLabels = null;
+    var versionChartGeneration = 0;
+
+    var versionMetricOptions = [
+      { key: 'testFiles', label: 'test', category: 'test' },
+      { key: 'testRelatedFiles', label: 'test-related', category: 'test-related' },
+      { key: 'mockFiles', label: 'mock', category: 'mock' },
+      { key: 'e2eFiles', label: 'e2e', category: 'e2e' },
+      { key: 'snapshotFiles', label: 'snapshot', category: 'snapshot' },
+      { key: 'ciTestFiles', label: 'ci-test', category: 'ci-test' },
+      { key: 'smokeFiles', label: 'smoke', category: 'smoke' },
+      { key: 'fixtureFiles', label: 'fixture', category: 'fixture' },
+      { key: 'benchmarkFiles', label: 'benchmark', category: 'benchmark' },
+      { key: 'sourceFiles', label: 'source', category: 'source' },
+    ];
+
+    var versionMetricLabels = {};
+    versionMetricOptions.forEach(function (o) { versionMetricLabels[o.key] = o.label; });
+
     function populateMetricSelect(classifiedFiles) {
       var container = document.getElementById('version-metric-btns');
       if (!container) return;
@@ -628,87 +677,6 @@
       });
     }
 
-    loadExtensions();
-
-    var analyzing = false;
-    function showError(msg) {
-      var errorEl = document.getElementById('error');
-      errorEl.textContent = msg;
-      errorEl.style.display = 'block';
-    }
-
-    var SEARCH_ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
-
-    function setBtnLoading(text) {
-      var btn = document.getElementById('analyze-btn');
-      btn.disabled = true;
-      btn.innerHTML = SEARCH_ICON_SVG;
-    }
-
-    function setBtnReady() {
-      var btn = document.getElementById('analyze-btn');
-      btn.disabled = false;
-      btn.innerHTML = SEARCH_ICON_SVG;
-    }
-
-    async function analyzeOwner(owner) {
-      setBtnLoading('Searching...');
-      var repos = await fetchOwnerRepos(owner);
-      setBtnReady();
-      if (!repos) {
-        showError('Could not find GitHub user "' + owner + '".');
-        return;
-      }
-      renderOwnerRepos(owner, repos);
-      saveRecent(owner);
-      history.replaceState(null, '', '#' + owner);
-    }
-
-    async function analyzeSingleRepo(ownerRepo, version) {
-      setBtnLoading('Analyzing...');
-      var response = await ensureAnalyzeRepo(ownerRepo, version);
-      setBtnReady();
-
-      if (response.error === 'too_large') {
-        var tooLargeOwner = ownerRepo.split('/')[0];
-        showError('Repository "' + ownerRepo + '"size is too large. Try another repository of ' + tooLargeOwner + '...');
-        var tooLargeRepos = await fetchOwnerRepos(tooLargeOwner);
-        if (tooLargeRepos) {
-          renderOwnerRepos(tooLargeOwner, tooLargeRepos);
-        }
-        return;
-      }
-
-      if (response.error) {
-        showError('Could not fetch repository data. Check the repo name and try again.');
-        return;
-      }
-
-      var cacheKey = version ? ownerRepo + '@' + version : ownerRepo;
-      var defaultBranch = await fetchDefaultBranch(ownerRepo);
-      renderRepoStats(cacheKey, response.result.stats, defaultBranch);
-      try { renderFileTree(cacheKey, defaultBranch); } catch (e) { console.error('Tree render error:', e); }
-      renderTestDeps(ownerRepo);
-      saveRecent(ownerRepo);
-      history.replaceState(null, '', '#' + ownerRepo);
-
-      // Load versions dropdown
-      var versionSelect = document.getElementById('version-select');
-      if (versionSelect.dataset.repo !== ownerRepo) {
-        versionSelect.style.display = 'none';
-        var versions = await fetchJsDelivrVersions(ownerRepo);
-        versionSelect.innerHTML = '<option value="">main</option>' +
-          versions.map(function (v) {
-            return '<option value="' + v + '"' + (v === version ? ' selected' : '') + '>' + v + '</option>';
-          }).join('');
-        versionSelect.dataset.repo = ownerRepo;
-        versionSelect.style.display = '';
-        renderVersionChart(ownerRepo, versions);
-      } else {
-        versionSelect.value = version || '';
-      }
-    }
-
     document.getElementById('version-metric-btns').addEventListener('click', function (e) {
       var btn = e.target.closest('button[data-metric]');
       if (!btn) return;
@@ -724,23 +692,14 @@
       if (!btn) return;
       this.querySelectorAll('button').forEach(function (b) {
         b.classList.remove('active');
-        b.style.background = '#fff';
-        b.style.color = '#1e293b';
       });
       btn.classList.add('active');
-      btn.style.background = '#22c55e';
-      btn.style.color = '#fff';
       var metricBtn = document.querySelector('#version-metric-btns .active');
       var metric = metricBtn ? metricBtn.getAttribute('data-metric') : 'testFiles';
       buildVersionChart(metric, btn.getAttribute('data-type'));
     });
 
-    document.getElementById('version-select').addEventListener('change', function () {
-      var repo = this.dataset.repo;
-      if (!repo) return;
-      var version = this.value || undefined;
-      analyzeSingleRepo(repo, version);
-    });
+    // --- Repo Stats ---
 
     function renderRepoStats(ownerRepo, stats, gitRef) {
       var cards = [
@@ -831,6 +790,8 @@
       });
     }
 
+    // --- Test Dependencies ---
+
     function renderTestDepsTable(container, sectionTitle, testDeps) {
       if (testDeps.length === 0) {
         container.innerHTML = '<span class="no-data-msg">No test dependencies detected.</span>';
@@ -910,44 +871,7 @@
     }
 
 
-    async function analyze() {
-      if (analyzing) return;
-      analyzing = true;
-      try {
-        await loadExtensions();
-        var input = document.getElementById('repo-input').value.trim();
-
-        document.getElementById('error').style.display = 'none';
-        document.getElementById('results').style.display = 'none';
-
-        document.getElementById('tree-chart').style.display = 'none';
-        document.getElementById('section-title-overview').style.display = 'none';
-        document.getElementById('section-title-state').style.display = 'none';
-        document.getElementById('section-title-deps').style.display = 'none';
-        document.getElementById('section-title-history').style.display = 'none';
-        document.getElementById('autocomplete-list').style.display = 'none';
-
-        if (!input) {
-          showError('Please enter a repository name or GitHub URL.');
-          return;
-        }
-
-        var ownerRepo = parseGitHubOwnerRepo(input);
-        if (!ownerRepo) {
-          var owner = parseGitHubOwner(input);
-          if (owner) {
-            await analyzeOwner(owner);
-            return;
-          }
-          showError('Invalid repository. Use "owner/repo" or a GitHub URL.');
-          return;
-        }
-
-        await analyzeSingleRepo(ownerRepo);
-      } finally {
-        analyzing = false;
-      }
-    }
+    // --- Owner Page ---
 
     var ownerTableColumns = [
       { label: 'Repository', key: 'name', type: 'string' },
@@ -1106,7 +1030,136 @@
       fetchOwnerRepoStats(repos, repoIndices);
     }
 
-    // Recent searches
+    // --- Analyze ---
+
+    var analyzing = false;
+    function showError(msg) {
+      var errorEl = document.getElementById('error');
+      errorEl.textContent = msg;
+      errorEl.style.display = 'block';
+    }
+
+    var SEARCH_ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+
+    function setBtnLoading(text) {
+      var btn = document.getElementById('analyze-btn');
+      btn.disabled = true;
+      btn.innerHTML = SEARCH_ICON_SVG;
+    }
+
+    function setBtnReady() {
+      var btn = document.getElementById('analyze-btn');
+      btn.disabled = false;
+      btn.innerHTML = SEARCH_ICON_SVG;
+    }
+
+    async function analyzeOwner(owner) {
+      setBtnLoading('Searching...');
+      var repos = await fetchOwnerRepos(owner);
+      setBtnReady();
+      if (!repos) {
+        showError('Could not find GitHub user "' + owner + '".');
+        return;
+      }
+      renderOwnerRepos(owner, repos);
+      saveRecent(owner);
+      history.replaceState(null, '', '#' + owner);
+    }
+
+    async function analyzeSingleRepo(ownerRepo, version) {
+      setBtnLoading('Analyzing...');
+      var response = await ensureAnalyzeRepo(ownerRepo, version);
+      setBtnReady();
+
+      if (response.error === 'too_large') {
+        var tooLargeOwner = ownerRepo.split('/')[0];
+        showError('Repository "' + ownerRepo + '"size is too large. Try another repository of ' + tooLargeOwner + '...');
+        var tooLargeRepos = await fetchOwnerRepos(tooLargeOwner);
+        if (tooLargeRepos) {
+          renderOwnerRepos(tooLargeOwner, tooLargeRepos);
+        }
+        return;
+      }
+
+      if (response.error) {
+        showError('Could not fetch repository data. Check the repo name and try again.');
+        return;
+      }
+
+      var cacheKey = version ? ownerRepo + '@' + version : ownerRepo;
+      var defaultBranch = await fetchDefaultBranch(ownerRepo);
+      renderRepoStats(cacheKey, response.result.stats, defaultBranch);
+      try { renderFileTree(cacheKey, defaultBranch); } catch (e) { console.error('Tree render error:', e); }
+      renderTestDeps(ownerRepo);
+      saveRecent(ownerRepo);
+      history.replaceState(null, '', '#' + ownerRepo);
+
+      // Load versions dropdown
+      var versionSelect = document.getElementById('version-select');
+      if (versionSelect.dataset.repo !== ownerRepo) {
+        versionSelect.style.display = 'none';
+        var versions = await fetchJsDelivrVersions(ownerRepo);
+        versionSelect.innerHTML = '<option value="">main</option>' +
+          versions.map(function (v) {
+            return '<option value="' + v + '"' + (v === version ? ' selected' : '') + '>' + v + '</option>';
+          }).join('');
+        versionSelect.dataset.repo = ownerRepo;
+        versionSelect.style.display = '';
+        renderVersionChart(ownerRepo, versions);
+      } else {
+        versionSelect.value = version || '';
+      }
+    }
+
+    async function analyze() {
+      if (analyzing) return;
+      analyzing = true;
+      try {
+        await loadExtensions();
+        var input = document.getElementById('repo-input').value.trim();
+
+        document.getElementById('error').style.display = 'none';
+        document.getElementById('results').style.display = 'none';
+
+        document.getElementById('tree-chart').style.display = 'none';
+        document.getElementById('section-title-overview').style.display = 'none';
+        document.getElementById('section-title-state').style.display = 'none';
+        document.getElementById('section-title-deps').style.display = 'none';
+        document.getElementById('section-title-history').style.display = 'none';
+        document.getElementById('autocomplete-list').style.display = 'none';
+
+        if (!input) {
+          showError('Please enter a repository name or GitHub URL.');
+          return;
+        }
+
+        var ownerRepo = parseGitHubOwnerRepo(input);
+        if (!ownerRepo) {
+          var owner = parseGitHubOwner(input);
+          if (owner) {
+            await analyzeOwner(owner);
+            return;
+          }
+          showError('Invalid repository. Use "owner/repo" or a GitHub URL.');
+          return;
+        }
+
+        await analyzeSingleRepo(ownerRepo);
+      } finally {
+        analyzing = false;
+      }
+    }
+
+    document.getElementById('version-select').addEventListener('change', function () {
+      var repo = this.dataset.repo;
+      if (!repo) return;
+      var version = this.value || undefined;
+      analyzeSingleRepo(repo, version);
+    });
+
+    loadExtensions();
+
+    // --- Recent Searches ---
     function getRecent() {
       try {
         return JSON.parse(localStorage.getItem('testminer_search_cache') || '[]');
@@ -1160,7 +1213,7 @@
 
     renderRecent();
 
-    // Suggestions
+    // --- Suggestions ---
     function renderSuggestions() {
       var container = document.getElementById('suggestions');
       var suggestions = tminerConfig.search_suggestions;
@@ -1178,7 +1231,7 @@
     }
     tminerConfigReady.then(renderSuggestions);
 
-    // Autocomplete
+    // --- Autocomplete ---
     var repoData = [];
     var ownerData = [];
     var activeIndex = -1;
@@ -1239,49 +1292,6 @@
         }
       }
       return results;
-    }
-
-    var deviconAliases = {
-      'c++': 'cplusplus',
-      'c#': 'csharp',
-      'shell': 'bash',
-      'html': 'html5',
-      'css': 'css3',
-      'jupyter notebook': 'jupyter',
-      'objective-c': 'objectivec',
-      'vim script': 'vim',
-      'emacs lisp': 'emacs',
-    };
-
-    var ecosystemDevicons = {
-      npm: 'devicon-npm-original-wordmark',
-      pip: 'devicon-python-plain',
-      pypi: 'devicon-python-plain',
-      gem: 'devicon-ruby-plain',
-      nuget: 'devicon-dot-net-plain',
-      maven: 'devicon-java-plain',
-      gradle: 'devicon-gradle-plain',
-      cargo: 'devicon-rust-plain',
-      composer: 'devicon-composer-line',
-      golang: 'devicon-go-original-wordmark',
-      cocoapods: 'devicon-swift-plain',
-      swift: 'devicon-swift-plain',
-      pub: 'devicon-dart-plain',
-      crate: 'devicon-rust-plain',
-      hex: 'devicon-elixir-plain'
-    };
-
-    function getEcosystemIcon(ecosystem) {
-      var cls = ecosystemDevicons[ecosystem.toLowerCase()];
-      if (!cls) return '';
-      return '<i class="' + cls + ' colored dep-ecosystem-icon"></i>';
-    }
-
-    function getDeviconClass(language) {
-      if (!language) return '';
-      var key = language.toLowerCase();
-      var name = deviconAliases[key] || key.replace(/[^a-z0-9]/g, '');
-      return 'devicon-' + name + '-plain';
     }
 
     function highlightMatch(text, query) {
@@ -1393,6 +1403,8 @@
       }
     });
 
+    // --- Copy Link ---
+
     document.getElementById('copy-link-btn').addEventListener('click', function () {
       var url = location.href.split('#')[0] + location.hash;
       var btn = document.getElementById('copy-link-btn');
@@ -1423,7 +1435,7 @@
       document.body.removeChild(ta);
     }
 
-    // Section title toggle
+    // --- Section Toggle ---
     var sectionToggleMap = {
       'section-title-overview': 'stats-grid',
       'section-title-state': 'tree-chart',
@@ -1438,7 +1450,7 @@
       });
     });
 
-    // Auto-analyze from URL hash
+    // --- URL Hash ---
     function analyzeFromHash() {
       var hash = location.hash.substring(1);
       if (hash) {
@@ -1452,6 +1464,8 @@
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') { closeFileListModal(); closeTokenModal(); }
     });
+
+    // --- GitHub Token ---
 
     function updateTokenBtn() {
       var btn = document.getElementById('gh-token-btn');
@@ -1504,8 +1518,8 @@
   <div id="file-list-modal" class="file-list-modal-overlay" style="display:none;" onclick="if(event.target===this){closeFileListModal();}">
     <div class="file-list-modal">
       <div class="file-list-modal-header">
-        <span id="file-list-modal-title" style="display:flex;align-items:center;gap:6px;"></span>
-        <span id="file-list-modal-repo" style="display:flex;align-items:center;gap:5px;margin-left:auto;color:#94a3b8;font-size:0.8rem;font-weight:400;white-space:nowrap;padding-right:8px;"></span>
+        <span id="file-list-modal-title" class="file-list-modal-title"></span>
+        <span id="file-list-modal-repo" class="file-list-modal-repo"></span>
         <button class="file-list-close" onclick="closeFileListModal()">&times;</button>
       </div>
       <ul id="file-list-modal-items"></ul>

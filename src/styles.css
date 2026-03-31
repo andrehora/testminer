@@ -1118,3 +1118,225 @@ body {
 .shape-toggle.active .shape-toggle-icon {
   border-radius: 50%;
 }
+
+/* --- Top Navigation --- */
+
+.top-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  padding-top: 4px;
+  padding-bottom: 12px;
+  margin-bottom: 40px;
+}
+
+.nav-link {
+  font-size: 1rem;
+  color: #64748b;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-link-github {
+  gap: 6px;
+}
+
+/* --- GitHub Token Modal --- */
+
+.token-modal {
+  max-height: none;
+}
+
+.token-modal-body {
+  padding: 16px;
+}
+
+.token-description {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin: 0 0 8px;
+}
+
+.token-links {
+  font-size: 0.82rem;
+  margin: 0 0 12px;
+}
+
+.token-link {
+  color: #2563eb;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.token-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+}
+
+.token-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.token-save-btn {
+  flex: 1;
+  padding: 8px;
+  background: #22c55e;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.token-remove-btn {
+  padding: 8px 14px;
+  background: #f1f5f9;
+  color: #64748b;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+}
+
+/* --- GitHub Link in Results --- */
+
+.gh-link {
+  color: #1e293b;
+  text-decoration: none;
+}
+
+/* --- Tree Chart Spacing --- */
+
+#tree-chart {
+  margin-top: 16px;
+}
+
+/* --- Version Chart --- */
+
+.version-chart-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+#version-metric-btns {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+#version-chart-type-btns {
+  display: inline-flex;
+  gap: 0;
+}
+
+.chart-type-btn {
+  font-size: 0.85rem;
+  font-family: 'Inter', sans-serif;
+  padding: 4px 10px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #1e293b;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chart-type-btn:first-child {
+  border-radius: 6px 0 0 6px;
+}
+
+.chart-type-btn:last-child {
+  border-left: none;
+  border-radius: 0 6px 6px 0;
+}
+
+.chart-type-btn.active {
+  background: #22c55e;
+  color: #fff;
+}
+
+.version-chart-wrap {
+  position: relative;
+  height: 300px;
+}
+
+.version-chart-loading {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.85);
+  z-index: 2;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Footer --- */
+
+.footer-divider {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 24px 0 0 0;
+}
+
+.footer-text {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.footer-text:first-of-type {
+  padding: 16px 0 0;
+}
+
+.footer-text + .footer-text {
+  padding: 8px 0 0;
+}
+
+.footer-link {
+  color: #64748b;
+  text-decoration: underline;
+}
+
+.footer-token-wrap {
+  text-align: center;
+  padding: 8px 0 12px;
+  margin: 0;
+}
+
+/* --- File List Modal Details --- */
+
+.file-list-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.file-list-modal-repo {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 400;
+  white-space: nowrap;
+  padding-right: 8px;
+}

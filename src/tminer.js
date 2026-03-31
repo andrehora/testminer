@@ -223,8 +223,13 @@ function filterTestDependencies(sbomPackages, testLibs) {
     var pkg = sbomPackages[i];
     var nameLower = pkg.name.toLowerCase();
     var shortName = nameLower.split('/').pop().split(':').pop();
+    if (shortName.indexOf('test') !== -1 || shortName.indexOf('mock') !== -1) {
+      results.push(pkg);
+      continue;
+    }
     for (var it = testLibs.values(), val = it.next(); !val.done; val = it.next()) {
-      if (shortName === val.value || nameLower === val.value) {
+      if (shortName === val.value || nameLower === val.value ||
+          shortName.indexOf(val.value + '-') === 0 || shortName.indexOf(val.value + '_') === 0) {
         results.push(pkg);
         break;
       }

@@ -1,5 +1,6 @@
 var tm = require('../src/tminer');
 var parseSBOM = tm.parseSBOM;
+var filterTestDependencies = tm.filterTestDependencies;
 
 var npmData = require('./fixtures/sbom-npm');
 var golangData = require('./fixtures/sbom-golang');
@@ -78,6 +79,54 @@ describe('parseSBOM', function () {
   it('should return empty array when repo has no dependencies', function () {
     const result = parseSBOM(emptyData);
     expect(result).toEqual([]);
+  });
+
+});
+
+describe('filterTestDependencies', function () {
+
+  it('should match exact name in testLibs', function () {
+    const pkgs = [{ name: 'jest', ecosystem: 'npm' }, { name: 'express', ecosystem: 'npm' }];
+    const libs = new Set(['jest']);
+    expect(filterTestDependencies(pkgs, libs)).toEqual([{ name: 'jest', ecosystem: 'npm' }]);
+  });
+
+  it('should match full scoped name in testLibs', function () {
+    const pkgs = [{ name: '@jest/core', ecosystem: 'npm' }];
+    const libs = new Set(['core']);
+    expect(filterTestDependencies(pkgs, libs)).toEqual([{ name: '@jest/core', ecosystem: 'npm' }]);
+  });
+
+  it('should match package with "test" substring', function () {
+    const pkgs = [{ name: 'unittest2', ecosystem: 'pypi' }, { name: 'requests', ecosystem: 'pypi' }];
+    expect(filterTestDependencies(pkgs, new Set())).toEqual([{ name: 'unittest2', ecosystem: 'pypi' }]);
+  });
+
+  it('should match package with "mock" substring', function () {
+    const pkgs = [{ name: 'mock-server', ecosystem: 'npm' }, { name: 'lodash', ecosystem: 'npm' }];
+    expect(filterTestDependencies(pkgs, new Set())).toEqual([{ name: 'mock-server', ecosystem: 'npm' }]);
+  });
+
+  it('should match package prefixed with testLib name and hyphen', function () {
+    const pkgs = [{ name: 'pytest-foo', ecosystem: 'pypi' }, { name: 'requests', ecosystem: 'pypi' }];
+    const libs = new Set(['pytest']);
+    expect(filterTestDependencies(pkgs, libs)).toEqual([{ name: 'pytest-foo', ecosystem: 'pypi' }]);
+  });
+
+  it('should match package prefixed with testLib name and underscore', function () {
+    const pkgs = [{ name: 'jest_extended', ecosystem: 'npm' }];
+    const libs = new Set(['jest']);
+    expect(filterTestDependencies(pkgs, libs)).toEqual([{ name: 'jest_extended', ecosystem: 'npm' }]);
+  });
+
+  it('should not match unrelated packages', function () {
+    const pkgs = [{ name: 'lodash', ecosystem: 'npm' }, { name: 'express', ecosystem: 'npm' }];
+    const libs = new Set(['jest', 'mocha']);
+    expect(filterTestDependencies(pkgs, libs)).toEqual([]);
+  });
+
+  it('should return empty array for empty input', function () {
+    expect(filterTestDependencies([], new Set(['jest']))).toEqual([]);
   });
 
 });

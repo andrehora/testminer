@@ -12,6 +12,6 @@ search_suggestions:
   - github
   - apache
   - huggingface
+  - github/linguist
   - electron/electron
   - fastapi/fastapi
-  - facebook/react
