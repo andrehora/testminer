@@ -153,7 +153,7 @@
           var label = classificationLabels[key] || key;
           if (legendShown[label]) return;
           legendShown[label] = true;
-          legendHTML += '<span class="tree-legend-item"><span class="tree-dot" style="background:' + classificationColors[key] + '"></span>' + label + '</span>';
+          legendHTML += '<span class="tree-legend-item"><span class="tree-dot" style="background:' + classificationColors[key] + '"></span>' + label + ' files</span>';
         }
       });
       legendHTML += '</div>';
@@ -187,7 +187,7 @@
             return a.name.localeCompare(b.name);
           });
           html += '<div class="block-dir">';
-          html += '<div class="block-dir-label" title="' + dir + '">' + dir + '</div>';
+          html += '<div class="block-dir-label" title="' + dir + '">' + dir + ' <span class="block-dir-count">(' + files.length + ')</span></div>';
           html += '<div class="block-cells">';
           for (var j = 0; j < files.length; j++) {
             var f = files[j];
@@ -231,7 +231,8 @@
       var showOnlyHTML = '<div class="block-sort">Filter: ';
       Object.keys(filterLabelToKeys).forEach(function (label) {
         var keys = filterLabelToKeys[label];
-        showOnlyHTML += '<button class="block-sort-btn" data-showonly="' + keys.join(',') + '">' + label + '</button>';
+        var swatchColor = classificationColors[keys[0]] || '#94a3b8';
+        showOnlyHTML += '<button class="block-sort-btn" data-showonly="' + keys.join(',') + '"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:' + swatchColor + ';margin-right:4px;vertical-align:middle;flex-shrink:0;outline:1.5px solid rgba(255,255,255,0.7);outline-offset:-1px;"></span>' + label + '</button>';
       });
       showOnlyHTML += '</div>';
 
@@ -249,6 +250,7 @@
       depthNavHTML += '<button class="block-sort-btn" id="depth-left"' + (currentDepth <= 0 ? ' disabled' : '') + '>\u25C0</button>';
       depthNavHTML += '<span class="depth-nav-label" id="depth-label">' + currentDepth + ' / ' + maxDepth + '</span>';
       depthNavHTML += '<button class="block-sort-btn" id="depth-right"' + (currentDepth >= maxDepth ? ' disabled' : '') + '>\u25B6</button>';
+      depthNavHTML += '<button class="block-sort-btn active" id="paths-toggle" title="Toggle folder paths">paths</button>';
       depthNavHTML += '<button class="shape-toggle" id="shape-toggle" title="Toggle circles/squares"><span class="shape-toggle-icon"></span></button>';
       depthNavHTML += '<span class="export-btns"><button class="export-png-btn" id="export-png-btn">PNG</button><button class="export-png-btn" id="export-pdf-btn">PDF</button></span>';
       depthNavHTML += '</div>';
@@ -324,6 +326,12 @@
         if (leftBtn) leftBtn.disabled = currentDepth <= 0;
         if (rightBtn) rightBtn.disabled = currentDepth >= maxDepth;
       }
+
+      var pathsToggleBtn = document.getElementById('paths-toggle');
+      pathsToggleBtn.addEventListener('click', function () {
+        pathsToggleBtn.classList.toggle('active');
+        blockMapEl.classList.toggle('hide-paths');
+      });
 
       var depthNavEl = document.querySelector('.depth-nav');
       depthNavEl.addEventListener('click', function (e) {

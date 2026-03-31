@@ -227,12 +227,12 @@ body {
 }
 
 .recent-item {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: #16a34a;
   background: #f0fdf4;
   border: 1px solid #dcfce7;
-  border-radius: 8px;
-  padding: 6px 12px;
+  border-radius: 6px;
+  padding: 4px 10px;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 }
@@ -904,6 +904,15 @@ body {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.block-map.hide-paths .block-dir-label {
+  display: none;
+}
+
+.block-dir-count {
+  color: #94a3b8;
+  font-family: 'Inter', sans-serif;
 }
 
 .block-dir-label {
