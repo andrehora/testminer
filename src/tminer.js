@@ -1,6 +1,7 @@
 var ownerReposCache = {};
 var analyzeRepoCache = loadAnalyzeRepoCache();
 var extensionSet = null;
+var testLibsSet = null;
 
 var tminerConfig = {
   max_repos_per_page: 30,
@@ -197,6 +198,39 @@ function loadExtensions() {
       }
       return extensionSet;
     });
+}
+
+function loadTestLibs() {
+  if (testLibsSet) return Promise.resolve(testLibsSet);
+  return fetch('data/test_libs.csv')
+    .then(function (r) { return r.text(); })
+    .then(function (text) {
+      testLibsSet = new Set();
+      var lines = text.trim().split('\n');
+      for (var i = 0; i < lines.length; i++) {
+        var lib = lines[i].trim();
+        if (lib) {
+          testLibsSet.add(lib.toLowerCase());
+        }
+      }
+      return testLibsSet;
+    });
+}
+
+function filterTestDependencies(sbomPackages, testLibs) {
+  var results = [];
+  for (var i = 0; i < sbomPackages.length; i++) {
+    var pkg = sbomPackages[i];
+    var nameLower = pkg.name.toLowerCase();
+    var shortName = nameLower.split('/').pop().split(':').pop();
+    for (var it = testLibs.values(), val = it.next(); !val.done; val = it.next()) {
+      if (shortName === val.value || nameLower === val.value) {
+        results.push(pkg);
+        break;
+      }
+    }
+  }
+  return results;
 }
 
 function parseGitHubOwnerRepo(url) {
@@ -519,7 +553,9 @@ if (typeof module !== 'undefined') {
     isBenchmarkFile: isBenchmarkFile,
     isCITestFile: isCITestFile,
     isSourceFile: isSourceFile,
+    filterTestDependencies: filterTestDependencies,
     setExtensionSet: function(s) { extensionSet = s; },
+    setTestLibsSet: function(s) { testLibsSet = s; },
     resetAnalyzeRepoCache: function() { analyzeRepoCache = {}; }
   };
 }

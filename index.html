@@ -71,6 +71,8 @@
       <h2 id="results-title" class="results-title"><span id="results-title-text"></span><button class="copy-link-btn" id="copy-link-btn">Copy link</button><span class="results-title-actions"><select id="version-select" class="version-select" style="display:none;"></select><a id="gh-link" target="_blank" rel="noopener" style="color:#1e293b;text-decoration:none;"><i class="devicon-github-original"></i></a></span></h2>
       <h3 class="section-title" id="section-title-overview" style="display:none;">Overview</h3>
       <div class="stats-grid" id="stats-grid"></div>
+      <h3 class="section-title" id="section-title-deps" style="display:none;">Test Dependencies</h3>
+      <div id="deps-container" style="display:none;"></div>
       <h3 class="section-title" id="section-title-state" style="display:none;">Test Location</h3>
       <div id="tree-chart" style="display:none;margin-top:16px;"></div>
       <h3 class="section-title" id="section-title-history" style="display:none;">Test History</h3>
@@ -671,6 +673,7 @@
       var defaultBranch = await fetchDefaultBranch(ownerRepo);
       renderRepoStats(cacheKey, response.result.stats, defaultBranch);
       try { renderFileTree(cacheKey, defaultBranch); } catch (e) { console.error('Tree render error:', e); }
+      renderTestDeps(ownerRepo);
       saveRecent(ownerRepo);
       history.replaceState(null, '', '#' + ownerRepo);
 
@@ -766,7 +769,7 @@
       var ownerIcon = '<i class="devicon-' + ownerPart.toLowerCase() + '-plain colored" style="margin-right:6px;"></i>';
       document.getElementById('results-title-text').innerHTML = ownerIcon + '<a class="owner-link" href="#' + ownerPart + '">' + ownerPart + '</a> / ' + repoPart;
       document.getElementById('gh-link').href = 'https://github.com/' + baseRepo + (versionTag ? '/tree/' + versionTag : '');
-      ['section-title-overview', 'section-title-state', 'section-title-history'].forEach(function (id) {
+      ['section-title-overview', 'section-title-state', 'section-title-deps', 'section-title-history'].forEach(function (id) {
         var el = document.getElementById(id);
         el.style.display = '';
         el.classList.remove('collapsed');
@@ -812,6 +815,87 @@
       });
     }
 
+    function renderTestDepsTable(container, sectionTitle, testDeps) {
+      if (testDeps.length === 0) {
+        container.style.display = 'none';
+        sectionTitle.style.display = 'none';
+        return;
+      }
+      var seen = {};
+      var unique = [];
+      for (var i = 0; i < testDeps.length; i++) {
+        var key = testDeps[i].name.toLowerCase();
+        if (!seen[key]) {
+          seen[key] = true;
+          unique.push(testDeps[i]);
+        }
+      }
+      var groups = {};
+      for (var j = 0; j < unique.length; j++) {
+        var eco = unique[j].ecosystem;
+        if (!groups[eco]) groups[eco] = [];
+        groups[eco].push(unique[j]);
+      }
+      var ecoKeys = Object.keys(groups).sort();
+      var html = '';
+      for (var k = 0; k < ecoKeys.length; k++) {
+        var deps = groups[ecoKeys[k]];
+        deps.sort(function (a, b) { return a.name.toLowerCase().localeCompare(b.name.toLowerCase()); });
+        var badges = deps.map(function (dep) {
+          var shortName = dep.name.split('/').pop().split(':').pop();
+          var searchUrl = 'https://www.google.com/search?btnI&q=' + encodeURIComponent(shortName + ' github');
+          return '<span class="dep-badge" onclick="window.open(\'' + searchUrl + '\',\'_blank\')">' + shortName + '</span>';
+        }).join('');
+        html += '<div class="dep-group"><span class="dep-ecosystem-label">' + ecoKeys[k] + '</span><div class="dep-badges">' + badges + '</div></div>';
+      }
+      container.innerHTML = html;
+    }
+
+    function renderTestDeps(ownerRepo) {
+      var container = document.getElementById('deps-container');
+      var sectionTitle = document.getElementById('section-title-deps');
+
+      var cached = analyzeRepoCache[ownerRepo];
+      if (cached && cached.testDeps) {
+        container.style.display = '';
+        sectionTitle.style.display = '';
+        sectionTitle.classList.remove('collapsed');
+        renderTestDepsTable(container, sectionTitle, cached.testDeps);
+        return;
+      }
+
+      container.innerHTML = '<span class="spinner"></span>';
+      container.style.display = '';
+      sectionTitle.style.display = '';
+      sectionTitle.classList.remove('collapsed');
+
+      Promise.all([fetchSBOM(ownerRepo), loadTestLibs()])
+        .then(function (results) {
+          var sbomData = results[0];
+          var testLibs = results[1];
+          if (!sbomData || !sbomData.sbom) {
+            container.style.display = 'none';
+            sectionTitle.style.display = 'none';
+            return;
+          }
+          var packages = parseSBOM(sbomData);
+          var testDeps = filterTestDependencies(packages, testLibs);
+
+          if (cached) {
+            cached.totalDeps = packages.length;
+            cached.testDeps = testDeps;
+            saveAnalyzeRepoCache();
+          }
+
+          renderTestDepsTable(container, sectionTitle, testDeps);
+        })
+        .catch(function () {
+          container.style.display = 'none';
+          sectionTitle.style.display = 'none';
+        });
+    }
+
+
     async function analyze() {
       if (analyzing) return;
       analyzing = true;
@@ -825,6 +909,7 @@
         document.getElementById('tree-chart').style.display = 'none';
         document.getElementById('section-title-overview').style.display = 'none';
         document.getElementById('section-title-state').style.display = 'none';
+        document.getElementById('section-title-deps').style.display = 'none';
         document.getElementById('section-title-history').style.display = 'none';
         document.getElementById('autocomplete-list').style.display = 'none';
 
@@ -986,6 +1071,8 @@
       document.getElementById('version-chart-container').style.display = 'none';
       document.getElementById('section-title-overview').style.display = 'none';
       document.getElementById('section-title-state').style.display = 'none';
+      document.getElementById('section-title-deps').style.display = 'none';
+      document.getElementById('deps-container').style.display = 'none';
       document.getElementById('section-title-history').style.display = 'none';
       if (versionChartInstance) { versionChartInstance.destroy(); versionChartInstance = null; }
       versionChartGeneration++;
@@ -1302,6 +1389,7 @@
     var sectionToggleMap = {
       'section-title-overview': 'stats-grid',
       'section-title-state': 'tree-chart',
+      'section-title-deps': 'deps-container',
       'section-title-history': 'version-chart-container'
     };
     Object.keys(sectionToggleMap).forEach(function (titleId) {
