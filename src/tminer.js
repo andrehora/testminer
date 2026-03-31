@@ -468,6 +468,20 @@ var classificationColors = {
   'other': '#1e293b'
 };
 
+var classificationBgColors = {
+  'test':         '#f0fdf4',
+  'test-related': '#f0fdf4',
+  'mock':         '#f1f5f9',
+  'e2e':          '#f5f3ff',
+  'snapshot':     '#fdf2f8',
+  'ci-test':      '#ecfeff',
+  'smoke':        '#fef2f2',
+  'fixture':      '#fff7ed',
+  'benchmark':    '#fefce8',
+  'source':       '#f8fafc',
+  'other':        '#f8fafc'
+};
+
 var classificationLabels = {
   'source': 'source',
   'other': 'other'

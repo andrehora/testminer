@@ -71,8 +71,6 @@
       <h2 id="results-title" class="results-title"><span id="results-title-text"></span><button class="copy-link-btn" id="copy-link-btn">Copy link</button><span class="results-title-actions"><select id="version-select" class="version-select" style="display:none;"></select><a id="gh-link" target="_blank" rel="noopener" style="color:#1e293b;text-decoration:none;"><i class="devicon-github-original"></i></a></span></h2>
       <h3 class="section-title" id="section-title-overview" style="display:none;">Overview</h3>
       <div class="stats-grid" id="stats-grid"></div>
-      <h3 class="section-title" id="section-title-deps" style="display:none;">Test Dependencies</h3>
-      <div id="deps-container" style="display:none;"></div>
       <h3 class="section-title" id="section-title-state" style="display:none;">Test Location</h3>
       <div id="tree-chart" style="display:none;margin-top:16px;"></div>
       <h3 class="section-title" id="section-title-history" style="display:none;">Test History</h3>
@@ -89,6 +87,8 @@
           <canvas id="version-chart"></canvas>
         </div>
       </div>
+      <h3 class="section-title" id="section-title-deps" style="display:none;">Test Dependencies</h3>
+      <div id="deps-container" style="display:none;"></div>
     </div>
 
     <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0 0 0;">
@@ -239,7 +239,7 @@
       var sortHTML = '<div class="block-sort">';
       sortHTML += showHTML;
       sortHTML += '<span class="block-sort-sep">|</span>';
-      sortHTML += 'Sort by: ';
+      sortHTML += 'Sort: ';
       sortHTML += '<button class="block-sort-btn active" data-sort="files" id="sort-files">files \u2193</button>';
       sortHTML += '<button class="block-sort-btn" data-sort="alpha" id="sort-alpha">name \u2191</button>';
       sortHTML += '</div>';
@@ -729,7 +729,6 @@
 
     function renderRepoStats(ownerRepo, stats, gitRef) {
       var cards = [
-        { label: 'Source files',      value: stats.sourceFiles,       category: 'source' },
         { label: 'Test files',        value: stats.testFiles,         category: 'test' },
         { label: 'Test-related files',value: stats.testRelatedFiles,  category: 'test-related' },
         { label: 'Mock files',        value: stats.mockFiles,         category: 'mock' },
@@ -739,6 +738,7 @@
         { label: 'Smoke files',       value: stats.smokeFiles,        category: 'smoke' },
         { label: 'Fixture files',     value: stats.fixtureFiles,      category: 'fixture' },
         { label: 'Benchmark files',   value: stats.benchmarkFiles,    category: 'benchmark' },
+        { label: 'Source files',      value: stats.sourceFiles,       category: 'source' },
       ];
 
       var cached = analyzeRepoCache[ownerRepo];
@@ -748,15 +748,14 @@
       var visibleCards = cards.filter(function (c) {
         return c.alwaysShow || c.value > 0;
       });
-      var rows = visibleCards.map(function (c) {
+      var cardDivs = visibleCards.map(function (c) {
         var isClickable = c.category && hasFiles && (hasFiles[c.category] || []).length > 0;
-        var cls = 'stat-row' + (isClickable ? ' clickable' : '');
+        var cls = 'dash-card' + (isClickable ? ' clickable' : '');
         var dataAttr = isClickable ? ' data-category="' + c.category + '"' : '';
-        var color = c.category && classificationColors[c.category] ? classificationColors[c.category] : '#1e293b';
-        var dot = '<span class="stat-dot" style="background:' + color + ';"></span>';
-        return '<tr class="' + cls + '"' + dataAttr + '><td class="stat-label">' + dot + c.label + '</td><td class="stat-value">' + c.value + '</td></tr>';
+        var bgColor = c.category && classificationBgColors[c.category] ? classificationBgColors[c.category] : '#f8fafc';
+        return '<div class="' + cls + '"' + dataAttr + ' style="background:' + bgColor + ';">' + '<div class="dash-card-label">' + c.label + '</div><div class="dash-card-value">' + c.value + '</div></div>';
       }).join('');
-      grid.innerHTML = '<table class="stats-table"><tbody>' + rows + '</tbody></table>';
+      grid.innerHTML = '<div class="overview-dashboard">' + cardDivs + '</div>';
 
       var atIdx = ownerRepo.indexOf('@');
       var baseRepo = atIdx !== -1 ? ownerRepo.substring(0, atIdx) : ownerRepo;
@@ -782,24 +781,22 @@
     function closeFileListModal() {
       var modal = document.getElementById('file-list-modal');
       modal.style.display = 'none';
-      document.querySelectorAll('.stat-row.active').forEach(function (r) { r.classList.remove('active'); });
+      document.querySelectorAll('.dash-card.active').forEach(function (r) { r.classList.remove('active'); });
     }
 
     function setupStatCardClicks(grid, ownerRepo, baseRepo, linkRef) {
       var cached = analyzeRepoCache[ownerRepo];
       if (!cached || !cached.files) return;
 
-      grid.querySelectorAll('.stat-row.clickable').forEach(function (row) {
+      grid.querySelectorAll('.dash-card.clickable').forEach(function (row) {
         row.addEventListener('click', function () {
           var category = this.getAttribute('data-category');
           var files = cached.files[category] || [];
 
-          grid.querySelectorAll('.stat-row.active').forEach(function (r) { r.classList.remove('active'); });
+          grid.querySelectorAll('.dash-card.active').forEach(function (r) { r.classList.remove('active'); });
           this.classList.add('active');
 
-          var dot = this.querySelector('.stat-dot');
-          var dotHtml = dot ? '<span class="stat-dot" style="background:' + dot.style.background + ';"></span>' : '';
-          document.getElementById('file-list-modal-title').innerHTML = dotHtml + this.querySelector('.stat-label').textContent.trim() + ' (' + files.length + ')';
+          document.getElementById('file-list-modal-title').innerHTML = this.querySelector('.dash-card-label').textContent.trim() + ' (' + files.length + ')';
           var ownerPart = baseRepo ? baseRepo.split('/')[0] : '';
           var repoIconHtml = ownerPart ? '<i class="devicon-' + ownerPart.toLowerCase() + '-plain colored"></i>' : '';
           document.getElementById('file-list-modal-repo').innerHTML = repoIconHtml + (baseRepo ? baseRepo : '');
