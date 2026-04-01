@@ -50,4 +50,4 @@ npm run serve   # Start static server on port 8081
 
 ## Configuration
 
-[tminer.yml](tminer.yml) sets app behavior, including pagination limits, cache sizes, and search suggestions.
+[config.yml](data/config.yml) sets app behavior, including pagination limits, cache sizes, and search suggestions.

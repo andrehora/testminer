@@ -41,7 +41,7 @@ var tminerConfig = {
   search_suggestions: []
 };
 
-var tminerConfigReady = fetch('tminer.yml')
+var tminerConfigReady = fetch('data/config.yml')
   .then(function(r) { return r.text(); })
   .then(function(text) {
     var m;
