@@ -1,33 +1,3 @@
-function parseTerms(str) {
-  var omitPatterns = ['test', 'tests', 'testing', 'tester', 'spec'];
-  return str
-    .replace(/([a-z])([A-Z])/g, '$1\x00$2')
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1\x00$2')
-    .replace(/[-_]/g, '\x00')
-    .split('\x00')
-    .filter(function(t) { return t.length >= 3 && !omitPatterns.includes(t.toLowerCase()); })
-    .map(function(t) {
-      if (t.length > 1 && t[0] === t[0].toUpperCase() && t[1] === t[1].toLowerCase()) {
-        return t[0].toLowerCase() + t.slice(1);
-      }
-      return t;
-    });
-}
-
-function groupFilesByTerms(filepaths) {
-  var termMap = Object.create(null);
-  filepaths.forEach(function(filepath) {
-    var filename = filepath.split('/').pop();
-    var stem = filename.replace(/(\.[^/.]+)+$/, '');
-    var terms = parseTerms(stem);
-    terms.forEach(function(term) {
-      if (!termMap[term]) termMap[term] = [];
-      termMap[term].push(filepath);
-    });
-  });
-  return termMap;
-}
-
 var ownerReposCache = {};
 var analyzeRepoCache = loadAnalyzeRepoCache();
 var extensionSet = null;
@@ -38,28 +8,16 @@ var tminerConfig = {
   max_search_cache: 5,
   max_analyze_cache: 100,
   top_n_test_terms: 10,
+  dep_keywords: ['test', 'mock', 'stub', 'spy', 'dummy', 'fake', 'spies', 'dummies'],
   search_suggestions: []
 };
 
-var tminerConfigReady = fetch('data/config.yml')
-  .then(function(r) { return r.text(); })
-  .then(function(text) {
-    var m;
-    m = text.match(/max_repos_per_page\s*:\s*(\d+)/);
-    if (m) tminerConfig.max_repos_per_page = parseInt(m[1], 10);
-    m = text.match(/max_search_cache\s*:\s*(\d+)/);
-    if (m) tminerConfig.max_search_cache = parseInt(m[1], 10);
-    m = text.match(/max_analyze_cache\s*:\s*(\d+)/);
-    if (m) tminerConfig.max_analyze_cache = parseInt(m[1], 10);
-    m = text.match(/top_n_test_terms\s*:\s*(\d+)/);
-    if (m) tminerConfig.top_n_test_terms = parseInt(m[1], 10);
-    var sugIdx = text.indexOf('search_suggestions:');
-    if (sugIdx !== -1) {
-      var sugBlock = text.slice(sugIdx + 'search_suggestions:'.length);
-      var items = sugBlock.match(/^\s+-\s+(.+)$/gm);
-      if (items) {
-        tminerConfig.search_suggestions = items.map(function(l) { return l.replace(/^\s+-\s+/, '').trim(); });
-      }
+var tminerConfigReady = fetch('data/config.json')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var keys = Object.keys(data);
+    for (var i = 0; i < keys.length; i++) {
+      tminerConfig[keys[i]] = data[keys[i]];
     }
   })
   .catch(function() {});
@@ -247,13 +205,18 @@ function loadTestLibs() {
     });
 }
 
-function filterTestDependencies(sbomPackages, testLibs) {
+function filterTestDependencies(sbomPackages, testLibs, keywords) {
+  keywords = keywords || tminerConfig.dep_keywords;
   var results = new Set();
   for (var i = 0; i < sbomPackages.length; i++) {
     var pkg = sbomPackages[i];
     var nameLower = pkg.name.toLowerCase();
     var shortName = nameLower.split('/').pop().split(':').pop();
-    if (shortName.indexOf('test') !== -1 || shortName.indexOf('mock') !== -1) {
+    var matched = false;
+    for (var k = 0; k < keywords.length; k++) {
+      if (shortName.indexOf(keywords[k]) !== -1) { matched = true; break; }
+    }
+    if (matched) {
       results.add(pkg);
       continue;
     }
@@ -494,38 +457,6 @@ function loadAnalyzeRepoCache() {
   } catch (e) { return {}; }
 }
 
-var classificationColors = {
-  'test': '#22c55e',
-  'test-related': '#86efac',
-  'mock': '#94a3b8',
-  'e2e': '#8b5cf6',
-  'snapshot': '#ec4899',
-  'ci-test': '#06b6d4',
-  'smoke': '#ef4444',
-  'fixture': '#f97316',
-  'benchmark': '#facc15',
-  'source': '#1e293b',
-  'other': '#1e293b'
-};
-
-var classificationBgColors = {
-  'test':         '#dcfce7',
-  'test-related': '#f0fdf4',
-  'mock':         '#f1f5f9',
-  'e2e':          '#f5f3ff',
-  'snapshot':     '#fdf2f8',
-  'ci-test':      '#ecfeff',
-  'smoke':        '#fef2f2',
-  'fixture':      '#fff7ed',
-  'benchmark':    '#fefce8',
-  'source':       '#f8fafc',
-  'other':        '#f8fafc'
-};
-
-var classificationLabels = {
-  'source': 'source',
-  'other': 'other'
-};
 
 function groupFilesByDir(classifiedFiles) {
   var dirs = {};
@@ -583,6 +514,36 @@ function saveAnalyzeRepoCache() {
     }
     localStorage.setItem('testminer_analyze_cache', JSON.stringify(analyzeRepoCache));
   } catch (e) {}
+}
+
+function parseTerms(str) {
+  var omitPatterns = ['test', 'tests', 'testing', 'tester', 'spec'];
+  return str
+    .replace(/([a-z])([A-Z])/g, '$1\x00$2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1\x00$2')
+    .replace(/[-_]/g, '\x00')
+    .split('\x00')
+    .filter(function(t) { return t.length >= 3 && !omitPatterns.includes(t.toLowerCase()); })
+    .map(function(t) {
+      if (t.length > 1 && t[0] === t[0].toUpperCase() && t[1] === t[1].toLowerCase()) {
+        return t[0].toLowerCase() + t.slice(1);
+      }
+      return t;
+    });
+}
+
+function groupFilesByTerms(filepaths) {
+  var termMap = Object.create(null);
+  filepaths.forEach(function(filepath) {
+    var filename = filepath.split('/').pop();
+    var stem = filename.replace(/(\.[^/.]+)+$/, '');
+    var terms = parseTerms(stem);
+    terms.forEach(function(term) {
+      if (!termMap[term]) termMap[term] = [];
+      termMap[term].push(filepath);
+    });
+  });
+  return termMap;
 }
 
 if (typeof module !== 'undefined') {

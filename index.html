@@ -103,6 +103,67 @@
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="src/tminer.js"></script>
   <script>
+    var classificationColors = {
+      'test': '#22c55e',
+      'test-related': '#86efac',
+      'mock': '#94a3b8',
+      'e2e': '#8b5cf6',
+      'snapshot': '#ec4899',
+      'ci-test': '#06b6d4',
+      'smoke': '#ef4444',
+      'fixture': '#f97316',
+      'benchmark': '#facc15',
+      'source': '#1e293b',
+      'other': '#1e293b'
+    };
+
+    var classificationBgColors = {
+      'test':         '#dcfce7',
+      'test-related': '#f0fdf4',
+      'mock':         '#f1f5f9',
+      'e2e':          '#f5f3ff',
+      'snapshot':     '#fdf2f8',
+      'ci-test':      '#ecfeff',
+      'smoke':        '#fef2f2',
+      'fixture':      '#fff7ed',
+      'benchmark':    '#fefce8',
+      'source':       '#f8fafc',
+      'other':        '#f8fafc'
+    };
+
+    var classificationBorderColors = {
+      'test':         '#86efac',
+      'test-related': '#bbf7d0',
+      'mock':         '#cbd5e1',
+      'e2e':          '#c4b5fd',
+      'snapshot':     '#f9a8d4',
+      'ci-test':      '#67e8f9',
+      'smoke':        '#fca5a5',
+      'fixture':      '#fdba74',
+      'benchmark':    '#fde047',
+      'source':       '#cbd5e1',
+      'other':        '#cbd5e1'
+    };
+
+    var classificationTextColors = {
+      'test':         '#16a34a',
+      'test-related': '#16a34a',
+      'mock':         '#475569',
+      'e2e':          '#6d28d9',
+      'snapshot':     '#be185d',
+      'ci-test':      '#0891b2',
+      'smoke':        '#dc2626',
+      'fixture':      '#ea580c',
+      'benchmark':    '#ca8a04',
+      'source':       '#334155',
+      'other':        '#334155'
+    };
+
+    var classificationLabels = {
+      'source': 'source',
+      'other': 'other'
+    };
+
     // --- Helpers ---
 
     function parseOwnerRepo(ownerRepo) {
@@ -824,8 +885,10 @@
 
         var color = classificationColors[cat.key] || '#64748b';
         var bgColor = classificationBgColors[cat.key] || '#f8fafc';
+        var borderColor = classificationBorderColors[cat.key] || '#cbd5e1';
+        var textColor = classificationTextColors[cat.key] || '#475569';
         var dot = '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + color + ';margin-right:6px;flex-shrink:0;"></span>';
-        var badgeStyle = 'background:' + bgColor + ';border-color:#cbd5e1;';
+        var badgeStyle = 'background:' + bgColor + ';border-color:' + borderColor + ';color:' + textColor + ';';
 
         var visibleBadges = visibleTerms.map(function (term) {
           return '<span class="dep-badge test-term-badge" data-term="' + term + '" style="' + badgeStyle + '">' + term + ' (' + termMap[term].length + ')</span>';
