@@ -1,3 +1,5 @@
+[![Tests](https://github.com/andrehora/testminer/actions/workflows/tests.yml/badge.svg)](https://github.com/andrehora/testminer/actions/workflows/tests.yml)
+
 # TestMiner
 
 A webapp for exploring and visualizing *software testing* across GitHub repositories. Analyze:
