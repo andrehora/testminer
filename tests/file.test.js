@@ -15,6 +15,7 @@ var isSnapshotFile = tm.isSnapshotFile;
 var isTestFile = tm.isTestFile;
 var isSourceFile = tm.isSourceFile;
 var parseTerms = tm.parseTerms;
+var groupFilesByTerms = tm.groupFilesByTerms;
 
 describe('computeTestStats', function () {
 
@@ -732,6 +733,71 @@ describe('parseTerms', function () {
   it('should handle mixed separators and camelCase', function () {
     expect(parseTerms('test_fooBar')).toEqual(['foo', 'bar']);
     expect(parseTerms('test-fooBar')).toEqual(['foo', 'bar']);
+  });
+
+});
+
+describe('groupFilesByTerms', function () {
+
+  it('should return an empty object for empty input', function () {
+    expect(groupFilesByTerms([])).toEqual({});
+  });
+
+  it('should map a single term to its filepath', function () {
+    var result = groupFilesByTerms(['src/userService.js']);
+    expect(result['user']).toEqual(['src/userService.js']);
+    expect(result['service']).toEqual(['src/userService.js']);
+  });
+
+  it('should map a term to multiple filepaths', function () {
+    var result = groupFilesByTerms(['src/userService.js', 'tests/userController.js']);
+    expect(result['user']).toEqual(['src/userService.js', 'tests/userController.js']);
+    expect(result['service']).toEqual(['src/userService.js']);
+    expect(result['controller']).toEqual(['tests/userController.js']);
+  });
+
+  it('should use only the filename, not the directory path, for terms', function () {
+    var result = groupFilesByTerms(['order/userService.js']);
+    expect(result['user']).toEqual(['order/userService.js']);
+    expect(result['service']).toEqual(['order/userService.js']);
+    expect(result['order']).toBeUndefined();
+  });
+
+  it('should strip the file extension before parsing terms', function () {
+    var result = groupFilesByTerms(['src/orderService.test.js']);
+    expect(result['order']).toEqual(['src/orderService.test.js']);
+    expect(result['service']).toEqual(['src/orderService.test.js']);
+    expect(result['test']).toBeUndefined();
+
+    var result = groupFilesByTerms(['src/orderService.js.snap']);
+    expect(result['order']).toEqual(['src/orderService.js.snap']);
+    expect(result['service']).toEqual(['src/orderService.js.snap']);
+    expect(result['snap']).toBeUndefined();
+  });
+
+  it('should store the full filepath as value', function () {
+    var result = groupFilesByTerms(['src/utils/paymentService.js']);
+    expect(result['payment']).toEqual(['src/utils/paymentService.js']);
+    expect(result['service']).toEqual(['src/utils/paymentService.js']);
+  });
+
+  it('should omit terms shorter than 3 characters', function () {
+    var result = groupFilesByTerms(['src/dbUtil.js']);
+    expect(result['db']).toBeUndefined();
+    expect(result['util']).toEqual(['src/dbUtil.js']);
+  });
+
+  it('should omit the term "test"', function () {
+    var result = groupFilesByTerms(['src/userTest.js']);
+    expect(result['test']).toBeUndefined();
+    expect(result['user']).toEqual(['src/userTest.js']);
+  });
+
+  it('should handle filenames with underscores and hyphens', function () {
+    var result = groupFilesByTerms(['src/order-service_helper.js']);
+    expect(result['order']).toEqual(['src/order-service_helper.js']);
+    expect(result['service']).toEqual(['src/order-service_helper.js']);
+    expect(result['helper']).toEqual(['src/order-service_helper.js']);
   });
 
 });

@@ -13,6 +13,20 @@ function parseTerms(str) {
     });
 }
 
+function groupFilesByTerms(filepaths) {
+  var termMap = {};
+  filepaths.forEach(function(filepath) {
+    var filename = filepath.split('/').pop();
+    var stem = filename.replace(/(\.[^/.]+)+$/, '');
+    var terms = parseTerms(stem);
+    terms.forEach(function(term) {
+      if (!termMap[term]) termMap[term] = [];
+      termMap[term].push(filepath);
+    });
+  });
+  return termMap;
+}
+
 var ownerReposCache = {};
 var analyzeRepoCache = loadAnalyzeRepoCache();
 var extensionSet = null;
@@ -570,6 +584,7 @@ function saveAnalyzeRepoCache() {
 if (typeof module !== 'undefined') {
   module.exports = {
     parseTerms: parseTerms,
+    groupFilesByTerms: groupFilesByTerms,
     parseGitHubOwnerRepo: parseGitHubOwnerRepo,
     parseGitHubOwner: parseGitHubOwner,
     parseEcosystemFromPurl: parseEcosystemFromPurl,
