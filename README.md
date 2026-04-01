@@ -36,11 +36,11 @@ npm run serve   # Start static server on port 8081
 
 ## Stack
 
-- Vanilla JavaScript (ES5), HTML5, CSS3 — no framework, no bundler
+- Vanilla JavaScript (ES5), HTML5, CSS3
 - [Chart.js](https://www.chartjs.org/), [jsPDF](https://github.com/parallax/jsPDF), [html2canvas](https://html2canvas.hertzen.com/) via CDN
 - GitHub API, jsDelivr API
 - Jest + Cypress for testing
 
 ## Configuration
 
-[tminer.yml](tminer.yml) controls pagination limits, cache sizes, and search suggestions shown below the search box.
+[tminer.yml](tminer.yml) sets app behavior, including pagination limits, cache sizes, and search suggestions.
