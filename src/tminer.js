@@ -1,5 +1,5 @@
 function parseTerms(str) {
-  var omitPatterns = ['test', 'tests', 'testing', 'spec'];
+  var omitPatterns = ['test', 'tests', 'testing', 'tester', 'spec'];
   return str
     .replace(/([a-z])([A-Z])/g, '$1\x00$2')
     .replace(/([A-Z]+)([A-Z][a-z])/g, '$1\x00$2')

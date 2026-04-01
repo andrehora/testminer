@@ -783,72 +783,115 @@
 
     function renderTestTerms(ownerRepo, baseRepo, linkRef) {
       var grid = document.getElementById('stats-grid');
-      var existing = document.getElementById('test-terms-wrap');
+      var existing = document.getElementById('terms-table-wrap');
       if (existing) existing.remove();
 
       var cached = analyzeRepoCache[ownerRepo];
       if (!cached || !cached.files) return;
-      var testFiles = (cached.files['test'] || []);
-      if (testFiles.length === 0) return;
-      var termMap = groupFilesByTerms(testFiles);
-      var terms = Object.keys(termMap);
-      if (terms.length === 0) return;
-      terms.sort(function (a, b) {
-        return termMap[b].length - termMap[a].length || a.localeCompare(b);
+
+      var categories = [
+        { key: 'test',         label: 'Test' },
+        { key: 'test-related', label: 'Test-Related' },
+        { key: 'mock',         label: 'Mock' },
+        { key: 'e2e',          label: 'E2E' },
+        { key: 'snapshot',     label: 'Snapshot' },
+        { key: 'ci-test',      label: 'CI Test' },
+        { key: 'smoke',        label: 'Smoke' },
+        { key: 'fixture',      label: 'Fixture' },
+        { key: 'benchmark',    label: 'Benchmark' }
+      ];
+
+      var rows = '';
+      var rowData = [];
+
+      categories.forEach(function (cat) {
+        var files = cached.files[cat.key] || [];
+        if (files.length === 0) return;
+        var termMap = groupFilesByTerms(files);
+        var terms = Object.keys(termMap);
+        if (terms.length === 0) return;
+
+        terms.sort(function (a, b) {
+          return termMap[b].length - termMap[a].length || a.localeCompare(b);
+        });
+
+        var TOP_N = tminerConfig.top_n_test_terms;
+        var hasMore = terms.length > TOP_N;
+        var visibleTerms = hasMore ? terms.slice(0, TOP_N) : terms;
+        var hiddenTerms = hasMore ? terms.slice(TOP_N) : [];
+        var toggleId = cat.key + '-terms-show-all';
+        var rowId = cat.key + '-terms-row';
+
+        var color = classificationColors[cat.key] || '#64748b';
+        var bgColor = classificationBgColors[cat.key] || '#f8fafc';
+        var dot = '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + color + ';margin-right:6px;flex-shrink:0;"></span>';
+        var badgeStyle = 'background:' + bgColor + ';border-color:#cbd5e1;';
+
+        var visibleBadges = visibleTerms.map(function (term) {
+          return '<span class="dep-badge test-term-badge" data-term="' + term + '" style="' + badgeStyle + '">' + term + ' (' + termMap[term].length + ')</span>';
+        }).join('');
+        var hiddenBadges = hiddenTerms.map(function (term) {
+          return '<span class="dep-badge test-term-badge" data-term="' + term + '" style="' + badgeStyle + '">' + term + ' (' + termMap[term].length + ')</span>';
+        }).join('');
+
+        rows += '<tr id="' + rowId + '">'
+          + '<td class="dep-eco-cell" style="white-space:nowrap;">' + dot + cat.label + '</td>'
+          + '<td class="dep-badges-cell"><div class="dep-badges">'
+          + visibleBadges
+          + (hasMore ? '<span class="test-terms-toggle-btn dep-badge" id="' + toggleId + '">show all</span>' : '')
+          + (hasMore ? '<span class="test-terms-hidden" style="display:none;">' + hiddenBadges + '</span>' : '')
+          + '</div></td>'
+          + '</tr>';
+
+        rowData.push({ cat: cat, terms: terms, termMap: termMap, toggleId: toggleId, rowId: rowId, hasMore: hasMore });
       });
-      var TOP_N = tminerConfig.top_n_test_terms;
-      var allBadges = terms.map(function (term) {
-        return '<span class="dep-badge test-term-badge" data-term="' + term + '">' + term + ' (' + termMap[term].length + ')</span>';
-      });
-      var hasMore = terms.length > TOP_N;
-      var visibleBadges = hasMore ? allBadges.slice(0, TOP_N) : allBadges;
-      var hiddenBadges = hasMore ? allBadges.slice(TOP_N) : [];
+
+      if (!rows) return;
 
       var wrap = document.createElement('div');
-      wrap.id = 'test-terms-wrap';
-      wrap.className = 'test-terms-section';
-      wrap.innerHTML = '<div class="test-terms-label">Test Terms</div>'
-        + '<div class="dep-badges">'
-        + visibleBadges.join('')
-        + (hasMore ? '<span class="test-terms-toggle-btn dep-badge" id="test-terms-show-all">show all (' + terms.length + ')</span>' : '')
-        + (hasMore ? '<span class="test-terms-hidden" style="display:none;">' + hiddenBadges.join('') + '</span>' : '')
-        + '</div>';
+      wrap.id = 'terms-table-wrap';
+      wrap.innerHTML = '<table class="dep-table"><tbody>' + rows + '</tbody></table>';
       grid.appendChild(wrap);
 
-      if (hasMore) {
-        document.getElementById('test-terms-show-all').addEventListener('click', function () {
-          var hidden = wrap.querySelector('.test-terms-hidden');
-          if (hidden.style.display === 'none') {
-            hidden.style.display = 'inline';
-            this.textContent = 'show less';
-          } else {
-            hidden.style.display = 'none';
-            this.textContent = 'show all (' + terms.length + ')';
-          }
-        });
-      }
+      rowData.forEach(function (rd) {
+        var rowEl = document.getElementById(rd.rowId);
+        if (!rowEl) return;
 
-      wrap.querySelectorAll('.test-term-badge').forEach(function (badge) {
-        badge.addEventListener('click', function () {
-          var term = this.getAttribute('data-term');
-          var files = termMap[term] || [];
-
-          wrap.querySelectorAll('.test-term-badge.active').forEach(function (b) { b.classList.remove('active'); });
-          this.classList.add('active');
-
-          document.getElementById('file-list-modal-title').innerHTML = term + ' (' + files.length + ')';
-          var ownerPart = baseRepo ? baseRepo.split('/')[0] : '';
-          var repoIconHtml = ownerPart ? '<i class="devicon-' + ownerPart.toLowerCase() + '-plain colored"></i>' : '';
-          document.getElementById('file-list-modal-repo').innerHTML = repoIconHtml + (baseRepo ? baseRepo : '');
-          document.getElementById('file-list-modal-items').innerHTML = files.map(function (f, i) {
-            var num = '<span style="color:#94a3b8;min-width:2em;text-align:right;display:inline-block;margin-right:8px;font-size:0.85em;">' + (i + 1) + '</span>';
-            if (linkRef) {
-              var ghUrl = 'https://github.com/' + baseRepo + '/blob/' + linkRef + '/' + f;
-              return '<li>' + num + '<a href="' + ghUrl + '" target="_blank" rel="noopener">' + f + '</a></li>';
+        if (rd.hasMore) {
+          document.getElementById(rd.toggleId).addEventListener('click', function () {
+            var hidden = rowEl.querySelector('.test-terms-hidden');
+            if (hidden.style.display === 'none') {
+              hidden.style.display = 'inline';
+              this.textContent = 'show less';
+            } else {
+              hidden.style.display = 'none';
+              this.textContent = 'show all';
             }
-            return '<li>' + num + f + '</li>';
-          }).join('');
-          document.getElementById('file-list-modal').style.display = 'flex';
+          });
+        }
+
+        rowEl.querySelectorAll('.test-term-badge').forEach(function (badge) {
+          badge.addEventListener('click', function () {
+            var term = this.getAttribute('data-term');
+            var files = rd.termMap[term] || [];
+
+            document.querySelectorAll('.test-term-badge.active').forEach(function (b) { b.classList.remove('active'); });
+            this.classList.add('active');
+
+            document.getElementById('file-list-modal-title').innerHTML = term + ' (' + files.length + ')';
+            var ownerPart = baseRepo ? baseRepo.split('/')[0] : '';
+            var repoIconHtml = ownerPart ? '<i class="devicon-' + ownerPart.toLowerCase() + '-plain colored"></i>' : '';
+            document.getElementById('file-list-modal-repo').innerHTML = repoIconHtml + (baseRepo ? baseRepo : '');
+            document.getElementById('file-list-modal-items').innerHTML = files.map(function (f, i) {
+              var num = '<span style="color:#94a3b8;min-width:2em;text-align:right;display:inline-block;margin-right:8px;font-size:0.85em;">' + (i + 1) + '</span>';
+              if (linkRef) {
+                var ghUrl = 'https://github.com/' + baseRepo + '/blob/' + linkRef + '/' + f;
+                return '<li>' + num + '<a href="' + ghUrl + '" target="_blank" rel="noopener">' + f + '</a></li>';
+              }
+              return '<li>' + num + f + '</li>';
+            }).join('');
+            document.getElementById('file-list-modal').style.display = 'flex';
+          });
         });
       });
     }

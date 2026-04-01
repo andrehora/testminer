@@ -365,6 +365,14 @@ body {
   margin-bottom: 8px;
 }
 
+#terms-table-wrap {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
 .overview-dashboard {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -434,7 +442,7 @@ body {
   letter-spacing: 0.03em;
   white-space: nowrap;
   vertical-align: middle;
-  text-align: center;
+  text-align: left;
   padding: 8px 16px 8px 0;
   width: 1%;
 }
@@ -467,16 +475,6 @@ body {
   background: #dcfce7;
 }
 
-.test-terms-section {
-  margin-top: 12px;
-}
-
-.test-terms-label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #64748b;
-  margin-bottom: 6px;
-}
 
 .test-term-badge {
   padding: 2px 8px;
@@ -494,6 +492,7 @@ body {
   background: #f1f5f9;
   color: #16a34a;
   border-color: #cbd5e1;
+  margin-left: auto;
 }
 
 .test-terms-toggle-btn:hover {
