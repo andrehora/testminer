@@ -316,7 +316,7 @@ function parseSBOM(data) {
     var pkg = sbomPackages[i];
     var ecosystem = parseEcosystemFromPurl(pkg);
     if (ecosystem && ecosystem !== 'github' && ecosystem !== 'githubactions') {
-      packages.push({ name: pkg.name, ecosystem: ecosystem });
+      packages.push({ name: pkg.name, ecosystem: ecosystem, version: pkg.versionInfo || '' });
     }
   }
   return packages;

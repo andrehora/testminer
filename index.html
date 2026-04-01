@@ -770,7 +770,7 @@
       renderTestTerms(ownerRepo, baseRepo, linkRef);
       var ownerPart = baseRepo.split('/')[0];
       var repoPart = baseRepo.split('/')[1];
-      document.getElementById('results-title-text').innerHTML = buildOwnerIcon(ownerPart) + '<a class="owner-link" href="#' + ownerPart + '">' + ownerPart + '</a> / ' + repoPart;
+      document.getElementById('results-title-text').innerHTML = buildOwnerIcon(ownerPart) + '<a class="owner-link" href="#' + ownerPart + '">' + ownerPart + '</a> / ' + repoPart + (parsed.versionTag ? '@' + parsed.versionTag : '');
       document.getElementById('gh-link').href = 'https://github.com/' + baseRepo + (parsed.versionTag ? '/tree/' + parsed.versionTag : '');
       showSections(['section-title-overview', 'section-title-state', 'section-title-deps']);
       hideSections(['section-title-history']);
@@ -836,10 +836,11 @@
 
         rows += '<tr id="' + rowId + '">'
           + '<td class="dep-eco-cell" style="white-space:nowrap;">' + dot + cat.label + '</td>'
-          + '<td class="dep-badges-cell"><div class="dep-badges">'
+          + '<td class="dep-badges-cell"><div class="dep-badges-row"><div class="dep-badges">'
           + visibleBadges
-          + (hasMore ? '<span class="test-terms-toggle-btn dep-badge" id="' + toggleId + '">show all</span>' : '')
           + (hasMore ? '<span class="test-terms-hidden" style="display:none;">' + hiddenBadges + '</span>' : '')
+          + '</div>'
+          + (hasMore ? '<span class="test-terms-toggle-btn dep-badge" id="' + toggleId + '">+</span>' : '')
           + '</div></td>'
           + '</tr>';
 
@@ -861,11 +862,11 @@
           document.getElementById(rd.toggleId).addEventListener('click', function () {
             var hidden = rowEl.querySelector('.test-terms-hidden');
             if (hidden.style.display === 'none') {
-              hidden.style.display = 'inline';
-              this.textContent = 'show less';
+              hidden.style.display = 'contents';
+              this.textContent = '-';
             } else {
               hidden.style.display = 'none';
-              this.textContent = 'show all';
+              this.textContent = '+';
             }
           });
         }
@@ -891,6 +892,9 @@
               return '<li>' + num + f + '</li>';
             }).join('');
             document.getElementById('file-list-modal').style.display = 'flex';
+            var parsedOwner = parseOwnerRepo(ownerRepo);
+            var versionSuffix = parsedOwner.versionTag ? '@' + parsedOwner.versionTag : '';
+            history.replaceState(null, '', '#' + baseRepo + versionSuffix + ':term:' + encodeURIComponent(term));
           });
         });
       });
@@ -901,6 +905,37 @@
       modal.style.display = 'none';
       document.querySelectorAll('.dash-card.active').forEach(function (r) { r.classList.remove('active'); });
       document.querySelectorAll('.test-term-badge.active').forEach(function (b) { b.classList.remove('active'); });
+      var strippedHash = location.hash.replace(/:.*$/, '');
+      if (strippedHash !== location.hash) {
+        history.replaceState(null, '', strippedHash);
+      }
+    }
+
+    function applyPendingModal() {
+      if (!pendingModal) return;
+      var grid = document.getElementById('stats-grid');
+      if (pendingModal.indexOf('cat:') === 0) {
+        var cat = pendingModal.substring(4);
+        var card = grid.querySelector('.dash-card[data-category="' + cat + '"]');
+        if (card) card.click();
+      } else if (pendingModal.indexOf('term:') === 0) {
+        var term = decodeURIComponent(pendingModal.substring(5));
+        var badge = grid.querySelector('.test-term-badge[data-term="' + term + '"]');
+        if (badge) badge.click();
+      }
+      pendingModal = null;
+    }
+
+    function copyModalLink() {
+      var btn = document.getElementById('file-list-copy-link');
+      navigator.clipboard.writeText(window.location.href).then(function () {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(function () {
+          btn.textContent = 'Copy link';
+          btn.classList.remove('copied');
+        }, 1500);
+      });
     }
 
     function setupStatCardClicks(grid, ownerRepo, baseRepo, linkRef) {
@@ -928,6 +963,9 @@
             return '<li>' + num + f + '</li>';
           }).join('');
           document.getElementById('file-list-modal').style.display = 'flex';
+          var parsedOwner = parseOwnerRepo(ownerRepo);
+          var versionSuffix = parsedOwner.versionTag ? '@' + parsedOwner.versionTag : '';
+          history.replaceState(null, '', '#' + baseRepo + versionSuffix + ':cat:' + category);
         });
       });
     }
@@ -959,7 +997,8 @@
         }).map(function (dep) {
           var shortName = dep.name.split('/').pop().split(':').pop();
           var searchUrl = 'https://www.google.com/search?btnI&q=' + encodeURIComponent(shortName + ' github');
-          return '<span class="dep-badge" onclick="window.open(\'' + searchUrl + '\',\'_blank\')">' + shortName + '</span>';
+          var versionStr = dep.version ? '<span class="title-version">@' + dep.version + '</span>' : '';
+          return '<span class="dep-badge" onclick="window.open(\'' + searchUrl + '\',\'_blank\')">' + shortName + versionStr + '</span>';
         }).join('');
         var ecoIcon = getEcosystemIcon(ecoKeys[k]);
         rows += '<tr><td class="dep-eco-cell">' + ecoIcon + ecoKeys[k] + '</td><td class="dep-badges-cell"><div class="dep-badges">' + badges + '</div></td></tr>';
@@ -1168,6 +1207,7 @@
     // --- Analyze ---
 
     var analyzing = false;
+    var pendingModal = null;
     function showError(msg) {
       var errorEl = document.getElementById('error');
       errorEl.textContent = msg;
@@ -1227,7 +1267,8 @@
       try { renderFileTree(cacheKey, defaultBranch); } catch (e) { console.error('Tree render error:', e); }
       renderTestDeps(ownerRepo);
       saveRecent(ownerRepo);
-      history.replaceState(null, '', '#' + ownerRepo);
+      history.replaceState(null, '', '#' + ownerRepo + (version ? '@' + version : ''));
+      applyPendingModal();
 
       // Load versions dropdown
       var versionSelect = document.getElementById('version-select');
@@ -1586,8 +1627,18 @@
     function analyzeFromHash() {
       var hash = location.hash.substring(1);
       if (hash) {
-        document.getElementById('repo-input').value = decodeURIComponent(hash);
-        analyze();
+        var colonIdx = hash.indexOf(':');
+        var repoHash = colonIdx >= 0 ? hash.substring(0, colonIdx) : hash;
+        pendingModal = colonIdx >= 0 ? hash.substring(colonIdx + 1) : null;
+        var atIdx = repoHash.indexOf('@');
+        var repoOnly = atIdx >= 0 ? repoHash.substring(0, atIdx) : repoHash;
+        var hashVersion = atIdx >= 0 ? repoHash.substring(atIdx + 1) : null;
+        document.getElementById('repo-input').value = decodeURIComponent(repoOnly);
+        if (hashVersion) {
+          analyzeSingleRepo(decodeURIComponent(repoOnly), hashVersion);
+        } else {
+          analyze();
+        }
       }
     }
 
@@ -1651,6 +1702,7 @@
     <div class="file-list-modal">
       <div class="file-list-modal-header">
         <span id="file-list-modal-title" class="file-list-modal-title"></span>
+        <button id="file-list-copy-link" class="file-list-copy-link" onclick="copyModalLink()">Copy link</button>
         <span id="file-list-modal-repo" class="file-list-modal-repo"></span>
         <button class="file-list-close" onclick="closeFileListModal()">&times;</button>
       </div>

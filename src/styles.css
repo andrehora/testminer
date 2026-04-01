@@ -288,6 +288,11 @@ body {
   text-decoration: underline;
 }
 
+.title-version {
+  font-weight: 400;
+  font-size: 0.85em;
+}
+
 .results-title-actions {
   margin-left: auto;
   display: flex;
@@ -452,6 +457,16 @@ body {
   padding: 8px 0;
 }
 
+.dep-badges-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.dep-badges-row .dep-badges {
+  flex: 1;
+}
+
 .dep-badges {
   display: flex;
   flex-wrap: wrap;
@@ -490,9 +505,10 @@ body {
   padding: 2px 8px;
   font-size: 0.75rem;
   background: #f1f5f9;
-  color: #16a34a;
+  color: #000;
   border-color: #cbd5e1;
-  margin-left: auto;
+  flex-shrink: 0;
+  align-self: flex-start;
 }
 
 .test-terms-toggle-btn:hover {
@@ -618,6 +634,29 @@ body {
 
 .file-list-close:hover {
   color: #ef4444;
+}
+
+.file-list-copy-link {
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: #64748b;
+  padding: 2px 8px;
+  line-height: 1.5;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+.file-list-copy-link:hover {
+  border-color: #22c55e;
+  color: #22c55e;
+}
+
+.file-list-copy-link.copied {
+  color: #22c55e;
+  border-color: #22c55e;
 }
 
 
