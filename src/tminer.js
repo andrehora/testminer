@@ -1,3 +1,18 @@
+function parseTerms(str) {
+  return str
+    .replace(/([a-z])([A-Z])/g, '$1\x00$2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1\x00$2')
+    .replace(/[-_]/g, '\x00')
+    .split('\x00')
+    .filter(function(t) { return t.length >= 3 && t.toLowerCase() !== 'test'; })
+    .map(function(t) {
+      if (t.length > 1 && t[0] === t[0].toUpperCase() && t[1] === t[1].toLowerCase()) {
+        return t[0].toLowerCase() + t.slice(1);
+      }
+      return t;
+    });
+}
+
 var ownerReposCache = {};
 var analyzeRepoCache = loadAnalyzeRepoCache();
 var extensionSet = null;
@@ -554,6 +569,7 @@ function saveAnalyzeRepoCache() {
 
 if (typeof module !== 'undefined') {
   module.exports = {
+    parseTerms: parseTerms,
     parseGitHubOwnerRepo: parseGitHubOwnerRepo,
     parseGitHubOwner: parseGitHubOwner,
     parseEcosystemFromPurl: parseEcosystemFromPurl,

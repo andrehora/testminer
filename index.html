@@ -103,6 +103,52 @@
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="src/tminer.js"></script>
   <script>
+    // --- Helpers ---
+
+    function parseOwnerRepo(ownerRepo) {
+      var atIdx = ownerRepo.indexOf('@');
+      var baseRepo = atIdx !== -1 ? ownerRepo.substring(0, atIdx) : ownerRepo;
+      var versionTag = atIdx !== -1 ? ownerRepo.substring(atIdx + 1) : '';
+      return { baseRepo: baseRepo, versionTag: versionTag };
+    }
+
+    function destroyVersionChart() {
+      if (versionChartInstance) {
+        versionChartInstance.destroy();
+        versionChartInstance = null;
+      }
+    }
+
+    function getActiveMetric() {
+      var metricBtn = document.querySelector('#version-metric-btns .active');
+      return metricBtn ? metricBtn.getAttribute('data-metric') : 'testFiles';
+    }
+
+    function getActiveChartType() {
+      var btn = document.querySelector('#version-chart-type-btns button.active');
+      return btn ? btn.getAttribute('data-type') : 'line';
+    }
+
+    function buildOwnerIcon(owner) {
+      return '<i class="devicon-' + owner.toLowerCase() + '-plain colored" style="margin-right:6px;"></i>';
+    }
+
+    function hideSections(ids) {
+      ids.forEach(function (id) {
+        document.getElementById(id).style.display = 'none';
+      });
+    }
+
+    function showSections(ids) {
+      ids.forEach(function (id) {
+        var el = document.getElementById(id);
+        el.style.display = '';
+        el.classList.remove('collapsed');
+      });
+    }
+
+    var ALL_SECTION_IDS = ['section-title-overview', 'section-title-state', 'section-title-deps', 'section-title-history'];
+
     // --- Icon Helpers ---
 
     var deviconAliases = {
@@ -160,10 +206,9 @@
         return;
       }
 
-      var atIdx = ownerRepo.indexOf('@');
-      var baseRepo = atIdx !== -1 ? ownerRepo.substring(0, atIdx) : ownerRepo;
-      var versionTag = atIdx !== -1 ? ownerRepo.substring(atIdx + 1) : '';
-      var linkRef = versionTag || gitRef || '';
+      var parsed = parseOwnerRepo(ownerRepo);
+      var baseRepo = parsed.baseRepo;
+      var linkRef = parsed.versionTag || gitRef || '';
 
       var oldTooltip = document.querySelector('.block-tooltip');
       if (oldTooltip) oldTooltip.remove();
@@ -535,10 +580,7 @@
       var canvas = document.getElementById('version-chart');
       if (!container || !canvas || !versionChartStats || !versionChartLabels) return;
 
-      if (versionChartInstance) {
-        versionChartInstance.destroy();
-        versionChartInstance = null;
-      }
+      destroyVersionChart();
 
       var data = versionChartStats.map(function (s) {
         return s ? s[metric] : null;
@@ -596,10 +638,7 @@
       var container = document.getElementById('version-chart-container');
       if (!container) return;
 
-      if (versionChartInstance) {
-        versionChartInstance.destroy();
-        versionChartInstance = null;
-      }
+      destroyVersionChart();
 
       versionChartStats = null;
       versionChartLabels = null;
@@ -657,11 +696,7 @@
         }
 
         versionChartStats = statsArr;
-        var metricBtn = document.querySelector('#version-metric-btns .active');
-        var metric = metricBtn ? metricBtn.getAttribute('data-metric') : 'testFiles';
-        var activeBtn = document.querySelector('#version-chart-type-btns button.active');
-        var chartType = activeBtn ? activeBtn.getAttribute('data-type') : 'line';
-        buildVersionChart(metric, chartType);
+        buildVersionChart(getActiveMetric(), getActiveChartType());
       }
 
       recent.forEach(function (version, idx) {
@@ -682,9 +717,7 @@
       if (!btn) return;
       this.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); });
       btn.classList.add('active');
-      var typeBtn = document.querySelector('#version-chart-type-btns button.active');
-      var chartType = typeBtn ? typeBtn.getAttribute('data-type') : 'line';
-      buildVersionChart(btn.getAttribute('data-metric'), chartType);
+      buildVersionChart(btn.getAttribute('data-metric'), getActiveChartType());
     });
 
     document.getElementById('version-chart-type-btns').addEventListener('click', function (e) {
@@ -694,9 +727,7 @@
         b.classList.remove('active');
       });
       btn.classList.add('active');
-      var metricBtn = document.querySelector('#version-metric-btns .active');
-      var metric = metricBtn ? metricBtn.getAttribute('data-metric') : 'testFiles';
-      buildVersionChart(metric, btn.getAttribute('data-type'));
+      buildVersionChart(getActiveMetric(), btn.getAttribute('data-type'));
     });
 
     // --- Repo Stats ---
@@ -731,23 +762,17 @@
       }).join('');
       grid.innerHTML = '<div class="overview-dashboard">' + cardDivs + '</div>';
 
-      var atIdx = ownerRepo.indexOf('@');
-      var baseRepo = atIdx !== -1 ? ownerRepo.substring(0, atIdx) : ownerRepo;
-      var versionTag = atIdx !== -1 ? ownerRepo.substring(atIdx + 1) : '';
-      var linkRef = versionTag || gitRef || '';
+      var parsed = parseOwnerRepo(ownerRepo);
+      var baseRepo = parsed.baseRepo;
+      var linkRef = parsed.versionTag || gitRef || '';
 
       setupStatCardClicks(grid, ownerRepo, baseRepo, linkRef);
       var ownerPart = baseRepo.split('/')[0];
       var repoPart = baseRepo.split('/')[1];
-      var ownerIcon = '<i class="devicon-' + ownerPart.toLowerCase() + '-plain colored" style="margin-right:6px;"></i>';
-      document.getElementById('results-title-text').innerHTML = ownerIcon + '<a class="owner-link" href="#' + ownerPart + '">' + ownerPart + '</a> / ' + repoPart;
-      document.getElementById('gh-link').href = 'https://github.com/' + baseRepo + (versionTag ? '/tree/' + versionTag : '');
-      ['section-title-overview', 'section-title-state', 'section-title-deps'].forEach(function (id) {
-        var el = document.getElementById(id);
-        el.style.display = '';
-        el.classList.remove('collapsed');
-      });
-      document.getElementById('section-title-history').style.display = 'none';
+      document.getElementById('results-title-text').innerHTML = buildOwnerIcon(ownerPart) + '<a class="owner-link" href="#' + ownerPart + '">' + ownerPart + '</a> / ' + repoPart;
+      document.getElementById('gh-link').href = 'https://github.com/' + baseRepo + (parsed.versionTag ? '/tree/' + parsed.versionTag : '');
+      showSections(['section-title-overview', 'section-title-state', 'section-title-deps']);
+      hideSections(['section-title-history']);
       document.getElementById('stats-grid').style.display = '';
       document.getElementById('version-chart-container').style.display = 'none';
       document.getElementById('deps-container').style.display = 'none';
@@ -997,19 +1022,15 @@
     function renderOwnerRepos(owner, repos) {
       var resultsEl = document.getElementById('results');
       var grid = document.getElementById('stats-grid');
-      var ownerIcon = '<i class="devicon-' + owner.toLowerCase() + '-plain colored" style="margin-right:6px;"></i>';
-      document.getElementById('results-title-text').innerHTML = ownerIcon + owner;
+      document.getElementById('results-title-text').innerHTML = buildOwnerIcon(owner) + owner;
       document.getElementById('gh-link').href = 'https://github.com/' + owner;
       var versionSelect = document.getElementById('version-select');
       versionSelect.style.display = 'none';
       versionSelect.dataset.repo = '';
       document.getElementById('version-chart-container').style.display = 'none';
-      document.getElementById('section-title-overview').style.display = 'none';
-      document.getElementById('section-title-state').style.display = 'none';
-      document.getElementById('section-title-deps').style.display = 'none';
+      hideSections(ALL_SECTION_IDS);
       document.getElementById('deps-container').style.display = 'none';
-      document.getElementById('section-title-history').style.display = 'none';
-      if (versionChartInstance) { versionChartInstance.destroy(); versionChartInstance = null; }
+      destroyVersionChart();
       versionChartGeneration++;
 
       var repoIndices = [];
@@ -1119,10 +1140,7 @@
         document.getElementById('results').style.display = 'none';
 
         document.getElementById('tree-chart').style.display = 'none';
-        document.getElementById('section-title-overview').style.display = 'none';
-        document.getElementById('section-title-state').style.display = 'none';
-        document.getElementById('section-title-deps').style.display = 'none';
-        document.getElementById('section-title-history').style.display = 'none';
+        hideSections(ALL_SECTION_IDS);
         document.getElementById('autocomplete-list').style.display = 'none';
 
         if (!input) {

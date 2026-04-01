@@ -14,6 +14,7 @@ var isE2EFile = tm.isE2EFile;
 var isSnapshotFile = tm.isSnapshotFile;
 var isTestFile = tm.isTestFile;
 var isSourceFile = tm.isSourceFile;
+var parseTerms = tm.parseTerms;
 
 describe('computeTestStats', function () {
 
@@ -681,6 +682,56 @@ describe('isSourceFile', function () {
     tm.setExtensionSet(null);
     expect(isSourceFile('app.js')).toBe(false);
     tm.setExtensionSet(new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml']));
+  });
+
+});
+
+describe('parseTerms', function () {
+
+  it('should split on underscores', function () {
+    expect(parseTerms('test_foo')).toEqual(['foo']);
+    expect(parseTerms('test_foo_bar')).toEqual(['foo', 'bar']);
+  });
+
+  it('should split on hyphens', function () {
+    expect(parseTerms('test-foo')).toEqual(['foo']);
+    expect(parseTerms('test-foo-bar')).toEqual(['foo', 'bar']);
+  });
+
+  it('should split on camelCase boundaries', function () {
+    expect(parseTerms('testFoo')).toEqual(['foo']);
+    expect(parseTerms('testFooBar')).toEqual(['foo', 'bar']);
+  });
+
+  it('should preserve uppercase acronyms', function () {
+    expect(parseTerms('testABC')).toEqual(['ABC']);
+    expect(parseTerms('httpTestAAA')).toEqual(['http', 'AAA']);
+  });
+
+  it('should omit the test term', function () {
+    expect(parseTerms('test')).toEqual([]);
+    expect(parseTerms('Test')).toEqual([]);
+    expect(parseTerms('TEST')).toEqual([]);
+  });
+
+  it('should omit terms with less than 3 characters', function () {
+    expect(parseTerms('testFooA')).toEqual(['foo']);
+    expect(parseTerms('test_a_bar')).toEqual(['bar']);
+    expect(parseTerms('testAbCD')).toEqual([]);
+  });
+
+  it('should handle a single non-test term', function () {
+    expect(parseTerms('FOO')).toEqual(['FOO']);
+    expect(parseTerms('foo')).toEqual(['foo']);
+  });
+
+  it('should handle empty string', function () {
+    expect(parseTerms('')).toEqual([]);
+  });
+
+  it('should handle mixed separators and camelCase', function () {
+    expect(parseTerms('test_fooBar')).toEqual(['foo', 'bar']);
+    expect(parseTerms('test-fooBar')).toEqual(['foo', 'bar']);
   });
 
 });
