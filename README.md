@@ -5,17 +5,17 @@ A web app for exploring and visualizing test practices across GitHub repositorie
 ## Features
 
 - **Owner view** — browse all repositories for a GitHub owner/organization
-- **Repo view** — deep-dive into a single repository with four sections:
-  - **Overview** — key test statistics
-  - **Test Dependencies** — detected testing libraries
-  - **Test Location** — file tree chart showing where tests live
-  - **Test History** — test metrics across versions/releases
+- **Repo view** — dive into a single repository:
+  - **Overview** — test statistics
+  - **Test Location** — file tree chart showing where tests are located
+  - **Test History** — test metrics across releases
+  - **Test Dependencies** — dependencies related to test (extracted from GitHub [SBOM](https://docs.github.com/en/rest/dependency-graph/sboms))
 
 Files are automatically classified into categories: `test`, `e2e`, `mock`, `snapshot`, `fixture`, `benchmark`, `smoke`, and `ci-test`.
 
 ## Usage
 
-Just open `index.html` in a browser — no build step required.
+Just open `index.html` in a browser:
 
 Search by:
 - GitHub URL (e.g. `https://github.com/fastapi/fastapi`)
@@ -31,7 +31,7 @@ Without a token, the GitHub API allows 60 requests/hour. Adding a read-only pers
 ```bash
 npm test        # Run unit tests (Jest)
 npm run e2e     # Run end-to-end tests (Cypress, headless)
-npm run serve   # Start static server on port 8080
+npm run serve   # Start static server on port 8081
 ```
 
 ## Stack
