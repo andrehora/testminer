@@ -1,10 +1,11 @@
 function parseTerms(str) {
+  var omitPatterns = ['test', 'tests', 'testing', 'spec'];
   return str
     .replace(/([a-z])([A-Z])/g, '$1\x00$2')
     .replace(/([A-Z]+)([A-Z][a-z])/g, '$1\x00$2')
     .replace(/[-_]/g, '\x00')
     .split('\x00')
-    .filter(function(t) { return t.length >= 3 && t.toLowerCase() !== 'test'; })
+    .filter(function(t) { return t.length >= 3 && !omitPatterns.includes(t.toLowerCase()); })
     .map(function(t) {
       if (t.length > 1 && t[0] === t[0].toUpperCase() && t[1] === t[1].toLowerCase()) {
         return t[0].toLowerCase() + t.slice(1);
@@ -14,7 +15,7 @@ function parseTerms(str) {
 }
 
 function groupFilesByTerms(filepaths) {
-  var termMap = {};
+  var termMap = Object.create(null);
   filepaths.forEach(function(filepath) {
     var filename = filepath.split('/').pop();
     var stem = filename.replace(/(\.[^/.]+)+$/, '');
@@ -36,6 +37,7 @@ var tminerConfig = {
   max_repos_per_page: 30,
   max_search_cache: 5,
   max_analyze_cache: 100,
+  top_n_test_terms: 10,
   search_suggestions: []
 };
 
@@ -49,6 +51,8 @@ var tminerConfigReady = fetch('tminer.yml')
     if (m) tminerConfig.max_search_cache = parseInt(m[1], 10);
     m = text.match(/max_analyze_cache\s*:\s*(\d+)/);
     if (m) tminerConfig.max_analyze_cache = parseInt(m[1], 10);
+    m = text.match(/top_n_test_terms\s*:\s*(\d+)/);
+    if (m) tminerConfig.top_n_test_terms = parseInt(m[1], 10);
     var sugIdx = text.indexOf('search_suggestions:');
     if (sugIdx !== -1) {
       var sugBlock = text.slice(sugIdx + 'search_suggestions:'.length);

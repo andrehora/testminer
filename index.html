@@ -42,7 +42,7 @@
     </div>
     <div class="header">
       <h1>TestMiner</h1>
-      <p>Explore Testing on GitHub</p>
+      <p style="color:#16a34a;">Explore Testing on Github</p>
     </div>
 
     <div class="search">
@@ -767,6 +767,7 @@
       var linkRef = parsed.versionTag || gitRef || '';
 
       setupStatCardClicks(grid, ownerRepo, baseRepo, linkRef);
+      renderTestTerms(ownerRepo, baseRepo, linkRef);
       var ownerPart = baseRepo.split('/')[0];
       var repoPart = baseRepo.split('/')[1];
       document.getElementById('results-title-text').innerHTML = buildOwnerIcon(ownerPart) + '<a class="owner-link" href="#' + ownerPart + '">' + ownerPart + '</a> / ' + repoPart;
@@ -780,10 +781,83 @@
 
     }
 
+    function renderTestTerms(ownerRepo, baseRepo, linkRef) {
+      var grid = document.getElementById('stats-grid');
+      var existing = document.getElementById('test-terms-wrap');
+      if (existing) existing.remove();
+
+      var cached = analyzeRepoCache[ownerRepo];
+      if (!cached || !cached.files) return;
+      var testFiles = (cached.files['test'] || []);
+      if (testFiles.length === 0) return;
+      var termMap = groupFilesByTerms(testFiles);
+      var terms = Object.keys(termMap);
+      if (terms.length === 0) return;
+      terms.sort(function (a, b) {
+        return termMap[b].length - termMap[a].length || a.localeCompare(b);
+      });
+      var TOP_N = tminerConfig.top_n_test_terms;
+      var allBadges = terms.map(function (term) {
+        return '<span class="dep-badge test-term-badge" data-term="' + term + '">' + term + ' (' + termMap[term].length + ')</span>';
+      });
+      var hasMore = terms.length > TOP_N;
+      var visibleBadges = hasMore ? allBadges.slice(0, TOP_N) : allBadges;
+      var hiddenBadges = hasMore ? allBadges.slice(TOP_N) : [];
+
+      var wrap = document.createElement('div');
+      wrap.id = 'test-terms-wrap';
+      wrap.className = 'test-terms-section';
+      wrap.innerHTML = '<div class="test-terms-label">Test Terms</div>'
+        + '<div class="dep-badges">'
+        + visibleBadges.join('')
+        + (hasMore ? '<span class="test-terms-toggle-btn dep-badge" id="test-terms-show-all">show all (' + terms.length + ')</span>' : '')
+        + (hasMore ? '<span class="test-terms-hidden" style="display:none;">' + hiddenBadges.join('') + '</span>' : '')
+        + '</div>';
+      grid.appendChild(wrap);
+
+      if (hasMore) {
+        document.getElementById('test-terms-show-all').addEventListener('click', function () {
+          var hidden = wrap.querySelector('.test-terms-hidden');
+          if (hidden.style.display === 'none') {
+            hidden.style.display = 'inline';
+            this.textContent = 'show less';
+          } else {
+            hidden.style.display = 'none';
+            this.textContent = 'show all (' + terms.length + ')';
+          }
+        });
+      }
+
+      wrap.querySelectorAll('.test-term-badge').forEach(function (badge) {
+        badge.addEventListener('click', function () {
+          var term = this.getAttribute('data-term');
+          var files = termMap[term] || [];
+
+          wrap.querySelectorAll('.test-term-badge.active').forEach(function (b) { b.classList.remove('active'); });
+          this.classList.add('active');
+
+          document.getElementById('file-list-modal-title').innerHTML = term + ' (' + files.length + ')';
+          var ownerPart = baseRepo ? baseRepo.split('/')[0] : '';
+          var repoIconHtml = ownerPart ? '<i class="devicon-' + ownerPart.toLowerCase() + '-plain colored"></i>' : '';
+          document.getElementById('file-list-modal-repo').innerHTML = repoIconHtml + (baseRepo ? baseRepo : '');
+          document.getElementById('file-list-modal-items').innerHTML = files.map(function (f, i) {
+            var num = '<span style="color:#94a3b8;min-width:2em;text-align:right;display:inline-block;margin-right:8px;font-size:0.85em;">' + (i + 1) + '</span>';
+            if (linkRef) {
+              var ghUrl = 'https://github.com/' + baseRepo + '/blob/' + linkRef + '/' + f;
+              return '<li>' + num + '<a href="' + ghUrl + '" target="_blank" rel="noopener">' + f + '</a></li>';
+            }
+            return '<li>' + num + f + '</li>';
+          }).join('');
+          document.getElementById('file-list-modal').style.display = 'flex';
+        });
+      });
+    }
+
     function closeFileListModal() {
       var modal = document.getElementById('file-list-modal');
       modal.style.display = 'none';
       document.querySelectorAll('.dash-card.active').forEach(function (r) { r.classList.remove('active'); });
+      document.querySelectorAll('.test-term-badge.active').forEach(function (b) { b.classList.remove('active'); });
     }
 
     function setupStatCardClicks(grid, ownerRepo, baseRepo, linkRef) {
