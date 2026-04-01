@@ -1,15 +1,19 @@
 # TestMiner
 
-A web app for exploring and visualizing test practices across GitHub repositories. Analyze how projects organize tests, which testing libraries they use, and how testing evolves across versions.
+A web app for exploring and visualizing *software testing* across GitHub repositories. 
+
+Analyze how projects organize tests, which testing libraries they use, and how testing evolves across versions.
 
 ## Features
 
-- **Owner view** — browse all repositories for a GitHub owner/organization
-- **Repo view** — dive into a single repository:
-  - **Overview** — test statistics
-  - **Test Location** — file tree chart showing where tests are located
-  - **Test History** — test metrics across releases
-  - **Test Dependencies** — dependencies related to test (extracted from GitHub [SBOM](https://docs.github.com/en/rest/dependency-graph/sboms))
+**Owner view**: browse all repositories for a GitHub owner/organization
+
+**Repo view**: dive into a single repository:
+
+- **Overview**: test statistics
+- **Test Location**: file tree chart showing where tests are located
+- **Test History**: test metrics across releases
+- **Test Dependencies**: dependencies related to test (extracted from [GitHub SBOM API](https://docs.github.com/en/rest/dependency-graph/sboms))
 
 Files are automatically classified into categories: `test`, `e2e`, `mock`, `snapshot`, `fixture`, `benchmark`, `smoke`, and `ci-test`.
 
