@@ -100,7 +100,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="src/tminer.js"></script>
   <script>
     var classificationColors = {
@@ -370,7 +369,7 @@
       row2HTML += '<button class="block-sort-btn" id="depth-right"' + (currentDepth >= maxDepth ? ' disabled' : '') + '>\u25B6</button>';
       row2HTML += '<button class="block-sort-btn active" id="paths-toggle" title="Toggle folder paths">paths</button>';
       row2HTML += '<button class="shape-toggle" id="shape-toggle" title="Toggle cell shape"><span class="shape-toggle-icon"></span></button>';
-      row2HTML += '<span class="export-btns"><button class="export-png-btn" id="export-png-btn">PNG</button><button class="export-png-btn" id="export-pdf-btn">PDF</button></span>';
+      row2HTML += '<span class="export-btns"><button class="export-png-btn" id="export-png-btn">PNG</button></span>';
       row2HTML += '</div>';
 
       var blockMapEl = document.createElement('div');
@@ -509,21 +508,6 @@
           link.download = ownerRepo.replace('/', '-') + '-testminer.png';
           link.href = canvas.toDataURL('image/png');
           link.click();
-        });
-      });
-
-      var exportPdfBtn = document.getElementById('export-pdf-btn');
-      exportPdfBtn.addEventListener('click', function () {
-        captureChart(exportPdfBtn, 'PDF', function (canvas) {
-          var imgData = canvas.toDataURL('image/png');
-          var imgWidth = canvas.width;
-          var imgHeight = canvas.height;
-          var pdfWidth = imgWidth * 0.264583;
-          var pdfHeight = imgHeight * 0.264583;
-          var orientation = pdfWidth > pdfHeight ? 'landscape' : 'portrait';
-          var pdf = new jspdf.jsPDF({ orientation: orientation, unit: 'mm', format: [pdfWidth, pdfHeight] });
-          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-          pdf.save(ownerRepo.replace('/', '-') + '-testminer.pdf');
         });
       });
 
