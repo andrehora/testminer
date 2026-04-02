@@ -52,4 +52,4 @@ npm run serve   # Start static server on port 8081
 
 ## Configuration
 
-[config.yml](data/config.yml) sets app behavior, including pagination limits, cache sizes, and search suggestions.
+[config.json](data/config.json) sets app behavior, including pagination limits, cache sizes, and search suggestions.
