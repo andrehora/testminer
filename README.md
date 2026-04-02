@@ -2,6 +2,8 @@
 
 # TestMiner
 
+https://andrehora.github.io/testminer/
+
 A webapp for exploring and visualizing *software testing* across GitHub repositories. Analyze:
 - How projects organize tests.
 - How tests evolve across versions.
@@ -22,7 +24,7 @@ Files are automatically classified into categories: `test`, `e2e`, `mock`, `snap
 
 ## Usage
 
-Just open `index.html` in a browser:
+Just open [testminer](https://andrehora.github.io/testminer) in a browser:
 
 Search by:
 - GitHub URL (e.g. `https://github.com/fastapi/fastapi`)
