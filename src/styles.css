@@ -1086,7 +1086,7 @@ body {
 
 .export-btns {
   display: flex;
-  gap: 1px;
+  gap: 4px;
 }
 
 .export-png-btn {
