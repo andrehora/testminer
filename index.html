@@ -359,15 +359,16 @@
       row1HTML += '</div>';
 
       var row2HTML = '<div class="block-sort">';
-      row2HTML += 'Sort: ';
-      row2HTML += '<button class="block-sort-btn active" data-sort="files" id="sort-files">files \u2193</button>';
-      row2HTML += '<button class="block-sort-btn" data-sort="alpha" id="sort-alpha">name \u2191</button>';
+      // row2HTML += 'Sort: ';
+      row2HTML += '<button class="block-sort-btn active" data-sort="files" id="sort-files" title="Sort by file count">files \u2193</button>';
+      row2HTML += '<button class="block-sort-btn" data-sort="alpha" id="sort-alpha" title="Sort alphabetically">name \u2191</button>';
       row2HTML += '<span class="block-sort-sep">|</span>';
-      row2HTML += 'Depth: ';
-      row2HTML += '<button class="block-sort-btn" id="depth-left"' + (currentDepth <= 0 ? ' disabled' : '') + '>\u25C0</button>';
+      // row2HTML += 'Depth: ';
+      row2HTML += '<button class="block-sort-btn" id="depth-left" title="Decrease depth"' + (currentDepth <= 0 ? ' disabled' : '') + '><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>';
       row2HTML += '<span class="depth-nav-label" id="depth-label">' + currentDepth + ' / ' + maxDepth + '</span>';
-      row2HTML += '<button class="block-sort-btn" id="depth-right"' + (currentDepth >= maxDepth ? ' disabled' : '') + '>\u25B6</button>';
-      row2HTML += '<button class="block-sort-btn active" id="paths-toggle" title="Toggle folder paths">paths</button>';
+      row2HTML += '<button class="block-sort-btn" id="depth-right" title="Increase depth"' + (currentDepth >= maxDepth ? ' disabled' : '') + '><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>';
+      row2HTML += '<span class="block-sort-sep">|</span>';
+      row2HTML += '<button class="shape-toggle active" id="paths-toggle" title="Toggle folder paths" style="font-size:0.75rem;font-weight:600;">t</button>';
       row2HTML += '<button class="shape-toggle" id="shape-toggle" title="Toggle cell shape"><span class="shape-toggle-icon"></span></button>';
       row2HTML += '<span class="export-btns"><button class="export-png-btn" id="export-png-btn" title="Export as PNG"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button></span>';
       row2HTML += '</div>';
