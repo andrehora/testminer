@@ -645,7 +645,7 @@ body {
   color: #64748b;
   padding: 2px 8px;
   line-height: 1.5;
-  margin-left: 6px;
+  margin-left: auto;
   white-space: nowrap;
 }
 
@@ -1374,10 +1374,11 @@ body {
   display: flex;
   align-items: center;
   gap: 5px;
-  margin-left: auto;
-  color: #94a3b8;
-  font-size: 0.8rem;
-  font-weight: 400;
+  color: #64748b;
   white-space: nowrap;
-  padding-right: 8px;
+}
+
+.file-list-modal-sep {
+  color: #cbd5e1;
+  font-size: 1.1rem;
 }

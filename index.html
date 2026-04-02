@@ -1803,9 +1803,10 @@
   <div id="file-list-modal" class="file-list-modal-overlay" style="display:none;" onclick="if(event.target===this){closeFileListModal();}">
     <div class="file-list-modal">
       <div class="file-list-modal-header">
+        <span id="file-list-modal-repo" class="file-list-modal-repo"></span>
+        <span class="file-list-modal-sep">&middot;</span>
         <span id="file-list-modal-title" class="file-list-modal-title"></span>
         <button id="file-list-copy-link" class="file-list-copy-link" onclick="copyModalLink()">Copy link</button>
-        <span id="file-list-modal-repo" class="file-list-modal-repo"></span>
         <button class="file-list-close" onclick="closeFileListModal()">&times;</button>
       </div>
       <ul id="file-list-modal-items"></ul>
