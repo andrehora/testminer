@@ -864,7 +864,7 @@
           return termMap[b].length - termMap[a].length || a.localeCompare(b);
         });
 
-        var TOP_N = window.innerWidth <= 600 ? 3 : tminerConfig.top_n_test_terms;
+        var TOP_N = window.innerWidth <= 600 ? tminerConfig.top_n_test_terms_mobile : tminerConfig.top_n_test_terms;
         var hasMore = terms.length > TOP_N;
         var visibleTerms = hasMore ? terms.slice(0, TOP_N) : terms;
         var hiddenTerms = hasMore ? terms.slice(TOP_N) : [];

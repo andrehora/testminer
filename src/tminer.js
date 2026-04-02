@@ -8,6 +8,7 @@ var tminerConfig = {
   max_search_cache: 5,
   max_analyze_cache: 100,
   top_n_test_terms: 5,
+  top_n_test_terms_mobile: 3,
   dep_keywords: ['test', 'mock', 'stub', 'spy', 'dummy', 'fake', 'spies', 'dummies'],
   search_suggestions: []
 };
