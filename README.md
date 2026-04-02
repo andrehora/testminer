@@ -2,7 +2,7 @@
 
 # TestMiner
 
-https://andrehora.github.io/testminer/
+Webapp: https://andrehora.github.io/testminer/
 
 A webapp for exploring and visualizing *software testing* across GitHub repositories. Analyze:
 - How projects organize tests.
