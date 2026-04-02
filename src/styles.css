@@ -948,24 +948,6 @@ body {
   flex-shrink: 0;
 }
 
-.tree-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 14px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #f1f5f9;
-  justify-content: center;
-}
-
-.tree-legend-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.75rem;
-  color: #64748b;
-}
-
 .block-map {
   display: flex;
   flex-direction: column;
@@ -1089,15 +1071,6 @@ body {
   margin-bottom: 12px;
 }
 
-.depth-nav {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  font-size: 0.75rem;
-  color: #94a3b8;
-}
-
 .depth-nav-label {
   font-family: monospace;
   font-size: 0.73rem;
@@ -1107,16 +1080,17 @@ body {
 .export-btns {
   display: flex;
   gap: 1px;
+  margin-left: auto;
 }
 
 .export-png-btn {
-  font-size: 0.73rem;
+  font-size: 0.67rem;
   font-family: 'Inter', sans-serif;
   font-weight: 500;
-  color: #64748b;
-  background: #f8fafc;
+  color: #94a3b8;
+  background: transparent;
   border: 1px solid #e2e8f0;
-  padding: 3px 10px;
+  padding: 2px 7px;
   cursor: pointer;
   transition: background 0.12s, border-color 0.12s, color 0.12s;
 }
@@ -1169,7 +1143,6 @@ body {
   justify-content: center;
   transition: background 0.12s, border-color 0.12s;
   padding: 0;
-  margin-left: auto;
 }
 
 .shape-toggle:hover {

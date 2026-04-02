@@ -277,18 +277,7 @@
       var maxDepth = getMaxDepth(cached.files);
       var currentDepth = Math.min(1, maxDepth);
 
-      var legendHTML = '<div class="tree-legend">';
-      var legendShown = {};
-      Object.keys(classificationColors).forEach(function (key) {
-        if (key === 'other') return;
-        if (cached.files[key] && cached.files[key].length > 0) {
-          var label = classificationLabels[key] || key;
-          if (legendShown[label]) return;
-          legendShown[label] = true;
-          legendHTML += '<span class="tree-legend-item"><span class="tree-dot" style="background:' + classificationColors[key] + '"></span>' + label + ' files</span>';
-        }
-      });
-      legendHTML += '</div>';
+      var legendHTML = '';
 
       var currentSort = 'files-desc';
 
@@ -356,42 +345,39 @@
 
       var testCategoryKeys = allCategoryKeys.filter(function (k) { return k !== 'source' && k !== 'other'; });
 
-      var showHTML = 'Show: ';
-      showHTML += '<button class="block-sort-btn active" data-show-preset="tests">tests</button>';
-      showHTML += '<button class="block-sort-btn" data-show-preset="all">all files</button>';
+      var defaultCategories = testCategoryKeys;
 
-      var showOnlyHTML = '<div class="block-sort">Filter: ';
+      var row1HTML = '<div class="block-sort">';
+      row1HTML += 'Show: ';
+      row1HTML += '<button class="block-sort-btn active" data-show-preset="tests">tests</button>';
+      row1HTML += '<button class="block-sort-btn" data-show-preset="all">all files</button>';
+      row1HTML += '<span class="block-sort-sep">|</span>';
       Object.keys(filterLabelToKeys).forEach(function (label) {
         var keys = filterLabelToKeys[label];
         var swatchColor = classificationColors[keys[0]] || '#94a3b8';
-        showOnlyHTML += '<button class="block-sort-btn" data-showonly="' + keys.join(',') + '"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:' + swatchColor + ';margin-right:4px;vertical-align:middle;flex-shrink:0;outline:1.5px solid rgba(255,255,255,0.7);outline-offset:-1px;"></span>' + label + '</button>';
+        row1HTML += '<button class="block-sort-btn" data-showonly="' + keys.join(',') + '"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:' + swatchColor + ';margin-right:4px;vertical-align:middle;flex-shrink:0;outline:1.5px solid rgba(255,255,255,0.7);outline-offset:-1px;"></span>' + label + '</button>';
       });
-      showOnlyHTML += '</div>';
+      row1HTML += '</div>';
 
-      var defaultCategories = testCategoryKeys;
-      var sortHTML = '<div class="block-sort">';
-      sortHTML += showHTML;
-      sortHTML += '<span class="block-sort-sep">|</span>';
-      sortHTML += 'Sort: ';
-      sortHTML += '<button class="block-sort-btn active" data-sort="files" id="sort-files">files \u2193</button>';
-      sortHTML += '<button class="block-sort-btn" data-sort="alpha" id="sort-alpha">name \u2191</button>';
-      sortHTML += '</div>';
-
-      var depthNavHTML = '<div class="depth-nav">';
-      depthNavHTML += 'Depth: ';
-      depthNavHTML += '<button class="block-sort-btn" id="depth-left"' + (currentDepth <= 0 ? ' disabled' : '') + '>\u25C0</button>';
-      depthNavHTML += '<span class="depth-nav-label" id="depth-label">' + currentDepth + ' / ' + maxDepth + '</span>';
-      depthNavHTML += '<button class="block-sort-btn" id="depth-right"' + (currentDepth >= maxDepth ? ' disabled' : '') + '>\u25B6</button>';
-      depthNavHTML += '<button class="block-sort-btn active" id="paths-toggle" title="Toggle folder paths">paths</button>';
-      depthNavHTML += '<button class="shape-toggle" id="shape-toggle" title="Toggle circles/squares"><span class="shape-toggle-icon"></span></button>';
-      depthNavHTML += '<span class="export-btns"><button class="export-png-btn" id="export-png-btn">PNG</button><button class="export-png-btn" id="export-pdf-btn">PDF</button></span>';
-      depthNavHTML += '</div>';
+      var row2HTML = '<div class="block-sort">';
+      row2HTML += 'Sort: ';
+      row2HTML += '<button class="block-sort-btn active" data-sort="files" id="sort-files">files \u2193</button>';
+      row2HTML += '<button class="block-sort-btn" data-sort="alpha" id="sort-alpha">name \u2191</button>';
+      row2HTML += '<span class="block-sort-sep">|</span>';
+      row2HTML += 'Depth: ';
+      row2HTML += '<button class="block-sort-btn" id="depth-left"' + (currentDepth <= 0 ? ' disabled' : '') + '>\u25C0</button>';
+      row2HTML += '<span class="depth-nav-label" id="depth-label">' + currentDepth + ' / ' + maxDepth + '</span>';
+      row2HTML += '<button class="block-sort-btn" id="depth-right"' + (currentDepth >= maxDepth ? ' disabled' : '') + '>\u25B6</button>';
+      row2HTML += '<button class="block-sort-btn active" id="paths-toggle" title="Toggle folder paths">paths</button>';
+      row2HTML += '<button class="shape-toggle" id="shape-toggle" title="Toggle cell shape"><span class="shape-toggle-icon"></span></button>';
+      row2HTML += '<span class="export-btns"><button class="export-png-btn" id="export-png-btn">PNG</button><button class="export-png-btn" id="export-pdf-btn">PDF</button></span>';
+      row2HTML += '</div>';
 
       var blockMapEl = document.createElement('div');
       blockMapEl.className = 'block-map' + (linkRef ? ' clickable' : '');
       blockMapEl.innerHTML = buildBlockMapHTML(defaultCategories);
 
-      chartEl.innerHTML = legendHTML + sortHTML + showOnlyHTML + depthNavHTML + '<div class="block-separator"></div>';
+      chartEl.innerHTML = legendHTML + row1HTML + row2HTML + '<div class="block-separator"></div>';
       chartEl.appendChild(blockMapEl);
       chartEl.style.display = 'block';
 
@@ -465,8 +451,7 @@
         blockMapEl.classList.toggle('hide-paths');
       });
 
-      var depthNavEl = document.querySelector('.depth-nav');
-      depthNavEl.addEventListener('click', function (e) {
+      chartEl.addEventListener('click', function (e) {
         var depthBtn = e.target.closest('#depth-left, #depth-right');
         if (depthBtn && !depthBtn.disabled) {
           if (depthBtn.id === 'depth-left' && currentDepth > 0) {
@@ -484,7 +469,7 @@
         btn.textContent = 'Saving...';
         tooltipEl.classList.remove('visible');
 
-        var hideEls = chartEl.querySelectorAll('.block-sort, .depth-nav, .block-separator');
+        var hideEls = chartEl.querySelectorAll('.block-sort, .block-separator');
         hideEls.forEach(function (el) { el.style.display = 'none'; });
 
         var origMaxHeight = chartEl.style.maxHeight;
@@ -550,6 +535,7 @@
         bar.addEventListener('click', function (e) {
           var btn = e.target.closest('.block-sort-btn');
           if (!btn) return;
+          if (!btn.hasAttribute('data-sort') && !btn.hasAttribute('data-show-preset') && !btn.hasAttribute('data-showonly')) return;
           if (btn.hasAttribute('data-sort')) {
             var sort = btn.getAttribute('data-sort');
             chartEl.querySelectorAll('[data-sort]').forEach(function (b) { b.classList.remove('active'); });

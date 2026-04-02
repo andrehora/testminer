@@ -73,7 +73,6 @@ describe('URL update', () => {
   });
 });
 
-
 describe('Cache management', () => {
 
   beforeEach(() => {
@@ -99,5 +98,97 @@ describe('Cache management', () => {
     cy.contains('Recently viewed', { timeout: 10000 }).should('be.visible');
     cy.contains('Clear all').click();
     cy.contains('Recently viewed').should('not.be.visible');
+  });
+});
+
+describe('Owner page', () => {
+
+  beforeEach(() => {
+    cy.clearLocalStorage();
+  });
+
+  it('shows repos for a valid owner', () => {
+    cy.visit('index.html#andrehora');
+    cy.get('#owner-table', { timeout: 10000 }).should('be.visible');
+    cy.get('#owner-table tbody tr').should('have.length.greaterThan', 0);
+  });
+
+  it('shows repo names in the table', () => {
+    cy.visit('index.html#andrehora');
+    cy.get('#owner-table', { timeout: 10000 }).should('be.visible');
+    cy.get('.repo-name-cell').first().should('not.be.empty');
+  });
+
+  it('clicking a repo row navigates to the repo page', () => {
+    cy.visit('index.html#andrehora');
+    cy.get('#owner-table', { timeout: 10000 }).should('be.visible');
+    cy.get('.owner-table-row').first().click();
+    cy.url().should('match', /#andrehora\/.+/);
+    cy.contains('Overview').should('be.visible');
+  });
+});
+
+describe('Repo page', () => {
+
+  beforeEach(() => {
+    cy.clearLocalStorage();
+    cy.visit('index.html#andrehora/gitevo');
+  });
+
+  it('shows the overview section', () => {
+    cy.get('#section-title-overview', { timeout: 10000 }).should('be.visible');
+    cy.get('#section-title-overview').should('contain', 'Overview');
+    cy.get('#stats-grid').should('be.visible');
+  });
+
+  it('shows the test location section', () => {
+    cy.get('#section-title-state', { timeout: 10000 }).should('be.visible');
+    cy.get('#section-title-state').should('contain', 'Test Location');
+    cy.get('#tree-chart').should('be.visible');
+  });
+
+  it('shows the test dependencies section', () => {
+    cy.get('#section-title-deps', { timeout: 10000 }).should('be.visible');
+    cy.get('#section-title-deps').should('contain', 'Test Dependencies');
+    cy.get('#deps-container').should('be.visible');
+  });
+
+  it('shows the test history section', () => {
+    cy.get('#section-title-history', { timeout: 10000 }).should('be.visible');
+    cy.get('#section-title-history').should('contain', 'Test History');
+    cy.get('#version-chart-container').should('be.visible');
+  });
+});
+
+describe('File list modal', () => {
+
+  beforeEach(() => {
+    cy.clearLocalStorage();
+    cy.visit('index.html#andrehora/gitevo');
+    cy.get('#stats-grid', { timeout: 10000 }).should('be.visible');
+  });
+
+  it('clicking a box opens the modal', () => {
+    cy.get('.dash-card.clickable').first().click();
+    cy.get('#file-list-modal').should('be.visible');
+    cy.get('#file-list-modal-title').should('not.be.empty');
+    cy.get('#file-list-modal-items li').should('have.length.greaterThan', 0);
+  });
+
+  it('clicking a badge opens the modal', () => {
+    cy.get('.test-term-badge').first().click();
+    cy.get('#file-list-modal').should('be.visible');
+    cy.get('#file-list-modal-title').should('not.be.empty');
+    cy.get('#file-list-modal-items li').should('have.length.greaterThan', 0);
+  });
+
+  it('modal links point to GitHub', () => {
+    cy.get('.dash-card.clickable').first().click();
+    cy.get('#file-list-modal').should('be.visible');
+    cy.get('#file-list-modal-items li a').first()
+      .should('have.attr', 'href')
+      .and('include', 'https://github.com/andrehora/gitevo/blob/');
+    cy.get('#file-list-modal-items li a').first()
+      .should('have.attr', 'target', '_blank');
   });
 });
