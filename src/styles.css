@@ -916,6 +916,7 @@ body {
 @media (max-width: 600px) {
   .has-short-label .th-full { display: none; }
   .has-short-label .th-short { display: inline; }
+
 }
 
 #version-chart-container {
