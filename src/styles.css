@@ -1138,6 +1138,15 @@ body {
   font-size: 1.3rem;
 }
 
+.export-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
 .shape-toggle {
   width: 22px;
   height: 22px;

@@ -369,7 +369,7 @@
       row2HTML += '<button class="block-sort-btn" id="depth-right"' + (currentDepth >= maxDepth ? ' disabled' : '') + '>\u25B6</button>';
       row2HTML += '<button class="block-sort-btn active" id="paths-toggle" title="Toggle folder paths">paths</button>';
       row2HTML += '<button class="shape-toggle" id="shape-toggle" title="Toggle cell shape"><span class="shape-toggle-icon"></span></button>';
-      row2HTML += '<span class="export-btns"><button class="export-png-btn" id="export-png-btn">PNG</button></span>';
+      row2HTML += '<span class="export-btns"><button class="export-png-btn" id="export-png-btn" title="Export as PNG"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button></span>';
       row2HTML += '</div>';
 
       var blockMapEl = document.createElement('div');
@@ -487,12 +487,35 @@
         var titleText = document.createElement('span');
         titleText.textContent = ownerRepo;
         titleEl.appendChild(titleText);
+
+        var legendEl = document.createElement('div');
+        legendEl.className = 'export-legend';
+        var activeFilters = getActiveFilters();
+        Object.keys(filterLabelToKeys).forEach(function (label) {
+          var keys = filterLabelToKeys[label];
+          var isActive = keys.some(function (k) { return activeFilters.indexOf(k) >= 0; });
+          if (!isActive) return;
+          var color = classificationColors[keys[0]] || '#94a3b8';
+          var bgColor = classificationBgColors[keys[0]] || '#f1f5f9';
+          var borderColor = classificationBorderColors[keys[0]] || '#cbd5e1';
+          var textColor = classificationTextColors[keys[0]] || '#475569';
+          var btn = document.createElement('span');
+          btn.style.cssText = 'display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;background:' + bgColor + ';border:1px solid ' + borderColor + ';color:' + textColor + ';font-size:0.78rem;font-weight:500;';
+          var swatch = document.createElement('span');
+          swatch.style.cssText = 'display:inline-block;width:9px;height:9px;border-radius:2px;background:' + color + ';flex-shrink:0;';
+          btn.appendChild(swatch);
+          btn.appendChild(document.createTextNode(label));
+          legendEl.appendChild(btn);
+        });
+
+        chartEl.insertBefore(legendEl, chartEl.firstChild);
         chartEl.insertBefore(titleEl, chartEl.firstChild);
 
         html2canvas(chartEl, { backgroundColor: '#ffffff', scale: 2 }).then(function (canvas) {
           callback(canvas);
         }).finally(function () {
           chartEl.removeChild(titleEl);
+          chartEl.removeChild(legendEl);
           chartEl.style.maxHeight = origMaxHeight;
           chartEl.style.overflowY = origOverflow;
           hideEls.forEach(function (el) { el.style.display = ''; });
