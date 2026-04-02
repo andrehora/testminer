@@ -1300,35 +1300,18 @@ body {
 
 #version-chart-type-btns {
   display: inline-flex;
-  gap: 0;
-}
-
-.chart-type-btn {
-  font-size: 0.85rem;
-  font-family: 'Inter', sans-serif;
-  padding: 4px 10px;
-  border: 1px solid #e2e8f0;
-  background: #fff;
-  color: #1e293b;
-  cursor: pointer;
-  display: inline-flex;
   align-items: center;
   gap: 4px;
+  margin-left: auto;
 }
 
-.chart-type-btn:first-child {
-  border-radius: 6px 0 0 6px;
+#version-chart-type-btns .block-sort-btn {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  justify-content: center;
 }
 
-.chart-type-btn:last-child {
-  border-left: none;
-  border-radius: 0 6px 6px 0;
-}
-
-.chart-type-btn.active {
-  background: #22c55e;
-  color: #fff;
-}
 
 .version-chart-wrap {
   position: relative;

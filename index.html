@@ -78,8 +78,9 @@
         <div class="version-chart-controls">
           <span id="version-metric-btns"></span>
           <span id="version-chart-type-btns">
-            <button data-type="line" class="chart-type-btn active" title="Line chart"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 6 13 14 9 8 2 18"/></svg></button>
-            <button data-type="bar" class="chart-type-btn" title="Bar chart"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="5" width="4" height="16" rx="1"/><rect x="17" y="9" width="4" height="12" rx="1"/></svg></button>
+            <button data-type="line" class="block-sort-btn active" title="Line chart"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 6 13 14 9 8 2 18"/></svg></button>
+            <button data-type="bar" class="block-sort-btn" title="Bar chart"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="5" width="4" height="16" rx="1"/><rect x="17" y="9" width="4" height="12" rx="1"/></svg></button>
+            <button class="export-png-btn" id="export-history-png-btn" title="Export as PNG"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>
           </span>
         </div>
         <div class="version-chart-wrap">
@@ -367,10 +368,10 @@
       row2HTML += '<button class="block-sort-btn" id="depth-left" title="Decrease depth"' + (currentDepth <= 0 ? ' disabled' : '') + '><</button>';
       row2HTML += '<span class="depth-nav-label" id="depth-label">' + currentDepth + '/' + maxDepth + '</span>';
       row2HTML += '<button class="block-sort-btn" id="depth-right" title="Increase depth"' + (currentDepth >= maxDepth ? ' disabled' : '') + '>></button>';
-      row2HTML += '<span class="block-sort-sep">|</span>';
-      row2HTML += '<button class="shape-toggle active" id="paths-toggle" title="Toggle folder paths" style="font-size:0.75rem;font-weight:600;">t</button>';
+      // row2HTML += '<span class="block-sort-sep">|</span>';
+      row2HTML += '<span class="export-btns" style="margin-left:auto;"><button class="shape-toggle active" id="paths-toggle" title="Toggle folder paths" style="font-size:0.75rem;font-weight:600;">t</button>';
       row2HTML += '<button class="shape-toggle" id="shape-toggle" title="Toggle cell shape"><span class="shape-toggle-icon"></span></button>';
-      row2HTML += '<span class="export-btns"><button class="export-png-btn" id="export-png-btn" title="Export as PNG"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button></span>';
+      row2HTML += '<button class="export-png-btn" id="export-png-btn" title="Export as PNG"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button></span>';
       row2HTML += '</div>';
 
       var blockMapEl = document.createElement('div');
@@ -467,6 +468,7 @@
       });
 
       function captureChart(btn, originalLabel, callback) {
+        var originalHTML = btn.innerHTML;
         btn.disabled = true;
         btn.textContent = 'Saving...';
         tooltipEl.classList.remove('visible');
@@ -521,7 +523,7 @@
           chartEl.style.overflowY = origOverflow;
           hideEls.forEach(function (el) { el.style.display = ''; });
           btn.disabled = false;
-          btn.textContent = originalLabel;
+          btn.innerHTML = originalHTML;
         });
       }
 
@@ -529,7 +531,9 @@
       exportPngBtn.addEventListener('click', function () {
         captureChart(exportPngBtn, 'PNG', function (canvas) {
           var link = document.createElement('a');
-          link.download = ownerRepo.replace('/', '-') + '-testminer.png';
+          var now = new Date();
+          var ts = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + '-' + String(now.getSeconds()).padStart(2, '0');
+          link.download = ownerRepo.replace('/', '-') + '-tests-' + ts + '.png';
           link.href = canvas.toDataURL('image/png');
           link.click();
         });
@@ -592,6 +596,7 @@
     var versionChartStats = null;
     var versionChartLabels = null;
     var versionChartGeneration = 0;
+    var versionChartOwnerRepo = '';
 
     var versionMetricOptions = [
       { key: 'testFiles', label: 'test', category: 'test' },
@@ -695,6 +700,7 @@
       var container = document.getElementById('version-chart-container');
       if (!container) return;
 
+      versionChartOwnerRepo = ownerRepo;
       destroyVersionChart();
 
       versionChartStats = null;
@@ -780,11 +786,48 @@
     document.getElementById('version-chart-type-btns').addEventListener('click', function (e) {
       var btn = e.target.closest('button[data-type]');
       if (!btn) return;
-      this.querySelectorAll('button').forEach(function (b) {
+      this.querySelectorAll('button[data-type]').forEach(function (b) {
         b.classList.remove('active');
       });
       btn.classList.add('active');
       buildVersionChart(getActiveMetric(), btn.getAttribute('data-type'));
+    });
+
+    var exportHistoryPngBtn = document.getElementById('export-history-png-btn');
+    exportHistoryPngBtn.addEventListener('click', function () {
+      var originalHTML = exportHistoryPngBtn.innerHTML;
+      exportHistoryPngBtn.disabled = true;
+      exportHistoryPngBtn.textContent = 'Saving...';
+
+      var container = document.getElementById('version-chart-container');
+      var typeBtnsEl = document.getElementById('version-chart-type-btns');
+      typeBtnsEl.style.display = 'none';
+
+      var titleEl = document.createElement('div');
+      titleEl.className = 'export-title';
+      var titleIcon = document.querySelector('#results-title-text i');
+      if (titleIcon) {
+        titleEl.appendChild(titleIcon.cloneNode(true));
+      }
+      var titleText = document.createElement('span');
+      titleText.textContent = versionChartOwnerRepo;
+      titleEl.appendChild(titleText);
+
+      container.insertBefore(titleEl, container.firstChild);
+
+      html2canvas(container, { backgroundColor: '#ffffff', scale: 2 }).then(function (canvas) {
+        var link = document.createElement('a');
+        var now = new Date();
+        var ts = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + '-' + String(now.getSeconds()).padStart(2, '0');
+        link.download = versionChartOwnerRepo.replace('/', '-') + '-test-history-' + ts + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }).finally(function () {
+        container.removeChild(titleEl);
+        typeBtnsEl.style.display = '';
+        exportHistoryPngBtn.disabled = false;
+        exportHistoryPngBtn.innerHTML = originalHTML;
+      });
     });
 
     // --- Repo Stats ---
