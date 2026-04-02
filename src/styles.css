@@ -898,16 +898,21 @@ body {
     justify-content: center;
   }
   #results-title-text {
-    width: 100%;
+    flex: 1;
     text-align: center;
     order: 1;
   }
-  .copy-link-btn {
-    order: 2;
+  #gh-link {
+    order: 1;
   }
   .results-title-actions {
-    order: 3;
+    order: 2;
     margin-left: 0;
+    width: 100%;
+    justify-content: center;
+  }
+  .copy-link-btn {
+    order: 3;
   }
 }
 
