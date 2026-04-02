@@ -449,7 +449,8 @@ body {
   vertical-align: middle;
   text-align: left;
   padding: 8px 16px 8px 0;
-  width: 1%;
+  width: 130px;
+  min-width: 130px;
 }
 
 .dep-badges-cell {

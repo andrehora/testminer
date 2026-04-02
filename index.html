@@ -781,16 +781,16 @@
 
     function renderRepoStats(ownerRepo, stats, gitRef) {
       var cards = [
-        { label: 'Test files',        value: stats.testFiles,         category: 'test' },
-        { label: 'Test-related files',value: stats.testRelatedFiles,  category: 'test-related' },
-        { label: 'Mock files',        value: stats.mockFiles,         category: 'mock' },
-        { label: 'E2E files',         value: stats.e2eFiles,          category: 'e2e' },
-        { label: 'Snapshot files',    value: stats.snapshotFiles,     category: 'snapshot' },
-        { label: 'CI test files',     value: stats.ciTestFiles,       category: 'ci-test' },
-        { label: 'Smoke files',       value: stats.smokeFiles,        category: 'smoke' },
-        { label: 'Fixture files',     value: stats.fixtureFiles,      category: 'fixture' },
-        { label: 'Benchmark files',   value: stats.benchmarkFiles,    category: 'benchmark' },
-        { label: 'Source files',      value: stats.sourceFiles,       category: 'source' },
+        { label: 'Source files',  value: stats.sourceFiles,       category: 'source' },
+        { label: 'Tests',         value: stats.testFiles,         category: 'test' },
+        { label: 'Test-related', value: stats.testRelatedFiles,  category: 'test-related' },
+        { label: 'Mocks',        value: stats.mockFiles,         category: 'mock' },
+        { label: 'E2E',          value: stats.e2eFiles,          category: 'e2e' },
+        { label: 'Snapshots',    value: stats.snapshotFiles,     category: 'snapshot' },
+        { label: 'CI tests',     value: stats.ciTestFiles,       category: 'ci-test' },
+        { label: 'Smoke',        value: stats.smokeFiles,        category: 'smoke' },
+        { label: 'Fixtures',     value: stats.fixtureFiles,      category: 'fixture' },
+        { label: 'Benchmarks',   value: stats.benchmarkFiles,    category: 'benchmark' },
       ];
 
       var cached = analyzeRepoCache[ownerRepo];
