@@ -123,8 +123,7 @@ function fetchOwnerRepos(owner) {
     });
 }
 
-function fetchJsDelivrFiles(ownerRepo, version) {
-  var ref = version || 'master';
+function fetchJsDelivrFilesByRef(ownerRepo, ref) {
   var filesUrl = 'https://data.jsdelivr.com/v1/packages/gh/' + ownerRepo + '@' + ref;
   return fetch(filesUrl)
     .then(function (response) {
@@ -148,6 +147,18 @@ function fetchJsDelivrFiles(ownerRepo, version) {
     .catch(function () {
       return null;
     });
+}
+
+function fetchJsDelivrFiles(ownerRepo, version) {
+  if (version) {
+    return fetchJsDelivrFilesByRef(ownerRepo, version);
+  }
+  return fetchJsDelivrFilesByRef(ownerRepo, 'master').then(function (data) {
+    if (data && !data.error) {
+      return data;
+    }
+    return fetchJsDelivrFilesByRef(ownerRepo, 'main');
+  });
 }
 
 function fetchDefaultBranch(ownerRepo) {
