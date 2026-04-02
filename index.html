@@ -451,14 +451,16 @@
         blockMapEl.classList.toggle('hide-paths');
       });
 
-      chartEl.addEventListener('click', function (e) {
-        var depthBtn = e.target.closest('#depth-left, #depth-right');
-        if (depthBtn && !depthBtn.disabled) {
-          if (depthBtn.id === 'depth-left' && currentDepth > 0) {
-            currentDepth--;
-          } else if (depthBtn.id === 'depth-right' && currentDepth < maxDepth) {
-            currentDepth++;
-          }
+      document.getElementById('depth-left').addEventListener('click', function () {
+        if (currentDepth > 0) {
+          currentDepth--;
+          updateDepthUI();
+          blockMapEl.innerHTML = buildBlockMapHTML(getActiveFilters());
+        }
+      });
+      document.getElementById('depth-right').addEventListener('click', function () {
+        if (currentDepth < maxDepth) {
+          currentDepth++;
           updateDepthUI();
           blockMapEl.innerHTML = buildBlockMapHTML(getActiveFilters());
         }
@@ -862,10 +864,9 @@
           return termMap[b].length - termMap[a].length || a.localeCompare(b);
         });
 
-        var TOP_N = tminerConfig.top_n_test_terms;
-        var hasMore = terms.length > TOP_N;
-        var visibleTerms = hasMore ? terms.slice(0, TOP_N) : terms;
-        var hiddenTerms = hasMore ? terms.slice(TOP_N) : [];
+        var hasMore = terms.length > 2;
+        var visibleTerms = hasMore ? terms.slice(0, 2) : terms;
+        var hiddenTerms = hasMore ? terms.slice(2) : [];
         var toggleId = cat.key + '-terms-show-all';
         var rowId = cat.key + '-terms-row';
 
