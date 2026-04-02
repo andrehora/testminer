@@ -44,10 +44,13 @@ function githubFetch(url, options) {
   return fetch(url, options);
 }
 
+var rateLimitExhausted = false;
+
 function updateRateLimit(response) {
   var remaining = response.headers.get('X-RateLimit-Remaining');
   var limit = response.headers.get('X-RateLimit-Limit');
   if (remaining === null || limit === null) return;
+  rateLimitExhausted = (parseInt(remaining, 10) === 0);
   var el = document.getElementById('github-rate-limit-text');
   if (el) el.textContent = 'GitHub API requests: ' + remaining + ' / ' + limit + ' remaining.';
 }
