@@ -364,9 +364,9 @@
       row2HTML += '<button class="block-sort-btn" data-sort="alpha" id="sort-alpha" title="Sort alphabetically">name \u2191</button>';
       row2HTML += '<span class="block-sort-sep">|</span>';
       // row2HTML += 'Depth: ';
-      row2HTML += '<button class="block-sort-btn" id="depth-left" title="Decrease depth"' + (currentDepth <= 0 ? ' disabled' : '') + '><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>';
-      row2HTML += '<span class="depth-nav-label" id="depth-label">' + currentDepth + ' / ' + maxDepth + '</span>';
-      row2HTML += '<button class="block-sort-btn" id="depth-right" title="Increase depth"' + (currentDepth >= maxDepth ? ' disabled' : '') + '><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>';
+      row2HTML += '<button class="block-sort-btn" id="depth-left" title="Decrease depth"' + (currentDepth <= 0 ? ' disabled' : '') + '><</button>';
+      row2HTML += '<span class="depth-nav-label" id="depth-label">' + currentDepth + '/' + maxDepth + '</span>';
+      row2HTML += '<button class="block-sort-btn" id="depth-right" title="Increase depth"' + (currentDepth >= maxDepth ? ' disabled' : '') + '>></button>';
       row2HTML += '<span class="block-sort-sep">|</span>';
       row2HTML += '<button class="shape-toggle active" id="paths-toggle" title="Toggle folder paths" style="font-size:0.75rem;font-weight:600;">t</button>';
       row2HTML += '<button class="shape-toggle" id="shape-toggle" title="Toggle cell shape"><span class="shape-toggle-icon"></span></button>';
@@ -440,7 +440,7 @@
         var label = document.getElementById('depth-label');
         var leftBtn = document.getElementById('depth-left');
         var rightBtn = document.getElementById('depth-right');
-        if (label) label.textContent = currentDepth + ' / ' + maxDepth;
+        if (label) label.textContent = currentDepth + '/' + maxDepth;
         if (leftBtn) leftBtn.disabled = currentDepth <= 0;
         if (rightBtn) rightBtn.disabled = currentDepth >= maxDepth;
       }
