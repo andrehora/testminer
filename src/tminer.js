@@ -459,6 +459,11 @@ function isSmokeFile(filepath) {
 }
 
 function isFixtureFile(filepath) {
+  var parts = filepath.split('/');
+  parts.pop();
+  if (!inTestFolder(parts)) {
+    return false;
+  }
   return filepath.toLowerCase().includes('fixture');
 }
 

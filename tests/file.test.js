@@ -74,7 +74,7 @@ describe('computeTestStats', function () {
   });
 
   it('should return correct fixture file count', function () {
-    const result = computeTestStats({ source: ['src/app.js'], fixture: ['tests/fixtures/user.json', 'fixture_data.js'] });
+    const result = computeTestStats({ source: ['src/app.js'], fixture: ['tests/fixtures/user.json', 'tests/fixture_data.js'] });
     expect(result.fixtureFiles).toEqual(2);
   });
 
@@ -214,21 +214,19 @@ describe('isBenchmarkFile', function () {
 
 describe('isFixtureFile', function () {
 
-  it('should return true when "fixture" is in the filename', function () {
-    expect(isFixtureFile('fixture_data.js')).toBe(true);
-    expect(isFixtureFile('user_fixture.json')).toBe(true);
-    expect(isFixtureFile('app.fixture.js')).toBe(true);
-  });
-
-  it('should return true when "fixture" is in a directory name', function () {
-    expect(isFixtureFile('fixtures/data.json')).toBe(true);
+  it('should return true when "fixture" is in a test folder', function () {
     expect(isFixtureFile('tests/fixtures/user.json')).toBe(true);
-    expect(isFixtureFile('src/fixture-data/app.js')).toBe(true);
+    expect(isFixtureFile('tests/Fixture_data.js')).toBe(true);
+    expect(isFixtureFile('test/fixture-data/app.js')).toBe(true);
+    expect(isFixtureFile('spec/fixtures/data.json')).toBe(true);
   });
 
-  it('should return true for mixed-case "fixture" in path', function () {
-    expect(isFixtureFile('FIXTURES/data.json')).toBe(true);
-    expect(isFixtureFile('tests/Fixture_data.js')).toBe(true);
+  it('should return false when "fixture" is not in a test folder', function () {
+    expect(isFixtureFile('fixture_data.js')).toBe(false);
+    expect(isFixtureFile('user_fixture.json')).toBe(false);
+    expect(isFixtureFile('fixtures/data.json')).toBe(false);
+    expect(isFixtureFile('src/fixture-data/app.js')).toBe(false);
+    expect(isFixtureFile('FIXTURES/data.json')).toBe(false);
   });
 
   it('should return false for files with no "fixture" in name or path', function () {
@@ -523,7 +521,7 @@ describe('classifyFile', function () {
 
   it('should return "fixture" for fixture files', function () {
     expect(classifyFile('tests/fixtures/user.json')).toEqual('fixture');
-    expect(classifyFile('fixture_data.js')).toEqual('fixture');
+    expect(classifyFile('tests/fixture_data.js')).toEqual('fixture');
   });
 
   it('should return "smoke" for smoke files', function () {
