@@ -308,22 +308,38 @@ body {
 
 .copy-link-btn {
   background: none;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  border: none;
   cursor: pointer;
-  padding: 4px 8px;
-  font-size: 0.75rem;
-  font-family: 'Inter', sans-serif;
-  font-weight: 500;
-  color: #64748b;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
-  white-space: nowrap;
+  color: #1e293b;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  position: relative;
 }
 
 .copy-link-btn:hover {
-  background: #f0fdf4;
-  border-color: #bbf7d0;
   color: #16a34a;
+}
+
+.copy-link-btn.copied {
+  color: #16a34a;
+}
+
+.copy-link-btn.copied::after {
+  content: 'Copied!';
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 3px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 .version-select {
@@ -911,17 +927,17 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .copy-link-btn {
-    display: none;
-  }
   .results-title-actions {
     margin-left: auto;
   }
   #gh-link {
     order: 1;
   }
-  #share-btn {
+  #copy-link-btn {
     order: 2;
+  }
+  #share-btn {
+    order: 3;
   }
 }
 
@@ -1279,12 +1295,13 @@ body {
   cursor: pointer;
 }
 
-/* --- GitHub Link in Results --- */
+/* --- GitHub Link in Subtitle --- */
 
 .gh-link {
   color: #1e293b;
   text-decoration: none;
 }
+
 
 /* --- Share Button --- */
 
