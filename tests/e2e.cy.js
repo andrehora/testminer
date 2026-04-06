@@ -11,15 +11,15 @@ describe('Search input update', () => {
   });
 
   it('clicking the repo button populates the search input', () => {
-    cy.contains('electron/electron').click();
-    cy.get('#repo-input').should('have.value', 'electron/electron')
+    cy.contains('prisma/prisma').click();
+    cy.get('#repo-input').should('have.value', 'prisma/prisma')
   });
 
   it('clicking a owner and repo button populates the search input', () => {
     cy.contains('apache').click();
     cy.get('#repo-input').should('have.value', 'apache');
-    cy.contains('electron/electron').click();
-    cy.get('#repo-input').should('have.value', 'electron/electron');
+    cy.contains('prisma/prisma').click();
+    cy.get('#repo-input').should('have.value', 'prisma/prisma');
   });
 });
 
@@ -37,16 +37,16 @@ describe('URL update', () => {
 
   it('clicking the repo button updates the URL hash', () => {
     cy.visit('index.html')
-    cy.contains('electron/electron').click();
-    cy.url().should('include', '#electron/electron')
+    cy.contains('prisma/prisma').click();
+    cy.url().should('include', '#prisma/prisma')
   });
 
   // it('clicking a owner and repo button updates the URL hash', () => {
   //   cy.visit('index.html')
   //   cy.contains('apache').click();
   //   cy.url().should('include', '#apache');
-  //   cy.contains('electron/electron').click();
-  //   cy.url().should('include', '#electron/electron');
+  //   cy.contains('prisma/prisma').click();
+  //   cy.url().should('include', '#prisma/prisma');
   // });
 
   it('page with a hash loads the corresponding repo', () => {
