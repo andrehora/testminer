@@ -920,6 +920,9 @@ body {
   #gh-link {
     order: 1;
   }
+  #share-btn {
+    order: 2;
+  }
 }
 
 .th-short { display: none; }
@@ -1281,6 +1284,23 @@ body {
 .gh-link {
   color: #1e293b;
   text-decoration: none;
+}
+
+/* --- Share Button --- */
+
+.share-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #1e293b;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.share-btn:hover {
+  color: #16a34a;
 }
 
 /* --- Tree Chart Spacing --- */

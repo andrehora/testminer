@@ -60,7 +60,7 @@
     <div id="error"></div>
 
     <div id="results">
-      <h2 id="results-title" class="results-title"><span id="results-title-text"></span><button class="copy-link-btn" id="copy-link-btn">Copy link</button><span class="results-title-actions"><select id="version-select" class="version-select" style="display:none;"></select></span><a id="gh-link" class="gh-link" target="_blank" rel="noopener"><i class="devicon-github-original"></i></a></h2>
+      <h2 id="results-title" class="results-title"><span id="results-title-text"></span><button class="copy-link-btn" id="copy-link-btn">Copy link</button><span class="results-title-actions"><select id="version-select" class="version-select" style="display:none;"></select></span><a id="gh-link" class="gh-link" target="_blank" rel="noopener"><i class="devicon-github-original"></i></a><button id="share-btn" class="share-btn" title="Share"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button></h2>
       <div id="repo-subtitle" class="repo-subtitle" style="display:none;"></div>
       <h3 class="section-title" id="section-title-overview" style="display:none;">Overview</h3>
       <div class="stats-grid" id="stats-grid"></div>
@@ -1824,6 +1824,24 @@
       } else {
         fallbackCopy(url);
         showCopied();
+      }
+    });
+
+    // --- Share ---
+
+    document.getElementById('share-btn').addEventListener('click', function () {
+      var url = location.href.split('#')[0] + location.hash;
+      var title = document.getElementById('results-title-text').textContent || 'TestMiner';
+      if (navigator.share) {
+        navigator.share({ title: title, url: url });
+      } else if (navigator.clipboard && navigator.clipboard.writeText) {
+        var btn = document.getElementById('share-btn');
+        navigator.clipboard.writeText(url).then(function () {
+          btn.title = 'Copied!';
+          setTimeout(function () { btn.title = 'Share'; }, 1500);
+        });
+      } else {
+        fallbackCopy(url);
       }
     });
 
