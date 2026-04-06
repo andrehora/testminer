@@ -42,7 +42,7 @@
     </div>
     <div class="header">
       <h1>TestMiner</h1>
-      <p style="color:#16a34a;">Explore Testing on Github</p>
+      <p style="color:#16a34a;">Explore Testing on GitHub</p>
     </div>
 
     <div class="search">
@@ -880,7 +880,7 @@
       var cards = [
         { label: 'Source Files',  value: stats.sourceFiles,       category: 'source' },
         { label: 'Tests',         value: stats.testFiles,         category: 'test' },
-        { label: 'Test Helper', value: stats.testHelperFiles,  category: 'test-helper' },
+        { label: 'Test Helpers', value: stats.testHelperFiles,  category: 'test-helper' },
         { label: 'Mocks',        value: stats.mockFiles,         category: 'mock' },
         { label: 'E2E',          value: stats.e2eFiles,          category: 'e2e' },
         { label: 'Snapshots',    value: stats.snapshotFiles,     category: 'snapshot' },
@@ -936,15 +936,15 @@
       if (!cached || !cached.files) return;
 
       var categories = [
-        { key: 'test',         label: 'Test' },
-        { key: 'test-helper', label: 'Test Helper' },
+        { key: 'test',         label: 'Tests' },
+        { key: 'test-helper', label: 'Test Helpers' },
         { key: 'mock',         label: 'Mock' },
         { key: 'e2e',          label: 'E2E' },
-        { key: 'snapshot',     label: 'Snapshot' },
-        { key: 'ci-test',      label: 'CI Test' },
+        { key: 'snapshot',     label: 'Snapshots' },
+        { key: 'ci-test',      label: 'CI Tests' },
         { key: 'smoke',        label: 'Smoke' },
-        { key: 'fixture',      label: 'Fixture' },
-        { key: 'benchmark',    label: 'Benchmark' }
+        { key: 'fixture',      label: 'Fixtures' },
+        { key: 'benchmark',    label: 'Benchmarks' }
       ];
 
       var rows = '';
@@ -1279,6 +1279,11 @@
           sortTable(currentSort.col, currentSort.asc);
         });
       });
+      return function (colIdx, asc) {
+        currentSort.col = colIdx;
+        currentSort.asc = asc;
+        sortTable(colIdx, asc);
+      };
     }
 
     function setupTableRowClicks(grid) {
@@ -1304,7 +1309,7 @@
       }, 500);
     }
 
-    function fetchOwnerRepoStats(repos, repoIndices) {
+    function fetchOwnerRepoStats(repos, repoIndices, sortFn) {
       for (var k = 0; k < repoIndices.length; k++) {
         (function (repo, index) {
           ensureAnalyzeRepo(repo.full_name).then(function (response) {
@@ -1322,6 +1327,7 @@
             var testEl = document.getElementById('repo-test-' + index);
             testEl.textContent = stats.testFiles.toLocaleString();
             testEl.setAttribute('data-sort-value', stats.testFiles);
+            if (sortFn) sortFn(4, false);
           });
         })(repos[repoIndices[k]], repoIndices[k]);
       }
@@ -1378,9 +1384,9 @@
       resultsEl.style.display = 'block';
 
       fixLangIcons(grid);
-      setupTableSorting(grid);
+      var sortFn = setupTableSorting(grid);
       setupTableRowClicks(grid);
-      fetchOwnerRepoStats(repos, repoIndices);
+      fetchOwnerRepoStats(repos, repoIndices, sortFn);
     }
 
     function renderTopicRepos(topic, repos) {
@@ -1408,9 +1414,9 @@
       resultsEl.style.display = 'block';
 
       fixLangIcons(grid);
-      setupTableSorting(grid);
+      var sortFn = setupTableSorting(grid);
       setupTableRowClicks(grid);
-      fetchOwnerRepoStats(repos, repoIndices);
+      fetchOwnerRepoStats(repos, repoIndices, sortFn);
     }
 
     // --- Analyze ---
