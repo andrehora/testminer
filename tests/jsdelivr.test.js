@@ -8,7 +8,7 @@ var jsdelivrGitevoData = require('./fixtures/jsdelivr-gitevo');
 describe('parseJsDelivrFiles', function () {
 
   beforeAll(function () {
-    tm.setExtensionSet(new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml', '.sh', '.snap']));
+    tm.setExtensionSet(new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml', '.sh', '.snap', '.gitignore']));
   });
 
   it('should return all root-level files', function () {

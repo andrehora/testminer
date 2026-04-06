@@ -13,7 +13,6 @@ var isMockFile = tm.isMockFile;
 var isE2EFile = tm.isE2EFile;
 var isSnapshotFile = tm.isSnapshotFile;
 var isTestFile = tm.isTestFile;
-var isSourceFile = tm.isSourceFile;
 var parseTerms = tm.parseTerms;
 var groupFilesByTerms = tm.groupFilesByTerms;
 
@@ -487,7 +486,6 @@ describe('isTestFile', function () {
     expect(isTestFile('main.spec.js')).toBe(true);
     expect(isTestFile('main-spec.js')).toBe(true);
     expect(isTestFile('main_spec.js')).toBe(true);
-    expect(isTestFile('main.spec.js.snap')).toBe(false);
     expect(isTestFile('myspec.js')).toBe(true);
     expect(isTestFile('foo_spec.rb')).toBe(true);
     expect(isTestFile('SPEC.rb')).toBe(true);
@@ -565,9 +563,9 @@ describe('classifyFile', function () {
     expect(classifyFile('lib/utils.py')).toEqual('source');
   });
 
-  it('should return "other" for files without extensions', function () {
-    expect(classifyFile('Makefile')).toEqual('other');
-    expect(classifyFile('LICENSE')).toEqual('other');
+  it('should return "source" for files without extensions', function () {
+    expect(classifyFile('Makefile')).toEqual('source');
+    expect(classifyFile('LICENSE')).toEqual('source');
   });
 
   it('should prioritize benchmark over test', function () {
@@ -634,59 +632,14 @@ describe('classifyFiles', function () {
     var result = classifyFiles(['src/app.js', 'src/utils.js']);
     expect(result.source).toEqual(['src/app.js', 'src/utils.js']);
   });
+
+  it('should skip files with unknown extensions', function () {
+    var result = classifyFiles(['src/app.js', 'Makefile', 'LICENSE', 'src/image.png']);
+    expect(result.source).toEqual(['src/app.js']);
+    expect(result.other).toBeUndefined();
+  });
 });
 
-describe('isSourceFile', function () {
-
-  beforeAll(function () {
-    tm.setExtensionSet(new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml']));
-  });
-
-  it('should return true for files with known source extensions', function () {
-    expect(isSourceFile('src/app.js')).toBe(true);
-    expect(isSourceFile('main.py')).toBe(true);
-    expect(isSourceFile('App.java')).toBe(true);
-    expect(isSourceFile('index.ts')).toBe(true);
-    expect(isSourceFile('server.rb')).toBe(true);
-    expect(isSourceFile('main.go')).toBe(true);
-  });
-
-  it('should return true regardless of directory path', function () {
-    expect(isSourceFile('src/utils/helper.js')).toBe(true);
-    expect(isSourceFile('tests/test_main.py')).toBe(true);
-    expect(isSourceFile('deep/nested/path/file.rs')).toBe(true);
-  });
-
-  it('should return false for files without an extension', function () {
-    expect(isSourceFile('Makefile')).toBe(false);
-    expect(isSourceFile('src/Dockerfile')).toBe(false);
-    expect(isSourceFile('LICENSE')).toBe(false);
-  });
-
-  it('should return false for files with unknown extensions', function () {
-    expect(isSourceFile('image.png')).toBe(false);
-    expect(isSourceFile('data.bin')).toBe(false);
-    expect(isSourceFile('archive.zip')).toBe(false);
-  });
-
-  it('should be case-insensitive for extensions', function () {
-    expect(isSourceFile('App.JS')).toBe(true);
-    expect(isSourceFile('Main.PY')).toBe(true);
-    expect(isSourceFile('index.Ts')).toBe(true);
-  });
-
-  it('should match on the filename extension, not directory dots', function () {
-    expect(isSourceFile('my.project/app.js')).toBe(true);
-    expect(isSourceFile('my.project/Makefile')).toBe(false);
-  });
-
-  it('should return false when extensionSet is null', function () {
-    tm.setExtensionSet(null);
-    expect(isSourceFile('app.js')).toBe(false);
-    tm.setExtensionSet(new Set(['.js', '.py', '.java', '.ts', '.rb', '.go', '.rs', '.c', '.cpp', '.html', '.css', '.json', '.md', '.yml', '.toml']));
-  });
-
-});
 
 describe('parseTerms', function () {
 

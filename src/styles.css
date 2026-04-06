@@ -235,6 +235,13 @@ body {
   margin: 0 2px;
 }
 
+.repo-subtitle-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
 .repo-topic-badge {
   display: inline-block;
   background: #ddf4ff;
@@ -243,7 +250,6 @@ body {
   font-weight: 500;
   padding: 2px 10px;
   border-radius: 2em;
-  margin-right: 4px;
   line-height: 1.5;
   text-decoration: none;
 }

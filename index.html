@@ -106,8 +106,7 @@
       'smoke': '#ef4444',
       'fixture': '#f97316',
       'benchmark': '#facc15',
-      'source': '#1e293b',
-      'other': '#1e293b'
+      'source': '#1e293b'
     };
 
     var classificationBgColors = {
@@ -120,8 +119,7 @@
       'smoke':        '#fef2f2',
       'fixture':      '#fff7ed',
       'benchmark':    '#fefce8',
-      'source':       '#f8fafc',
-      'other':        '#f8fafc'
+      'source':       '#f8fafc'
     };
 
     var classificationBorderColors = {
@@ -134,8 +132,7 @@
       'smoke':        '#fca5a5',
       'fixture':      '#fdba74',
       'benchmark':    '#fde047',
-      'source':       '#cbd5e1',
-      'other':        '#cbd5e1'
+      'source':       '#cbd5e1'
     };
 
     var classificationTextColors = {
@@ -148,14 +145,9 @@
       'smoke':        '#dc2626',
       'fixture':      '#ea580c',
       'benchmark':    '#ca8a04',
-      'source':       '#334155',
-      'other':        '#334155'
+      'source':       '#334155'
     };
 
-    var classificationLabels = {
-      'source': 'source',
-      'other': 'other'
-    };
 
     // --- Helpers ---
 
@@ -322,7 +314,7 @@
           for (var j = 0; j < files.length; j++) {
             var f = files[j];
             var color = classificationColors[f.category] || '#94a3b8';
-            var catLabel = classificationLabels[f.category] || f.category;
+            var catLabel = f.category;
             html += '<div class="block-cell" style="background:' + color + '" data-tip="' + f.path + '" data-category="' + catLabel + '" data-color="' + color + '"></div>';
           }
           html += '</div></div>';
@@ -332,9 +324,9 @@
 
       var sortOptions = [];
       Object.keys(classificationColors).forEach(function (cat) {
-        if (cat === 'other') return;
+        if (cat === 'source') return;
         if (cached.files[cat] && cached.files[cat].length > 0) {
-          var label = classificationLabels[cat] || cat;
+          var label = cat;
           if (!sortOptions.some(function (s) { return s.label === label; })) {
             sortOptions.push({ key: cat, label: label });
           }
@@ -352,7 +344,7 @@
         allCategoryKeys = allCategoryKeys.concat(filterLabelToKeys[label]);
       });
 
-      var testCategoryKeys = allCategoryKeys.filter(function (k) { return k !== 'source' && k !== 'other'; });
+      var testCategoryKeys = allCategoryKeys.filter(function (k) { return k !== 'source'; });
 
       var defaultCategories = testCategoryKeys;
 
@@ -845,9 +837,6 @@
       var el = document.getElementById('repo-subtitle');
       if (!repoInfo) { el.style.display = 'none'; return; }
       var parts = [];
-      if (repoInfo.description) {
-        parts.push('<span class="repo-subtitle-desc">' + escapeHtml(repoInfo.description) + '</span>');
-      }
       var meta = [];
       if (repoInfo.stargazers_count > 0) {
         meta.push('<span class="repo-subtitle-stars">\u2605 ' + repoInfo.stargazers_count.toLocaleString() + '</span>');
@@ -855,22 +844,26 @@
       if (repoInfo.language) {
         meta.push('<span class="repo-subtitle-lang"><i class="' + getDeviconClass(repoInfo.language) + ' colored"></i> ' + escapeHtml(repoInfo.language) + '</span>');
       }
+      if (meta.length) parts.push('<span class="repo-subtitle-meta">' + meta.join('<span class="repo-subtitle-sep">\u00b7</span>') + '</span>');
+      if (repoInfo.description) {
+        parts.push('<span class="repo-subtitle-desc">' + escapeHtml(repoInfo.description) + '</span>');
+      }
+      var topicsHTML = '';
       if (repoInfo.topics && repoInfo.topics.length) {
-        var MAX_TOPICS = 3;
+        var MAX_TOPICS = 5;
         var visibleTopics = repoInfo.topics.slice(0, MAX_TOPICS);
         var hiddenTopics = repoInfo.topics.slice(MAX_TOPICS);
-        var topicsHTML = visibleTopics.map(function (t) {
+        topicsHTML = visibleTopics.map(function (t) {
           return '<a href="#topic:' + encodeURIComponent(t) + '" class="repo-topic-badge">' + escapeHtml(t) + '</a>';
-        }).join('');
+        }).join(' ');
         if (hiddenTopics.length) {
-          topicsHTML += '<span class="repo-topics-hidden" style="display:none;">' + hiddenTopics.map(function (t) {
+          topicsHTML += ' <span class="repo-topics-hidden" style="display:none;">' + hiddenTopics.map(function (t) {
             return '<a href="#topic:' + encodeURIComponent(t) + '" class="repo-topic-badge">' + escapeHtml(t) + '</a>';
-          }).join('') + '</span>';
-          topicsHTML += '<span class="repo-topics-toggle-btn repo-topic-badge" style="cursor:pointer;">+' + hiddenTopics.length + '</span>';
+          }).join(' ') + '</span>';
+          topicsHTML += ' <span class="repo-topics-toggle-btn repo-topic-badge" style="cursor:pointer;">+' + hiddenTopics.length + '</span>';
         }
-        meta.push(topicsHTML);
       }
-      if (meta.length) parts.push('<span class="repo-subtitle-meta">' + meta.join('<span class="repo-subtitle-sep">\u00b7</span>') + '</span>');
+      if (topicsHTML) parts.push('<span class="repo-subtitle-topics">' + topicsHTML + '</span>');
       el.innerHTML = parts.join('');
       el.style.display = parts.length ? '' : 'none';
       var toggleBtn = el.querySelector('.repo-topics-toggle-btn');
@@ -879,7 +872,7 @@
           e.preventDefault();
           var hidden = el.querySelector('.repo-topics-hidden');
           if (hidden.style.display === 'none') {
-            hidden.style.display = 'inline';
+            hidden.style.display = 'contents';
             this.textContent = '-';
           } else {
             hidden.style.display = 'none';

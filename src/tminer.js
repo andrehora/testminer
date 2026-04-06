@@ -333,6 +333,10 @@ function parseSBOM(data) {
 function classifyFiles(filepaths) {
   var result = {};
   filepaths.forEach(function (filepath) {
+    var filename = filepath.split('/').pop();
+    var dotIndex = filename.lastIndexOf('.');
+    var ext = dotIndex === -1 ? '' : filename.substring(dotIndex).toLowerCase();
+    if (extensionSet && (dotIndex === -1 || !extensionSet.has(ext))) return;
     var classification = classifyFile(filepath);
     if (!result[classification]) {
       result[classification] = [];
@@ -374,8 +378,7 @@ function classifyFile(filepath) {
   if (isSnapshotFile(filepath)) return 'snapshot';
   if (isTestFile(filepath)) return 'test';
   if (isTestRelatedFile(filepath)) return 'test-related';
-  if (isSourceFile(filepath)) return 'source';
-  return 'other';
+  return 'source';
 }
 
 function collectFilePaths(files, prefix, result) {
@@ -407,7 +410,6 @@ function parseEcosystemFromPurl(pkg) {
 }
 
 function isTestFile(filepath) {
-  if (!isSourceFile(filepath)) return false;
   var filename = filepath.split('/').pop();
   return containsTest(filename) || filename.toLowerCase().includes('spec.');
 }
@@ -486,13 +488,6 @@ function isCITestFile(filepath) {
   return containsTest(filename);
 }
 
-function isSourceFile(filepath) {
-  var filename = filepath.split('/').pop();
-  var dotIndex = filename.lastIndexOf('.');
-  if (dotIndex === -1) return false;
-  var ext = filename.substring(dotIndex).toLowerCase();
-  return extensionSet ? extensionSet.has(ext) : false;
-}
 
 function filterSemverVersions(versions) {
   var semverRe = /^v?\d+\.\d+\.\d+$/;
@@ -625,7 +620,6 @@ if (typeof module !== 'undefined') {
     isFixtureFile: isFixtureFile,
     isBenchmarkFile: isBenchmarkFile,
     isCITestFile: isCITestFile,
-    isSourceFile: isSourceFile,
     filterTestDependencies: filterTestDependencies,
     filterSemverVersions: filterSemverVersions,
     setExtensionSet: function(s) { extensionSet = s; },
