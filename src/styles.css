@@ -277,6 +277,12 @@ body {
   margin-right: 2px;
 }
 
+@media (max-width: 600px) {
+  .owner-top-topics .repo-topic-badge:nth-child(n+5) {
+    display: none;
+  }
+}
+
 .owner-icon {
   margin-right: 6px;
 }
