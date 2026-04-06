@@ -263,6 +263,19 @@ body {
   user-select: none;
 }
 
+.owner-top-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+.owner-top-topics-label {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-right: 2px;
+}
 
 .owner-icon {
   margin-right: 6px;
