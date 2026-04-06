@@ -1606,6 +1606,20 @@
       })
       .catch(function (err) { console.error('Failed to load owners.csv:', err); });
 
+    var topicData = [];
+    fetch('data/topics.csv')
+      .then(function (r) { return r.text(); })
+      .then(function (text) {
+        var lines = text.trim().split('\n');
+        for (var i = 1; i < lines.length; i++) {
+          var topic = lines[i].trim();
+          if (topic) {
+            topicData.push(topic);
+          }
+        }
+      })
+      .catch(function (err) { console.error('Failed to load topics.csv:', err); });
+
     var repoInput = document.getElementById('repo-input');
     var acList = document.getElementById('autocomplete-list');
 
@@ -1614,9 +1628,20 @@
       var results = [];
 
       // Search owners
-      for (var j = 0; j < ownerData.length && results.length < 4; j++) {
-        if (ownerData[j].toLowerCase().includes(q)) {
+      var ownerCount = 0;
+      for (var j = 0; j < ownerData.length && ownerCount < 4; j++) {
+        if (ownerData[j].toLowerCase().startsWith(q)) {
           results.push({ type: 'owner', name: ownerData[j] });
+          ownerCount++;
+        }
+      }
+
+      // Search topics
+      var topicCount = 0;
+      for (var k = 0; k < topicData.length && topicCount < 4; k++) {
+        if (topicData[k].toLowerCase().startsWith(q)) {
+          results.push({ type: 'topic', name: topicData[k] });
+          topicCount++;
         }
       }
 
@@ -1624,10 +1649,10 @@
       for (var i = 0; i < repoData.length && results.length < 12; i++) {
         var r = repoData[i];
         var matchedOn = [];
-        if (r.name.toLowerCase().includes(q)) {
+        if (r.name.toLowerCase().startsWith(q)) {
           matchedOn.push('name');
         }
-        if (r.topics && r.topics.toLowerCase().includes(q)) {
+        if (r.topics && r.topics.split(';').some(function(t) { return t.toLowerCase().startsWith(q); })) {
           matchedOn.push('topics');
         }
         if (matchedOn.length > 0) {
@@ -1641,6 +1666,11 @@
       var idx = text.toLowerCase().indexOf(query);
       if (idx === -1) return text;
       return text.substring(0, idx) + '<mark>' + text.substring(idx, idx + query.length) + '</mark>' + text.substring(idx + query.length);
+    }
+
+    function buildTopicItemHTML(r, q, index) {
+      var topicName = highlightMatch(r.name, q);
+      return '<div class="autocomplete-item" data-index="' + index + '"><span class="ac-tag">topic</span><span class="ac-name">' + topicName + '</span></div>';
     }
 
     function buildOwnerItemHTML(r, q, index) {
@@ -1675,7 +1705,7 @@
       var html = '';
       for (var i = 0; i < results.length; i++) {
         var r = results[i];
-        html += r.type === 'owner' ? buildOwnerItemHTML(r, q, i) : buildRepoItemHTML(r, q, i);
+        html += r.type === 'topic' ? buildTopicItemHTML(r, q, i) : r.type === 'owner' ? buildOwnerItemHTML(r, q, i) : buildRepoItemHTML(r, q, i);
       }
       acList.innerHTML = html;
       acList.style.display = 'block';
@@ -1727,7 +1757,7 @@
       var idx = parseInt(item.getAttribute('data-index'));
       var results = searchRepos(repoInput.value.trim());
       if (results[idx]) {
-        repoInput.value = results[idx].type === 'owner' ? results[idx].name : results[idx].repo.name;
+        repoInput.value = results[idx].type === 'repo' ? results[idx].repo.name : results[idx].type === 'topic' ? 'topic:' + results[idx].name : results[idx].name;
       }
       acList.style.display = 'none';
     }

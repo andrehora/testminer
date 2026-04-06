@@ -241,7 +241,7 @@ function loadTestLibs() {
   return fetch('data/test_libs.csv')
     .then(function (r) { return r.text(); })
     .then(function (text) {
-      var lines = text.trim().split('\n')
+      var lines = text.trim().split('\n').slice(1)
         .map(function (l) { return l.trim().toLowerCase(); })
         .filter(function (l) { return l; })
         .sort();
