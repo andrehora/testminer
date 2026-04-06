@@ -11,25 +11,26 @@ A webapp for exploring and visualizing *software testing* across GitHub reposito
 
 ## Features
 
-**Owner view**: browse all repositories for a GitHub owner/organization
+**Org view**: browse repositories for a GitHub organization.
+
+**Topic view**: browse repositories for a GitHub topic.
 
 **Repo view**: dive into a single repository:
 
-- **Overview**: test statistics.
+- **Overview**: test statistics, including test files, test helpers, and CI tests.
 - **Test Location**: file tree chart showing where tests are located.
 - **Test History**: test metrics across releases.
 - **Test Dependencies**: dependencies related to testing (extracted from [GitHub SBOM](https://docs.github.com/en/rest/dependency-graph/sboms))
 
-Files are automatically classified into categories: `test`, `e2e`, `mock`, `snapshot`, `fixture`, `benchmark`, `smoke`, and `ci-test`.
+Files are automatically classified into categories: `test`, `test-helper`, `e2e`, `mock`, `snapshot`, `fixture`, `benchmark`, `smoke`, `ci-test`, and `source`.
 
 ## Usage
 
-Just open [testminer](https://andrehora.github.io/testminer) in a browser:
+Just open [testminer](https://andrehora.github.io/testminer) and search by:
 
-Search by:
-- GitHub URL (e.g. `https://github.com/fastapi/fastapi`)
-- `owner/repo` (e.g. `fastapi/fastapi`)
-- Owner name (e.g. `google`)
+- repository (e.g. `https://github.com/fastapi/fastapi`, or simply `fastapi/fastapi`)
+- organization/user (e.g. `google`, `microsoft`)
+- topic (e.g. `ai`, `llm`, `api`)
 
 ### GitHub Token
 
