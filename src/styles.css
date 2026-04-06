@@ -258,6 +258,10 @@ body {
   background: #b6e3ff;
 }
 
+#results-title-text .repo-topic-badge {
+  font-size: 0.85rem;
+}
+
 .repo-topics-toggle-btn {
   font-weight: 600;
   user-select: none;
@@ -267,6 +271,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  margin-top: 10px;
   margin-bottom: 12px;
   align-items: center;
 }
@@ -953,6 +958,12 @@ body {
     font-size: 1.45rem;
     width: 1.45rem;
     height: 1.45rem;
+  }
+  #results-title-text .repo-topic-badge {
+    font-size: 1.1rem;
+  }
+  #results-title-text .owner-top-topics-label {
+    font-size: 1.1rem;
   }
   #version-select {
     display: none !important;
