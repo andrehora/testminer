@@ -349,10 +349,6 @@
       var defaultCategories = testCategoryKeys;
 
       var row1HTML = '<div class="block-sort">';
-      // row1HTML += 'Show: ';
-      row1HTML += '<button class="block-sort-btn active" data-show-preset="tests">tests</button>';
-      row1HTML += '<button class="block-sort-btn" data-show-preset="all">all files</button>';
-      row1HTML += '<span class="block-sort-sep">|</span>';
       Object.keys(filterLabelToKeys).forEach(function (label) {
         var keys = filterLabelToKeys[label];
         var swatchColor = classificationColors[keys[0]] || '#94a3b8';
@@ -430,12 +426,7 @@
           });
           return filters;
         }
-        var presetBtn = chartEl.querySelector('.block-sort-btn.active[data-show-preset]');
-        if (presetBtn) {
-          var preset = presetBtn.getAttribute('data-show-preset');
-          if (preset === 'tests') return testCategoryKeys;
-        }
-        return allCategoryKeys;
+        return testCategoryKeys;
       }
 
       function updateDepthUI() {
@@ -580,11 +571,6 @@
             btn.classList.add('active');
           } else if (btn.hasAttribute('data-showonly')) {
             btn.classList.toggle('active');
-            var anyFilter = chartEl.querySelector('.block-sort-btn.active[data-showonly]');
-            chartEl.querySelectorAll('[data-show-preset]').forEach(function (b) { b.classList.remove('active'); });
-            if (!anyFilter) {
-              chartEl.querySelector('[data-show-preset="tests"]').classList.add('active');
-            }
           }
           blockMapEl.innerHTML = buildBlockMapHTML(getActiveFilters());
         });
