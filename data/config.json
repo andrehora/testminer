@@ -22,8 +22,8 @@
     "github",
     "apache",
     "huggingface",
-    "github/linguist",
-    "electron/electron",
-    "fastapi/fastapi"
+    "fastapi/fastapi",
+    "prisma/prisma",
+    "github/linguist"
   ]
 }
