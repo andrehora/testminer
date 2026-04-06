@@ -420,13 +420,16 @@ function isTestRelatedFile(filepath) {
   });
 }
 
+function inTestFolder(parts) {
+  return parts.some(function (dir) {
+    return containsTest(dir) || dir.toLowerCase() === 'spec';
+  });
+}
+
 function isMockFile(filepath) {
   var parts = filepath.split('/');
   var filename = parts.pop();
-  var inTestFolder = parts.some(function (dir) {
-    return containsTest(dir) || dir.toLowerCase() === 'spec';
-  });
-  if (!inTestFolder) {
+  if (!inTestFolder(parts)) {
     return false;
   }
   var mockPatterns = ['mock', 'stub', 'spy', 'dummy', 'fake', 'spies', 'dummies'];
@@ -442,6 +445,9 @@ function isE2EFile(filepath) {
 function isSnapshotFile(filepath) {
   var parts = filepath.split('/');
   var filename = parts.pop();
+  if (!inTestFolder(parts)) {
+    return false;
+  }
   var inSnapshotFolder = parts.some(function (dir) {
     return dir.toLowerCase().includes('snapshot');
   });

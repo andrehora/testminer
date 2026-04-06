@@ -409,9 +409,8 @@ describe('isE2EFile', function () {
 
 describe('isSnapshotFile', function () {
 
-  it('should return true for a file inside a "snapshot" folder', function () {
+  it('should return true for a file inside a "snapshot" folder within a test folder', function () {
     expect(isSnapshotFile('tests/__snapshots__/app.snap')).toBe(true);
-    expect(isSnapshotFile('snapshots/output.snap')).toBe(true);
     expect(isSnapshotFile('test/snapshot/result.snap')).toBe(true);
   });
 
@@ -424,10 +423,14 @@ describe('isSnapshotFile', function () {
     expect(isSnapshotFile('tests/SNAPSHOTS/app.snap')).toBe(true);
   });
 
-  it('should return true for a file ending with ".snap"', function () {
+  it('should return true for a file ending with ".snap" within a test folder', function () {
     expect(isSnapshotFile('tests/app.snap')).toBe(true);
-    expect(isSnapshotFile('app.snap')).toBe(true);
-    expect(isSnapshotFile('src/utils.snap')).toBe(true);
+  });
+
+  it('should return false for a ".snap" file not within a test folder', function () {
+    expect(isSnapshotFile('app.snap')).toBe(false);
+    expect(isSnapshotFile('src/utils.snap')).toBe(false);
+    expect(isSnapshotFile('snapshots/output.snap')).toBe(false);
   });
 
   it('should return false for a file not inside a snapshot folder and not ending with ".snap"', function () {
