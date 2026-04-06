@@ -1,37 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TestMiner - Explore Testing on GitHub</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✅</text></svg>">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✅</text></svg>">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="src/styles.css">
 </head>
+
 <body>
   <div class="container">
 
     <div class="top-nav">
-      <a id="home-link" class="nav-link" href="#" onclick="document.getElementById('results').style.display='none';document.getElementById('repo-input').value='';history.replaceState(null,'',location.pathname);return false;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</a>
+      <a id="home-link" class="nav-link" href="#"
+        onclick="document.getElementById('results').style.display='none';document.getElementById('repo-input').value='';history.replaceState(null,'',location.pathname);return false;"><svg
+          width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <polyline points="9 22 9 12 15 12 15 22" />
+        </svg> Home</a>
       <a class="nav-link nav-link-github" href="https://github.com/andrehora/testminer" target="_blank" rel="noopener">
         <i class="devicon-github-original"></i>testminer
       </a>
     </div>
 
-    <div id="gh-token-modal-overlay" class="file-list-modal-overlay" style="display:none;" onclick="if(event.target===this)closeTokenModal()">
+    <div id="gh-token-modal-overlay" class="file-list-modal-overlay" style="display:none;"
+      onclick="if(event.target===this)closeTokenModal()">
       <div class="file-list-modal token-modal">
         <div class="file-list-modal-header">
           <span>GitHub Personal Access Token</span>
           <button class="file-list-close" onclick="closeTokenModal()">&#x2715;</button>
         </div>
         <div class="token-modal-body">
-          <p class="token-description">A read-only token increases the API rate limit from 60 to 5,000 requests/hour. The token is stored only in your browser's localStorage.</p>
+          <p class="token-description">A read-only token increases the API rate limit from 60 to 5,000 requests/hour.
+            The token is stored only in your browser's localStorage.</p>
           <p class="token-links">
-            <a class="token-link" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Fine-grained personal access token</a><br>
-            <a class="token-link" href="https://github.com/settings/tokens/new" target="_blank" rel="noopener">Personal access token (classic)</a>
+            <a class="token-link" href="https://github.com/settings/personal-access-tokens/new" target="_blank"
+              rel="noopener">Fine-grained personal access token</a><br>
+            <a class="token-link" href="https://github.com/settings/tokens/new" target="_blank" rel="noopener">Personal
+              access token (classic)</a>
           </p>
           <input id="gh-token-input" class="token-input" type="password" placeholder="GitHub read-only token..." />
           <div class="token-buttons">
@@ -51,7 +64,12 @@
         <input id="repo-input" type="text" placeholder="GitHub repo, owner, or topic" autocomplete="off" />
         <div id="autocomplete-list" class="autocomplete-list"></div>
       </div>
-      <button id="analyze-btn" onclick="analyze()"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+      <button id="analyze-btn" onclick="analyze()"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+          stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg></button>
     </div>
 
     <div id="suggestions" class="suggestions">
@@ -61,7 +79,23 @@
     <div id="error"></div>
 
     <div id="results">
-      <h2 id="results-title" class="results-title"><span id="results-title-text"></span><span class="results-title-actions"><select id="version-select" class="version-select" style="display:none;"></select></span><a id="gh-link" class="gh-link" target="_blank" rel="noopener" title="GitHub page"><i class="devicon-github-original"></i></a><button id="copy-link-btn" class="copy-link-btn" title="Copy link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button><button id="share-btn" class="share-btn" title="Share"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button></h2>
+      <h2 id="results-title" class="results-title"><span id="results-title-text"></span><span
+          class="results-title-actions"><select id="version-select" class="version-select"
+            style="display:none;"></select></span><a id="gh-link" class="gh-link" target="_blank" rel="noopener"
+          title="GitHub page"><i class="devicon-github-original"></i></a><button id="copy-link-btn"
+          class="copy-link-btn" title="Copy link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+          </svg></button><button id="share-btn" class="share-btn" title="Share"><svg width="16" height="16"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3" />
+            <circle cx="6" cy="12" r="3" />
+            <circle cx="18" cy="19" r="3" />
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+          </svg></button></h2>
       <div id="repo-subtitle" class="repo-subtitle" style="display:none;"></div>
       <h3 class="section-title" id="section-title-overview" style="display:none;">Overview</h3>
       <div class="stats-grid" id="stats-grid"></div>
@@ -72,13 +106,36 @@
         <div class="version-chart-controls">
           <span id="version-metric-btns"></span>
           <span id="version-chart-type-btns">
-            <button data-type="line" class="block-sort-btn active" title="Line chart"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 6 13 14 9 8 2 18"/></svg></button>
-            <button data-type="bar" class="block-sort-btn" title="Bar chart"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="5" width="4" height="16" rx="1"/><rect x="17" y="9" width="4" height="12" rx="1"/></svg></button>
-            <button class="export-png-btn" id="export-history-png-btn" title="Export as PNG"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>
+            <button data-type="line" class="block-sort-btn active" title="Line chart"><svg width="14" height="14"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline points="22 12 18 6 13 14 9 8 2 18" />
+              </svg></button>
+            <button data-type="bar" class="block-sort-btn" title="Bar chart"><svg width="14" height="14"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="3" y="12" width="4" height="9" rx="1" />
+                <rect x="10" y="5" width="4" height="16" rx="1" />
+                <rect x="17" y="9" width="4" height="12" rx="1" />
+              </svg></button>
+            <button class="export-png-btn" id="export-history-png-btn" title="Export as PNG"><svg
+                xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg></button>
           </span>
         </div>
         <div class="version-chart-wrap">
-          <div id="version-chart-loading" class="version-chart-loading"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></path></svg></div>
+          <div id="version-chart-loading" class="version-chart-loading"><svg width="28" height="28" viewBox="0 0 24 24"
+              fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round">
+              <path
+                d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83">
+                <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s"
+                  repeatCount="indefinite" />
+              </path>
+            </svg></div>
           <canvas id="version-chart"></canvas>
         </div>
       </div>
@@ -87,223 +144,67 @@
     </div>
 
     <hr class="footer-divider">
-    <p class="footer-text">Data from GitHub API, jsDelivr API, and <a class="footer-link" href="https://github.com/andrehora/testminer" target="_blank" rel="noopener">TestMiner</a>.</p>
+    <p class="footer-text">Data from GitHub API, jsDelivr API, and <a class="footer-link"
+        href="https://github.com/andrehora/testminer" target="_blank" rel="noopener">TestMiner</a>.</p>
     <p id="github-rate-limit" class="footer-text"><span id="github-rate-limit-text"></span></p>
-    <p class="footer-token-wrap"><button id="gh-token-btn" onclick="openTokenModal()" class="gh-token-btn">Add GitHub token</button></p>
+    <p class="footer-token-wrap"><button id="gh-token-btn" onclick="openTokenModal()" class="gh-token-btn">Add GitHub
+        token</button></p>
 
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="src/helper.js"></script>
   <script src="src/tminer.js"></script>
   <script>
-    var classificationColors = {
-      'test': '#22c55e',
-      'test-helper': '#86efac',
-      'mock': '#94a3b8',
-      'e2e': '#8b5cf6',
-      'snapshot': '#ec4899',
-      'ci-test': '#06b6d4',
-      'smoke': '#ef4444',
-      'fixture': '#f97316',
-      'benchmark': '#facc15',
-      'source': '#1e293b'
-    };
-
-    var classificationBgColors = {
-      'test':         '#dcfce7',
-      'test-helper': '#f0fdf4',
-      'mock':         '#f1f5f9',
-      'e2e':          '#f5f3ff',
-      'snapshot':     '#fdf2f8',
-      'ci-test':      '#ecfeff',
-      'smoke':        '#fef2f2',
-      'fixture':      '#fff7ed',
-      'benchmark':    '#fefce8',
-      'source':       '#f8fafc'
-    };
-
-    var classificationBorderColors = {
-      'test':         '#86efac',
-      'test-helper': '#bbf7d0',
-      'mock':         '#cbd5e1',
-      'e2e':          '#c4b5fd',
-      'snapshot':     '#f9a8d4',
-      'ci-test':      '#67e8f9',
-      'smoke':        '#fca5a5',
-      'fixture':      '#fdba74',
-      'benchmark':    '#fde047',
-      'source':       '#cbd5e1'
-    };
-
-    var classificationTextColors = {
-      'test':         '#16a34a',
-      'test-helper': '#16a34a',
-      'mock':         '#475569',
-      'e2e':          '#6d28d9',
-      'snapshot':     '#be185d',
-      'ci-test':      '#0891b2',
-      'smoke':        '#dc2626',
-      'fixture':      '#ea580c',
-      'benchmark':    '#ca8a04',
-      'source':       '#334155'
-    };
-
-
-    // --- Helpers ---
-
-    function parseOwnerRepo(ownerRepo) {
-      var atIdx = ownerRepo.indexOf('@');
-      var baseRepo = atIdx !== -1 ? ownerRepo.substring(0, atIdx) : ownerRepo;
-      var versionTag = atIdx !== -1 ? ownerRepo.substring(atIdx + 1) : '';
-      return { baseRepo: baseRepo, versionTag: versionTag };
-    }
-
-    function destroyVersionChart() {
-      if (versionChartInstance) {
-        versionChartInstance.destroy();
-        versionChartInstance = null;
-      }
-    }
-
-    function getActiveMetric() {
-      var metricBtn = document.querySelector('#version-metric-btns .active');
-      return metricBtn ? metricBtn.getAttribute('data-metric') : 'testFiles';
-    }
-
-    function getActiveChartType() {
-      var btn = document.querySelector('#version-chart-type-btns button.active');
-      return btn ? btn.getAttribute('data-type') : 'line';
-    }
-
-    function escapeHtml(str) {
-      var div = document.createElement('div');
-      div.appendChild(document.createTextNode(str));
-      return div.innerHTML;
-    }
-
-    function buildOwnerIcon(owner) {
-      return '<i class="devicon-' + owner.toLowerCase() + '-plain colored owner-icon" data-owner-icon></i>';
-    }
-
-    function hideEmptyOwnerIcons(root) {
-      (root || document).querySelectorAll('[data-owner-icon]').forEach(function (el) {
-        var style = window.getComputedStyle(el, '::before');
-        var content = style.getPropertyValue('content');
-        if (!content || content === 'none' || content === '""' || content === "''") {
-          el.classList.add('no-icon');
-        }
-      });
-    }
-
-    function hideSections(ids) {
-      ids.forEach(function (id) {
-        document.getElementById(id).style.display = 'none';
-      });
-    }
-
-    function showSections(ids) {
-      ids.forEach(function (id) {
-        var el = document.getElementById(id);
-        el.style.display = '';
-        el.classList.remove('collapsed');
-      });
-    }
-
-    var ALL_SECTION_IDS = ['section-title-overview', 'section-title-state', 'section-title-deps', 'section-title-history'];
-
-    // --- Icon Helpers ---
-
-    var deviconAliases = {
-      'c++': 'cplusplus',
-      'c#': 'csharp',
-      'shell': 'bash',
-      'html': 'html5',
-      'css': 'css3',
-      'jupyter notebook': 'jupyter',
-      'objective-c': 'objectivec',
-      'vim script': 'vim',
-      'emacs lisp': 'emacs',
-    };
-
-    var ecosystemDevicons = {
-      npm: 'devicon-npm-original-wordmark',
-      pip: 'devicon-python-plain',
-      pypi: 'devicon-python-plain',
-      gem: 'devicon-ruby-plain',
-      nuget: 'devicon-dot-net-plain',
-      maven: 'devicon-java-plain',
-      gradle: 'devicon-gradle-plain',
-      cargo: 'devicon-rust-plain',
-      composer: 'devicon-composer-line',
-      golang: 'devicon-go-original-wordmark',
-      cocoapods: 'devicon-swift-plain',
-      swift: 'devicon-swift-plain',
-      pub: 'devicon-dart-plain',
-      crate: 'devicon-rust-plain',
-      hex: 'devicon-elixir-plain'
-    };
-
-    function getEcosystemIcon(ecosystem) {
-      var cls = ecosystemDevicons[ecosystem.toLowerCase()];
-      if (!cls) return '';
-      return '<i class="' + cls + ' colored dep-ecosystem-icon"></i>';
-    }
-
-    function getDeviconClass(language) {
-      if (!language) return '';
-      var key = language.toLowerCase();
-      var name = deviconAliases[key] || key.replace(/[^a-z0-9]/g, '');
-      return 'devicon-' + name + '-plain';
-    }
 
     // --- File Tree ---
 
     function renderFileTree(ownerRepo, gitRef) {
-      var chartEl = document.getElementById('tree-chart');
+      let chartEl = document.getElementById('tree-chart');
       if (!chartEl) return;
 
-      var cached = analyzeRepoCache[ownerRepo];
+      let cached = analyzeRepoCache[ownerRepo];
       if (!cached || !cached.files) {
         chartEl.style.display = 'none';
         return;
       }
 
-      var parsed = parseOwnerRepo(ownerRepo);
-      var baseRepo = parsed.baseRepo;
-      var linkRef = parsed.versionTag || gitRef || '';
+      let parsed = parseOwnerRepo(ownerRepo);
+      let baseRepo = parsed.baseRepo;
+      let linkRef = parsed.versionTag || gitRef || '';
 
-      var oldTooltip = document.querySelector('.block-tooltip');
+      let oldTooltip = document.querySelector('.block-tooltip');
       if (oldTooltip) oldTooltip.remove();
 
-      var maxDepth = getMaxDepth(cached.files);
-      var currentDepth = Math.min(1, maxDepth);
+      let maxDepth = getMaxDepth(cached.files);
+      let currentDepth = Math.min(1, maxDepth);
 
-      var legendHTML = '';
+      let legendHTML = '';
 
-      var currentSort = 'files-desc';
+      let currentSort = 'files-desc';
 
       function buildBlockMapHTML(activeFilters) {
-        var dirs = groupFilesByDepth(cached.files, currentDepth);
-        var dirKeys = Object.keys(dirs);
-        var html = '';
-        var sortedDirs = dirKeys.slice().sort();
+        let dirs = groupFilesByDepth(cached.files, currentDepth);
+        let dirKeys = Object.keys(dirs);
+        let html = '';
+        let sortedDirs = dirKeys.slice().sort();
         if (currentSort === 'alpha-desc') {
           sortedDirs.reverse();
         } else if (currentSort === 'files-asc' || currentSort === 'files-desc') {
           sortedDirs.sort(function (a, b) {
-            var countA = dirs[a].filter(function (f) { return activeFilters.indexOf(f.category) >= 0; }).length;
-            var countB = dirs[b].filter(function (f) { return activeFilters.indexOf(f.category) >= 0; }).length;
+            let countA = dirs[a].filter(function (f) { return activeFilters.indexOf(f.category) >= 0; }).length;
+            let countB = dirs[b].filter(function (f) { return activeFilters.indexOf(f.category) >= 0; }).length;
             return currentSort === 'files-asc' ? countA - countB : countB - countA;
           });
         }
-        for (var i = 0; i < sortedDirs.length; i++) {
-          var dir = sortedDirs[i];
-          var files = dirs[dir].filter(function (f) {
+        for (let i = 0; i < sortedDirs.length; i++) {
+          let dir = sortedDirs[i];
+          let files = dirs[dir].filter(function (f) {
             return activeFilters.indexOf(f.category) >= 0;
           });
           if (files.length === 0) continue;
-          var catCounts = {};
+          let catCounts = {};
           files.forEach(function (f) { catCounts[f.category] = (catCounts[f.category] || 0) + 1; });
           files.sort(function (a, b) {
             if (a.category !== b.category) return (catCounts[b.category] || 0) - (catCounts[a.category] || 0);
@@ -312,10 +213,10 @@
           html += '<div class="block-dir">';
           html += '<div class="block-dir-label" title="' + dir + '">' + dir + ' <span class="block-dir-count">(' + files.length + ')</span></div>';
           html += '<div class="block-cells">';
-          for (var j = 0; j < files.length; j++) {
-            var f = files[j];
-            var color = classificationColors[f.category] || '#94a3b8';
-            var catLabel = f.category;
+          for (let j = 0; j < files.length; j++) {
+            let f = files[j];
+            let color = classificationColors[f.category] || '#94a3b8';
+            let catLabel = f.category;
             html += '<div class="block-cell" style="background:' + color + '" data-tip="' + f.path + '" data-category="' + catLabel + '" data-color="' + color + '"></div>';
           }
           html += '</div></div>';
@@ -323,60 +224,57 @@
         return html;
       }
 
-      var sortOptions = [];
+      let sortOptions = [];
       Object.keys(classificationColors).forEach(function (cat) {
         if (cat === 'source') return;
         if (cached.files[cat] && cached.files[cat].length > 0) {
-          var label = cat;
+          let label = cat;
           if (!sortOptions.some(function (s) { return s.label === label; })) {
             sortOptions.push({ key: cat, label: label });
           }
         }
       });
 
-      var filterLabelToKeys = {};
+      let filterLabelToKeys = {};
       sortOptions.forEach(function (opt) {
         if (!filterLabelToKeys[opt.label]) filterLabelToKeys[opt.label] = [];
         filterLabelToKeys[opt.label].push(opt.key);
       });
 
-      var allCategoryKeys = [];
+      let allCategoryKeys = [];
       Object.keys(filterLabelToKeys).forEach(function (label) {
         allCategoryKeys = allCategoryKeys.concat(filterLabelToKeys[label]);
       });
 
-      var testCategoryKeys = allCategoryKeys.filter(function (k) { return k !== 'source'; });
+      let testCategoryKeys = allCategoryKeys.filter(function (k) { return k !== 'source'; });
 
-      var defaultCategories = testCategoryKeys;
+      let defaultCategories = testCategoryKeys;
 
-      var row1HTML = '<div class="block-sort">';
+      let row1HTML = '<div class="block-sort">';
       Object.keys(filterLabelToKeys).forEach(function (label) {
-        var keys = filterLabelToKeys[label];
-        var swatchColor = classificationColors[keys[0]] || '#94a3b8';
+        let keys = filterLabelToKeys[label];
+        let swatchColor = classificationColors[keys[0]] || '#94a3b8';
         row1HTML += '<button class="block-sort-btn" data-showonly="' + keys.join(',') + '"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:' + swatchColor + ';margin-right:4px;vertical-align:middle;flex-shrink:0;outline:1.5px solid rgba(255,255,255,0.7);outline-offset:-1px;"></span>' + label + '</button>';
       });
       if (cached.files['source'] && cached.files['source'].length > 0) {
-        var sourceColor = classificationColors['source'] || '#1e293b';
+        let sourceColor = classificationColors['source'] || '#1e293b';
         row1HTML += '<span class="block-sort-sep">|</span><button class="block-sort-btn" data-showonly="source"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:' + sourceColor + ';margin-right:4px;vertical-align:middle;flex-shrink:0;outline:1.5px solid rgba(255,255,255,0.7);outline-offset:-1px;"></span>source</button>';
       }
       row1HTML += '</div>';
 
-      var row2HTML = '<div class="block-sort">';
-      // row2HTML += 'Sort: ';
+      let row2HTML = '<div class="block-sort">';
       row2HTML += '<button class="block-sort-btn active" data-sort="files" id="sort-files" title="Sort by file count">files \u2193</button>';
       row2HTML += '<button class="block-sort-btn" data-sort="alpha" id="sort-alpha" title="Sort alphabetically">name \u2191</button>';
       row2HTML += '<span class="block-sort-sep">|</span>';
-      // row2HTML += 'Depth: ';
       row2HTML += '<button class="block-sort-btn" id="depth-left" title="Decrease depth"' + (currentDepth <= 0 ? ' disabled' : '') + '><</button>';
       row2HTML += '<span class="depth-nav-label" id="depth-label">' + currentDepth + '/' + maxDepth + '</span>';
       row2HTML += '<button class="block-sort-btn" id="depth-right" title="Increase depth"' + (currentDepth >= maxDepth ? ' disabled' : '') + '>></button>';
-      // row2HTML += '<span class="block-sort-sep">|</span>';
       row2HTML += '<span class="export-btns" style="margin-left:auto;"><button class="shape-toggle active" id="paths-toggle" title="Toggle folder paths" style="font-size:0.75rem;font-weight:600;">t</button>';
       row2HTML += '<button class="shape-toggle" id="shape-toggle" title="Toggle cell shape"><span class="shape-toggle-icon"></span></button>';
       row2HTML += '<button class="export-png-btn" id="export-png-btn" title="Export as PNG"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button></span>';
       row2HTML += '</div>';
 
-      var blockMapEl = document.createElement('div');
+      let blockMapEl = document.createElement('div');
       blockMapEl.className = 'block-map' + (linkRef ? ' clickable' : '');
       blockMapEl.innerHTML = buildBlockMapHTML(defaultCategories);
 
@@ -384,23 +282,23 @@
       chartEl.appendChild(blockMapEl);
       chartEl.style.display = 'block';
 
-      var tooltipEl = document.createElement('div');
+      let tooltipEl = document.createElement('div');
       tooltipEl.className = 'block-tooltip';
       document.body.appendChild(tooltipEl);
 
       blockMapEl.addEventListener('mouseover', function (e) {
-        var cell = e.target.closest('.block-cell');
+        let cell = e.target.closest('.block-cell');
         if (!cell) return;
-        var tip = cell.getAttribute('data-tip');
+        let tip = cell.getAttribute('data-tip');
         if (!tip) return;
-        var category = cell.getAttribute('data-category') || '';
-        var color = cell.getAttribute('data-color') || '';
+        let category = cell.getAttribute('data-category') || '';
+        let color = cell.getAttribute('data-color') || '';
         tooltipEl.innerHTML = '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + color + ';margin-right:4px;vertical-align:middle;"></span>' +
           '<strong>' + category + '</strong> · ' + tip;
         tooltipEl.classList.add('visible');
-        var rect = cell.getBoundingClientRect();
-        var tipRect = tooltipEl.getBoundingClientRect();
-        var left = rect.left + rect.width / 2 - tipRect.width / 2;
+        let rect = cell.getBoundingClientRect();
+        let tipRect = tooltipEl.getBoundingClientRect();
+        let left = rect.left + rect.width / 2 - tipRect.width / 2;
         if (left < 4) left = 4;
         if (left + tipRect.width > window.innerWidth - 4) left = window.innerWidth - 4 - tipRect.width;
         tooltipEl.style.left = left + 'px';
@@ -408,26 +306,26 @@
       });
 
       blockMapEl.addEventListener('mouseout', function (e) {
-        var cell = e.target.closest('.block-cell');
+        let cell = e.target.closest('.block-cell');
         if (cell) tooltipEl.classList.remove('visible');
       });
 
       if (linkRef) {
         blockMapEl.addEventListener('click', function (e) {
-          var cell = e.target.closest('.block-cell');
+          let cell = e.target.closest('.block-cell');
           if (!cell) return;
-          var filepath = cell.getAttribute('data-tip');
+          let filepath = cell.getAttribute('data-tip');
           if (!filepath) return;
           window.open('https://github.com/' + baseRepo + '/blob/' + linkRef + '/' + filepath, '_blank');
         });
       }
 
       function getActiveFilters() {
-        var sourceBtn = chartEl.querySelector('.block-sort-btn[data-showonly="source"]');
-        var sourceBtnActive = sourceBtn && sourceBtn.classList.contains('active');
-        var filterBtns = chartEl.querySelectorAll('.block-sort-btn.active[data-showonly]:not([data-showonly="source"])');
+        let sourceBtn = chartEl.querySelector('.block-sort-btn[data-showonly="source"]');
+        let sourceBtnActive = sourceBtn && sourceBtn.classList.contains('active');
+        let filterBtns = chartEl.querySelectorAll('.block-sort-btn.active[data-showonly]:not([data-showonly="source"])');
         if (filterBtns.length > 0) {
-          var filters = [];
+          let filters = [];
           filterBtns.forEach(function (btn) {
             btn.getAttribute('data-showonly').split(',').forEach(function (k) { filters.push(k); });
           });
@@ -439,15 +337,15 @@
       }
 
       function updateDepthUI() {
-        var label = document.getElementById('depth-label');
-        var leftBtn = document.getElementById('depth-left');
-        var rightBtn = document.getElementById('depth-right');
+        let label = document.getElementById('depth-label');
+        let leftBtn = document.getElementById('depth-left');
+        let rightBtn = document.getElementById('depth-right');
         if (label) label.textContent = currentDepth + '/' + maxDepth;
         if (leftBtn) leftBtn.disabled = currentDepth <= 0;
         if (rightBtn) rightBtn.disabled = currentDepth >= maxDepth;
       }
 
-      var pathsToggleBtn = document.getElementById('paths-toggle');
+      let pathsToggleBtn = document.getElementById('paths-toggle');
       pathsToggleBtn.addEventListener('click', function () {
         pathsToggleBtn.classList.toggle('active');
         blockMapEl.classList.toggle('hide-paths');
@@ -469,56 +367,56 @@
       });
 
       function captureChart(btn, originalLabel, callback) {
-        var originalHTML = btn.innerHTML;
+        let originalHTML = btn.innerHTML;
         btn.disabled = true;
         btn.textContent = 'Saving...';
         tooltipEl.classList.remove('visible');
 
-        var hideEls = chartEl.querySelectorAll('.block-sort, .block-separator');
+        let hideEls = chartEl.querySelectorAll('.block-sort, .block-separator');
         hideEls.forEach(function (el) { el.style.display = 'none'; });
 
-        var origMaxHeight = chartEl.style.maxHeight;
-        var origOverflow = chartEl.style.overflowY;
+        let origMaxHeight = chartEl.style.maxHeight;
+        let origOverflow = chartEl.style.overflowY;
         chartEl.style.maxHeight = 'none';
         chartEl.style.overflowY = 'visible';
 
-        var titleEl = document.createElement('div');
+        let titleEl = document.createElement('div');
         titleEl.className = 'export-title';
-        var titleIcon = document.querySelector('#results-title-text i');
+        let titleIcon = document.querySelector('#results-title-text i');
         if (titleIcon) {
           titleEl.appendChild(titleIcon.cloneNode(true));
         }
-        var titleText = document.createElement('span');
+        let titleText = document.createElement('span');
         titleText.textContent = ownerRepo;
         titleEl.appendChild(titleText);
 
-        var legendEl = document.createElement('div');
+        let legendEl = document.createElement('div');
         legendEl.className = 'export-legend';
-        var activeFilters = getActiveFilters();
+        let activeFilters = getActiveFilters();
         Object.keys(filterLabelToKeys).forEach(function (label) {
-          var keys = filterLabelToKeys[label];
-          var isActive = keys.some(function (k) { return activeFilters.indexOf(k) >= 0; });
+          let keys = filterLabelToKeys[label];
+          let isActive = keys.some(function (k) { return activeFilters.indexOf(k) >= 0; });
           if (!isActive) return;
-          var color = classificationColors[keys[0]] || '#94a3b8';
-          var bgColor = classificationBgColors[keys[0]] || '#f1f5f9';
-          var borderColor = classificationBorderColors[keys[0]] || '#cbd5e1';
-          var textColor = classificationTextColors[keys[0]] || '#475569';
-          var btn = document.createElement('span');
+          let color = classificationColors[keys[0]] || '#94a3b8';
+          let bgColor = classificationBgColors[keys[0]] || '#f1f5f9';
+          let borderColor = classificationBorderColors[keys[0]] || '#cbd5e1';
+          let textColor = classificationTextColors[keys[0]] || '#475569';
+          let btn = document.createElement('span');
           btn.style.cssText = 'display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;background:' + bgColor + ';border:1px solid ' + borderColor + ';color:' + textColor + ';font-size:0.78rem;font-weight:500;';
-          var swatch = document.createElement('span');
+          let swatch = document.createElement('span');
           swatch.style.cssText = 'display:inline-block;width:9px;height:9px;border-radius:2px;background:' + color + ';flex-shrink:0;';
           btn.appendChild(swatch);
           btn.appendChild(document.createTextNode(label));
           legendEl.appendChild(btn);
         });
         if (activeFilters.indexOf('source') >= 0) {
-          var srcColor = classificationColors['source'] || '#1e293b';
-          var srcBgColor = classificationBgColors['source'] || '#f1f5f9';
-          var srcBorderColor = classificationBorderColors['source'] || '#cbd5e1';
-          var srcTextColor = classificationTextColors['source'] || '#475569';
-          var srcBtn = document.createElement('span');
+          let srcColor = classificationColors['source'] || '#1e293b';
+          let srcBgColor = classificationBgColors['source'] || '#f1f5f9';
+          let srcBorderColor = classificationBorderColors['source'] || '#cbd5e1';
+          let srcTextColor = classificationTextColors['source'] || '#475569';
+          let srcBtn = document.createElement('span');
           srcBtn.style.cssText = 'display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;background:' + srcBgColor + ';border:1px solid ' + srcBorderColor + ';color:' + srcTextColor + ';font-size:0.78rem;font-weight:500;';
-          var srcSwatch = document.createElement('span');
+          let srcSwatch = document.createElement('span');
           srcSwatch.style.cssText = 'display:inline-block;width:9px;height:9px;border-radius:2px;background:' + srcColor + ';flex-shrink:0;';
           srcBtn.appendChild(srcSwatch);
           srcBtn.appendChild(document.createTextNode('source'));
@@ -541,12 +439,12 @@
         });
       }
 
-      var exportPngBtn = document.getElementById('export-png-btn');
+      let exportPngBtn = document.getElementById('export-png-btn');
       exportPngBtn.addEventListener('click', function () {
         captureChart(exportPngBtn, 'PNG', function (canvas) {
-          var link = document.createElement('a');
-          var now = new Date();
-          var ts = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + '-' + String(now.getSeconds()).padStart(2, '0');
+          let link = document.createElement('a');
+          let now = new Date();
+          let ts = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + '-' + String(now.getSeconds()).padStart(2, '0');
           link.download = ownerRepo.replace('/', '-') + '-tests-' + ts + '.png';
           link.href = canvas.toDataURL('image/png');
           link.click();
@@ -558,14 +456,14 @@
         blockMapEl.classList.toggle('circles');
       });
 
-      var sortBars = chartEl.querySelectorAll('.block-sort');
+      let sortBars = chartEl.querySelectorAll('.block-sort');
       sortBars.forEach(function (bar) {
         bar.addEventListener('click', function (e) {
-          var btn = e.target.closest('.block-sort-btn');
+          let btn = e.target.closest('.block-sort-btn');
           if (!btn) return;
           if (!btn.hasAttribute('data-sort') && !btn.hasAttribute('data-show-preset') && !btn.hasAttribute('data-showonly')) return;
           if (btn.hasAttribute('data-sort')) {
-            var sort = btn.getAttribute('data-sort');
+            let sort = btn.getAttribute('data-sort');
             chartEl.querySelectorAll('[data-sort]').forEach(function (b) { b.classList.remove('active'); });
             btn.classList.add('active');
             if (sort === 'alpha') {
@@ -601,13 +499,13 @@
 
     // --- Version Chart ---
 
-    var versionChartInstance = null;
-    var versionChartStats = null;
-    var versionChartLabels = null;
-    var versionChartGeneration = 0;
-    var versionChartOwnerRepo = '';
+    let versionChartInstance = null;
+    let versionChartStats = null;
+    let versionChartLabels = null;
+    let versionChartGeneration = 0;
+    let versionChartOwnerRepo = '';
 
-    var versionMetricOptions = [
+    const versionMetricOptions = [
       { key: 'testFiles', label: 'test', category: 'test' },
       { key: 'testHelperFiles', label: 'test-helper', category: 'test-helper' },
       { key: 'mockFiles', label: 'mock', category: 'mock' },
@@ -620,19 +518,19 @@
       { key: 'sourceFiles', label: 'source', category: 'source' },
     ];
 
-    var versionMetricLabels = {};
+    const versionMetricLabels = {};
     versionMetricOptions.forEach(function (o) { versionMetricLabels[o.key] = o.label; });
 
     function populateMetricSelect(classifiedFiles) {
-      var container = document.getElementById('version-metric-btns');
+      let container = document.getElementById('version-metric-btns');
       if (!container) return;
-      var prevActive = container.querySelector('.active');
-      var prev = prevActive ? prevActive.getAttribute('data-metric') : null;
+      let prevActive = container.querySelector('.active');
+      let prev = prevActive ? prevActive.getAttribute('data-metric') : null;
       container.innerHTML = '';
-      var firstBtn = null;
+      let firstBtn = null;
       versionMetricOptions.forEach(function (opt) {
         if (opt.category === null || (classifiedFiles && classifiedFiles[opt.category] && classifiedFiles[opt.category].length > 0)) {
-          var btn = document.createElement('button');
+          let btn = document.createElement('button');
           btn.setAttribute('data-metric', opt.key);
           btn.textContent = opt.label;
           btn.className = 'block-sort-btn';
@@ -640,26 +538,26 @@
           container.appendChild(btn);
         }
       });
-      var restoreBtn = prev ? container.querySelector('[data-metric="' + prev + '"]') : null;
-      var activeBtn = restoreBtn || firstBtn;
+      let restoreBtn = prev ? container.querySelector('[data-metric="' + prev + '"]') : null;
+      let activeBtn = restoreBtn || firstBtn;
       if (activeBtn) activeBtn.classList.add('active');
     }
 
     function buildVersionChart(metric, chartType) {
       chartType = chartType || 'line';
-      var container = document.getElementById('version-chart-container');
-      var canvas = document.getElementById('version-chart');
+      let container = document.getElementById('version-chart-container');
+      let canvas = document.getElementById('version-chart');
       if (!container || !canvas || !versionChartStats || !versionChartLabels) return;
 
       destroyVersionChart();
 
-      var data = versionChartStats.map(function (s) {
+      let data = versionChartStats.map(function (s) {
         return s ? s[metric] : null;
       });
 
-      var label = versionMetricLabels[metric] || metric;
+      let label = versionMetricLabels[metric] || metric;
 
-      var datasetOptions = chartType === 'bar' ? {
+      let datasetOptions = chartType === 'bar' ? {
         label: label,
         data: data,
         backgroundColor: '#22c55e',
@@ -678,7 +576,7 @@
         spanGaps: true
       };
 
-      var ctx = canvas.getContext('2d');
+      let ctx = canvas.getContext('2d');
       versionChartInstance = new Chart(ctx, {
         type: chartType,
         data: {
@@ -706,7 +604,7 @@
     }
 
     function renderVersionChart(ownerRepo, versions) {
-      var container = document.getElementById('version-chart-container');
+      let container = document.getElementById('version-chart-container');
       if (!container) return;
 
       versionChartOwnerRepo = ownerRepo;
@@ -715,10 +613,10 @@
       versionChartStats = null;
       versionChartLabels = null;
 
-      var cached = analyzeRepoCache[ownerRepo];
+      let cached = analyzeRepoCache[ownerRepo];
       populateMetricSelect(cached ? cached.files : null);
 
-      var historyTitle = document.getElementById('section-title-history');
+      let historyTitle = document.getElementById('section-title-history');
 
       if (!versions || versions.length === 0) {
         container.style.display = 'none';
@@ -737,23 +635,23 @@
       historyTitle.style.display = '';
       historyTitle.classList.remove('collapsed');
 
-      var n = versions.length;
-      var selectedIndices;
+      let n = versions.length;
+      let selectedIndices;
       if (n <= 5) {
-        selectedIndices = versions.map(function(_, i) { return i; });
+        selectedIndices = versions.map(function (_, i) { return i; });
       } else {
         selectedIndices = [0, Math.round(n / 4), Math.round(n / 2), Math.round(3 * n / 4), n - 1];
       }
-      var recent = selectedIndices.map(function(i) { return versions[i]; }).reverse();
+      let recent = selectedIndices.map(function (i) { return versions[i]; }).reverse();
       container.style.display = 'block';
 
-      var loadingEl = document.getElementById('version-chart-loading');
+      let loadingEl = document.getElementById('version-chart-loading');
       loadingEl.style.display = 'flex';
 
       versionChartLabels = recent;
-      var statsArr = new Array(recent.length).fill(null);
-      var pending = recent.length;
-      var gen = ++versionChartGeneration;
+      let statsArr = new Array(recent.length).fill(null);
+      let pending = recent.length;
+      let gen = ++versionChartGeneration;
 
       function tryRender() {
         if (versionChartGeneration !== gen) return;
@@ -777,7 +675,7 @@
           if (response.result) {
             statsArr[idx] = response.result.stats;
           }
-        }).catch(function () {}).then(function () {
+        }).catch(function () { }).then(function () {
           pending--;
           tryRender();
         });
@@ -785,7 +683,7 @@
     }
 
     document.getElementById('version-metric-btns').addEventListener('click', function (e) {
-      var btn = e.target.closest('button[data-metric]');
+      let btn = e.target.closest('button[data-metric]');
       if (!btn) return;
       this.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); });
       btn.classList.add('active');
@@ -793,7 +691,7 @@
     });
 
     document.getElementById('version-chart-type-btns').addEventListener('click', function (e) {
-      var btn = e.target.closest('button[data-type]');
+      let btn = e.target.closest('button[data-type]');
       if (!btn) return;
       this.querySelectorAll('button[data-type]').forEach(function (b) {
         b.classList.remove('active');
@@ -802,32 +700,32 @@
       buildVersionChart(getActiveMetric(), btn.getAttribute('data-type'));
     });
 
-    var exportHistoryPngBtn = document.getElementById('export-history-png-btn');
+    let exportHistoryPngBtn = document.getElementById('export-history-png-btn');
     exportHistoryPngBtn.addEventListener('click', function () {
-      var originalHTML = exportHistoryPngBtn.innerHTML;
+      let originalHTML = exportHistoryPngBtn.innerHTML;
       exportHistoryPngBtn.disabled = true;
       exportHistoryPngBtn.textContent = 'Saving...';
 
-      var container = document.getElementById('version-chart-container');
-      var typeBtnsEl = document.getElementById('version-chart-type-btns');
+      let container = document.getElementById('version-chart-container');
+      let typeBtnsEl = document.getElementById('version-chart-type-btns');
       typeBtnsEl.style.display = 'none';
 
-      var titleEl = document.createElement('div');
+      let titleEl = document.createElement('div');
       titleEl.className = 'export-title';
-      var titleIcon = document.querySelector('#results-title-text i');
+      let titleIcon = document.querySelector('#results-title-text i');
       if (titleIcon) {
         titleEl.appendChild(titleIcon.cloneNode(true));
       }
-      var titleText = document.createElement('span');
+      let titleText = document.createElement('span');
       titleText.textContent = versionChartOwnerRepo;
       titleEl.appendChild(titleText);
 
       container.insertBefore(titleEl, container.firstChild);
 
       html2canvas(container, { backgroundColor: '#ffffff', scale: 2 }).then(function (canvas) {
-        var link = document.createElement('a');
-        var now = new Date();
-        var ts = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + '-' + String(now.getSeconds()).padStart(2, '0');
+        let link = document.createElement('a');
+        let now = new Date();
+        let ts = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + '-' + String(now.getSeconds()).padStart(2, '0');
         link.download = versionChartOwnerRepo.replace('/', '-') + '-test-history-' + ts + '.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
@@ -842,10 +740,10 @@
     // --- Repo Stats ---
 
     function renderRepoSubtitle(repoInfo) {
-      var el = document.getElementById('repo-subtitle');
+      let el = document.getElementById('repo-subtitle');
       if (!repoInfo) { el.style.display = 'none'; return; }
-      var parts = [];
-      var meta = [];
+      let parts = [];
+      let meta = [];
       if (repoInfo.stargazers_count > 0) {
         meta.push('<span class="repo-subtitle-stars">\u2605 ' + repoInfo.stargazers_count.toLocaleString() + '</span>');
       }
@@ -856,11 +754,11 @@
       if (repoInfo.description) {
         parts.push('<span class="repo-subtitle-desc">' + escapeHtml(repoInfo.description) + '</span>');
       }
-      var topicsHTML = '';
+      let topicsHTML = '';
       if (repoInfo.topics && repoInfo.topics.length) {
-        var MAX_TOPICS = 5;
-        var visibleTopics = repoInfo.topics.slice(0, MAX_TOPICS);
-        var hiddenTopics = repoInfo.topics.slice(MAX_TOPICS);
+        let MAX_TOPICS = 5;
+        let visibleTopics = repoInfo.topics.slice(0, MAX_TOPICS);
+        let hiddenTopics = repoInfo.topics.slice(MAX_TOPICS);
         topicsHTML = visibleTopics.map(function (t) {
           return '<a href="#topic:' + encodeURIComponent(t) + '" class="repo-topic-badge">' + escapeHtml(t) + '</a>';
         }).join(' ');
@@ -874,11 +772,11 @@
       if (topicsHTML) parts.push('<span class="repo-subtitle-topics">' + topicsHTML + '</span>');
       el.innerHTML = parts.join('');
       el.style.display = parts.length ? '' : 'none';
-      var toggleBtn = el.querySelector('.repo-topics-toggle-btn');
+      let toggleBtn = el.querySelector('.repo-topics-toggle-btn');
       if (toggleBtn) {
         toggleBtn.addEventListener('click', function (e) {
           e.preventDefault();
-          var hidden = el.querySelector('.repo-topics-hidden');
+          let hidden = el.querySelector('.repo-topics-hidden');
           if (hidden.style.display === 'none') {
             hidden.style.display = 'contents';
             this.textContent = '-';
@@ -891,43 +789,43 @@
     }
 
     function renderRepoStats(ownerRepo, stats, gitRef, repoInfo) {
-      var cards = [
-        { label: 'Source Files',  value: stats.sourceFiles,       category: 'source' },
-        { label: 'Tests',         value: stats.testFiles,         category: 'test' },
-        { label: 'Test Helpers', value: stats.testHelperFiles,  category: 'test-helper' },
-        { label: 'Mocks',        value: stats.mockFiles,         category: 'mock' },
-        { label: 'E2E',          value: stats.e2eFiles,          category: 'e2e' },
-        { label: 'Snapshots',    value: stats.snapshotFiles,     category: 'snapshot' },
-        { label: 'CI Tests',     value: stats.ciTestFiles,       category: 'ci-test' },
-        { label: 'Smoke',        value: stats.smokeFiles,        category: 'smoke' },
-        { label: 'Fixtures',     value: stats.fixtureFiles,      category: 'fixture' },
-        { label: 'Benchmarks',   value: stats.benchmarkFiles,    category: 'benchmark' },
+      let cards = [
+        { label: 'Source Files', value: stats.sourceFiles, category: 'source' },
+        { label: 'Tests', value: stats.testFiles, category: 'test' },
+        { label: 'Test Helpers', value: stats.testHelperFiles, category: 'test-helper' },
+        { label: 'Mocks', value: stats.mockFiles, category: 'mock' },
+        { label: 'E2E', value: stats.e2eFiles, category: 'e2e' },
+        { label: 'Snapshots', value: stats.snapshotFiles, category: 'snapshot' },
+        { label: 'CI Tests', value: stats.ciTestFiles, category: 'ci-test' },
+        { label: 'Smoke', value: stats.smokeFiles, category: 'smoke' },
+        { label: 'Fixtures', value: stats.fixtureFiles, category: 'fixture' },
+        { label: 'Benchmarks', value: stats.benchmarkFiles, category: 'benchmark' },
       ];
 
-      var cached = analyzeRepoCache[ownerRepo];
-      var hasFiles = cached && cached.files;
+      let cached = analyzeRepoCache[ownerRepo];
+      let hasFiles = cached && cached.files;
 
-      var grid = document.getElementById('stats-grid');
-      var visibleCards = cards.filter(function (c) {
+      let grid = document.getElementById('stats-grid');
+      let visibleCards = cards.filter(function (c) {
         return c.alwaysShow || c.value > 0;
       });
-      var cardDivs = visibleCards.map(function (c) {
-        var isClickable = c.category && hasFiles && (hasFiles[c.category] || []).length > 0;
-        var cls = 'dash-card' + (isClickable ? ' clickable' : '');
-        var dataAttr = isClickable ? ' data-category="' + c.category + '"' : '';
-        var bgColor = c.category && classificationBgColors[c.category] ? classificationBgColors[c.category] : '#f8fafc';
+      let cardDivs = visibleCards.map(function (c) {
+        let isClickable = c.category && hasFiles && (hasFiles[c.category] || []).length > 0;
+        let cls = 'dash-card' + (isClickable ? ' clickable' : '');
+        let dataAttr = isClickable ? ' data-category="' + c.category + '"' : '';
+        let bgColor = c.category && classificationBgColors[c.category] ? classificationBgColors[c.category] : '#f8fafc';
         return '<div class="' + cls + '"' + dataAttr + ' style="background:' + bgColor + ';">' + '<div class="dash-card-label">' + c.label + '</div><div class="dash-card-value">' + c.value + '</div></div>';
       }).join('');
       grid.innerHTML = '<div class="overview-dashboard">' + cardDivs + '</div>';
 
-      var parsed = parseOwnerRepo(ownerRepo);
-      var baseRepo = parsed.baseRepo;
-      var linkRef = parsed.versionTag || gitRef || '';
+      let parsed = parseOwnerRepo(ownerRepo);
+      let baseRepo = parsed.baseRepo;
+      let linkRef = parsed.versionTag || gitRef || '';
 
       setupStatCardClicks(grid, ownerRepo, baseRepo, linkRef);
       renderTestTerms(ownerRepo, baseRepo, linkRef);
-      var ownerPart = baseRepo.split('/')[0];
-      var repoPart = baseRepo.split('/')[1];
+      let ownerPart = baseRepo.split('/')[0];
+      let repoPart = baseRepo.split('/')[1];
       document.getElementById('results-title-text').innerHTML = buildOwnerIcon(ownerPart) + '<a class="owner-link" href="#' + ownerPart + '">' + ownerPart + '</a> / ' + repoPart + (parsed.versionTag ? '@' + parsed.versionTag : '');
       document.getElementById('gh-link').href = 'https://github.com/' + baseRepo + (parsed.versionTag ? '/tree/' + parsed.versionTag : '');
       hideEmptyOwnerIcons(document.getElementById('results-title-text'));
@@ -942,57 +840,57 @@
     }
 
     function renderTestTerms(ownerRepo, baseRepo, linkRef) {
-      var grid = document.getElementById('stats-grid');
-      var existing = document.getElementById('terms-table-wrap');
+      let grid = document.getElementById('stats-grid');
+      let existing = document.getElementById('terms-table-wrap');
       if (existing) existing.remove();
 
-      var cached = analyzeRepoCache[ownerRepo];
+      let cached = analyzeRepoCache[ownerRepo];
       if (!cached || !cached.files) return;
 
-      var categories = [
-        { key: 'test',         label: 'Tests' },
+      let categories = [
+        { key: 'test', label: 'Tests' },
         { key: 'test-helper', label: 'Test Helpers' },
-        { key: 'mock',         label: 'Mock' },
-        { key: 'e2e',          label: 'E2E' },
-        { key: 'snapshot',     label: 'Snapshots' },
-        { key: 'ci-test',      label: 'CI Tests' },
-        { key: 'smoke',        label: 'Smoke' },
-        { key: 'fixture',      label: 'Fixtures' },
-        { key: 'benchmark',    label: 'Benchmarks' }
+        { key: 'mock', label: 'Mock' },
+        { key: 'e2e', label: 'E2E' },
+        { key: 'snapshot', label: 'Snapshots' },
+        { key: 'ci-test', label: 'CI Tests' },
+        { key: 'smoke', label: 'Smoke' },
+        { key: 'fixture', label: 'Fixtures' },
+        { key: 'benchmark', label: 'Benchmarks' }
       ];
 
-      var rows = '';
-      var rowData = [];
+      let rows = '';
+      let rowData = [];
 
       categories.forEach(function (cat) {
-        var files = cached.files[cat.key] || [];
+        let files = cached.files[cat.key] || [];
         if (files.length === 0) return;
-        var termMap = groupFilesByTerms(files);
-        var terms = Object.keys(termMap);
+        let termMap = groupFilesByTerms(files);
+        let terms = Object.keys(termMap);
         if (terms.length === 0) return;
 
         terms.sort(function (a, b) {
           return termMap[b].length - termMap[a].length || a.localeCompare(b);
         });
 
-        var TOP_N = window.innerWidth <= 600 ? tminerConfig.top_n_test_terms_mobile : tminerConfig.top_n_test_terms;
-        var hasMore = terms.length > TOP_N;
-        var visibleTerms = hasMore ? terms.slice(0, TOP_N) : terms;
-        var hiddenTerms = hasMore ? terms.slice(TOP_N) : [];
-        var toggleId = cat.key + '-terms-show-all';
-        var rowId = cat.key + '-terms-row';
+        let TOP_N = window.innerWidth <= 600 ? tminerConfig.top_n_test_terms_mobile : tminerConfig.top_n_test_terms;
+        let hasMore = terms.length > TOP_N;
+        let visibleTerms = hasMore ? terms.slice(0, TOP_N) : terms;
+        let hiddenTerms = hasMore ? terms.slice(TOP_N) : [];
+        let toggleId = cat.key + '-terms-show-all';
+        let rowId = cat.key + '-terms-row';
 
-        var color = classificationColors[cat.key] || '#64748b';
-        var bgColor = classificationBgColors[cat.key] || '#f8fafc';
-        var borderColor = classificationBorderColors[cat.key] || '#cbd5e1';
-        var textColor = classificationTextColors[cat.key] || '#475569';
-        var dot = '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + color + ';margin-right:6px;flex-shrink:0;"></span>';
-        var badgeStyle = 'background:' + bgColor + ';border-color:' + borderColor + ';color:' + textColor + ';';
+        let color = classificationColors[cat.key] || '#64748b';
+        let bgColor = classificationBgColors[cat.key] || '#f8fafc';
+        let borderColor = classificationBorderColors[cat.key] || '#cbd5e1';
+        let textColor = classificationTextColors[cat.key] || '#475569';
+        let dot = '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + color + ';margin-right:6px;flex-shrink:0;"></span>';
+        let badgeStyle = 'background:' + bgColor + ';border-color:' + borderColor + ';color:' + textColor + ';';
 
-        var visibleBadges = visibleTerms.map(function (term) {
+        let visibleBadges = visibleTerms.map(function (term) {
           return '<span class="dep-badge test-term-badge" data-term="' + term + '" style="' + badgeStyle + '">' + term + ' (' + termMap[term].length + ')</span>';
         }).join('');
-        var hiddenBadges = hiddenTerms.map(function (term) {
+        let hiddenBadges = hiddenTerms.map(function (term) {
           return '<span class="dep-badge test-term-badge" data-term="' + term + '" style="' + badgeStyle + '">' + term + ' (' + termMap[term].length + ')</span>';
         }).join('');
 
@@ -1011,18 +909,18 @@
 
       if (!rows) return;
 
-      var wrap = document.createElement('div');
+      let wrap = document.createElement('div');
       wrap.id = 'terms-table-wrap';
       wrap.innerHTML = '<table class="dep-table"><tbody>' + rows + '</tbody></table>';
       grid.appendChild(wrap);
 
       rowData.forEach(function (rd) {
-        var rowEl = document.getElementById(rd.rowId);
+        let rowEl = document.getElementById(rd.rowId);
         if (!rowEl) return;
 
         if (rd.hasMore) {
           document.getElementById(rd.toggleId).addEventListener('click', function () {
-            var hidden = rowEl.querySelector('.test-terms-hidden');
+            let hidden = rowEl.querySelector('.test-terms-hidden');
             if (hidden.style.display === 'none') {
               hidden.style.display = 'contents';
               this.textContent = '-';
@@ -1035,28 +933,28 @@
 
         rowEl.querySelectorAll('.test-term-badge').forEach(function (badge) {
           badge.addEventListener('click', function () {
-            var term = this.getAttribute('data-term');
-            var files = rd.termMap[term] || [];
+            let term = this.getAttribute('data-term');
+            let files = rd.termMap[term] || [];
 
             document.querySelectorAll('.test-term-badge.active').forEach(function (b) { b.classList.remove('active'); });
             this.classList.add('active');
 
-            var ownerPart = baseRepo ? baseRepo.split('/')[0] : '';
-            var ownerIconHtml = ownerPart ? buildOwnerIcon(ownerPart) : '';
-            var titleEl = document.getElementById('file-list-modal-title');
+            let ownerPart = baseRepo ? baseRepo.split('/')[0] : '';
+            let ownerIconHtml = ownerPart ? buildOwnerIcon(ownerPart) : '';
+            let titleEl = document.getElementById('file-list-modal-title');
             titleEl.innerHTML = ownerIconHtml + term + ' (' + files.length + ')';
             hideEmptyOwnerIcons(titleEl);
             document.getElementById('file-list-modal-items').innerHTML = files.map(function (f, i) {
-              var num = '<span style="color:#94a3b8;min-width:2em;text-align:right;display:inline-block;margin-right:8px;font-size:0.85em;">' + (i + 1) + '</span>';
+              let num = '<span style="color:#94a3b8;min-width:2em;text-align:right;display:inline-block;margin-right:8px;font-size:0.85em;">' + (i + 1) + '</span>';
               if (linkRef) {
-                var ghUrl = 'https://github.com/' + baseRepo + '/blob/' + linkRef + '/' + f;
+                let ghUrl = 'https://github.com/' + baseRepo + '/blob/' + linkRef + '/' + f;
                 return '<li>' + num + '<a href="' + ghUrl + '" target="_blank" rel="noopener">' + f + '</a></li>';
               }
               return '<li>' + num + f + '</li>';
             }).join('');
             document.getElementById('file-list-modal').style.display = 'flex';
-            var parsedOwner = parseOwnerRepo(ownerRepo);
-            var versionSuffix = parsedOwner.versionTag ? '@' + parsedOwner.versionTag : '';
+            let parsedOwner = parseOwnerRepo(ownerRepo);
+            let versionSuffix = parsedOwner.versionTag ? '@' + parsedOwner.versionTag : '';
             history.replaceState(null, '', '#' + baseRepo + versionSuffix + ':term:' + encodeURIComponent(term));
           });
         });
@@ -1064,11 +962,11 @@
     }
 
     function closeFileListModal() {
-      var modal = document.getElementById('file-list-modal');
+      let modal = document.getElementById('file-list-modal');
       modal.style.display = 'none';
       document.querySelectorAll('.dash-card.active').forEach(function (r) { r.classList.remove('active'); });
       document.querySelectorAll('.test-term-badge.active').forEach(function (b) { b.classList.remove('active'); });
-      var strippedHash = location.hash.replace(/:.*$/, '');
+      let strippedHash = location.hash.replace(/:.*$/, '');
       if (strippedHash !== location.hash) {
         history.replaceState(null, '', strippedHash);
       }
@@ -1076,21 +974,21 @@
 
     function applyPendingModal() {
       if (!pendingModal) return;
-      var grid = document.getElementById('stats-grid');
+      let grid = document.getElementById('stats-grid');
       if (pendingModal.indexOf('cat:') === 0) {
-        var cat = pendingModal.substring(4);
-        var card = grid.querySelector('.dash-card[data-category="' + cat + '"]');
+        let cat = pendingModal.substring(4);
+        let card = grid.querySelector('.dash-card[data-category="' + cat + '"]');
         if (card) card.click();
       } else if (pendingModal.indexOf('term:') === 0) {
-        var term = decodeURIComponent(pendingModal.substring(5));
-        var badge = grid.querySelector('.test-term-badge[data-term="' + term + '"]');
+        let term = decodeURIComponent(pendingModal.substring(5));
+        let badge = grid.querySelector('.test-term-badge[data-term="' + term + '"]');
         if (badge) badge.click();
       }
       pendingModal = null;
     }
 
     function copyModalLink() {
-      var btn = document.getElementById('file-list-copy-link');
+      let btn = document.getElementById('file-list-copy-link');
       navigator.clipboard.writeText(window.location.href).then(function () {
         btn.textContent = 'Copied!';
         btn.classList.add('copied');
@@ -1102,34 +1000,34 @@
     }
 
     function setupStatCardClicks(grid, ownerRepo, baseRepo, linkRef) {
-      var cached = analyzeRepoCache[ownerRepo];
+      let cached = analyzeRepoCache[ownerRepo];
       if (!cached || !cached.files) return;
 
       grid.querySelectorAll('.dash-card.clickable').forEach(function (row) {
         row.addEventListener('click', function () {
-          var category = this.getAttribute('data-category');
-          var files = cached.files[category] || [];
+          let category = this.getAttribute('data-category');
+          let files = cached.files[category] || [];
 
           grid.querySelectorAll('.dash-card.active').forEach(function (r) { r.classList.remove('active'); });
           this.classList.add('active');
 
-          var catLabel = this.querySelector('.dash-card-label').textContent.trim();
-          var ownerPart = baseRepo ? baseRepo.split('/')[0] : '';
-          var ownerIconHtml = ownerPart ? buildOwnerIcon(ownerPart) : '';
-          var titleEl = document.getElementById('file-list-modal-title');
+          let catLabel = this.querySelector('.dash-card-label').textContent.trim();
+          let ownerPart = baseRepo ? baseRepo.split('/')[0] : '';
+          let ownerIconHtml = ownerPart ? buildOwnerIcon(ownerPart) : '';
+          let titleEl = document.getElementById('file-list-modal-title');
           titleEl.innerHTML = ownerIconHtml + catLabel + ' (' + files.length + ')';
           hideEmptyOwnerIcons(titleEl);
           document.getElementById('file-list-modal-items').innerHTML = files.map(function (f, i) {
-            var num = '<span style="color:#94a3b8;min-width:2em;text-align:right;display:inline-block;margin-right:8px;font-size:0.85em;">' + (i + 1) + '</span>';
+            let num = '<span style="color:#94a3b8;min-width:2em;text-align:right;display:inline-block;margin-right:8px;font-size:0.85em;">' + (i + 1) + '</span>';
             if (linkRef) {
-              var ghUrl = 'https://github.com/' + baseRepo + '/blob/' + linkRef + '/' + f;
+              let ghUrl = 'https://github.com/' + baseRepo + '/blob/' + linkRef + '/' + f;
               return '<li>' + num + '<a href="' + ghUrl + '" target="_blank" rel="noopener">' + f + '</a></li>';
             }
             return '<li>' + num + f + '</li>';
           }).join('');
           document.getElementById('file-list-modal').style.display = 'flex';
-          var parsedOwner = parseOwnerRepo(ownerRepo);
-          var versionSuffix = parsedOwner.versionTag ? '@' + parsedOwner.versionTag : '';
+          let parsedOwner = parseOwnerRepo(ownerRepo);
+          let versionSuffix = parsedOwner.versionTag ? '@' + parsedOwner.versionTag : '';
           history.replaceState(null, '', '#' + baseRepo + versionSuffix + ':cat:' + category);
         });
       });
@@ -1142,40 +1040,40 @@
         container.innerHTML = '<span class="no-data-msg">No test dependencies detected.</span>';
         return;
       }
-      var groups = {};
-      for (var i = 0; i < testDeps.length; i++) {
-        var eco = testDeps[i].ecosystem;
+      let groups = {};
+      for (let i = 0; i < testDeps.length; i++) {
+        let eco = testDeps[i].ecosystem;
         if (!groups[eco]) groups[eco] = [];
         groups[eco].push(testDeps[i]);
       }
-      var ecoKeys = Object.keys(groups).sort();
-      var rows = '';
-      for (var k = 0; k < ecoKeys.length; k++) {
-        var deps = groups[ecoKeys[k]];
+      let ecoKeys = Object.keys(groups).sort();
+      let rows = '';
+      for (let k = 0; k < ecoKeys.length; k++) {
+        let deps = groups[ecoKeys[k]];
         deps.sort(function (a, b) { return a.name.toLowerCase().localeCompare(b.name.toLowerCase()); });
-        var seenShort = {};
-        var badges = deps.filter(function (dep) {
-          var s = dep.name.split('/').pop().split(':').pop().toLowerCase();
+        let seenShort = {};
+        let badges = deps.filter(function (dep) {
+          let s = dep.name.split('/').pop().split(':').pop().toLowerCase();
           if (seenShort[s]) return false;
           seenShort[s] = true;
           return true;
         }).map(function (dep) {
-          var shortName = dep.name.split('/').pop().split(':').pop();
-          var searchUrl = 'https://www.google.com/search?btnI&q=' + encodeURIComponent(shortName + ' github');
-          var versionStr = dep.version ? '<span class="title-version">@' + dep.version + '</span>' : '';
+          let shortName = dep.name.split('/').pop().split(':').pop();
+          let searchUrl = 'https://www.google.com/search?btnI&q=' + encodeURIComponent(shortName + ' github');
+          let versionStr = dep.version ? '<span class="title-version">@' + dep.version + '</span>' : '';
           return '<span class="dep-badge" onclick="window.open(\'' + searchUrl + '\',\'_blank\')">' + shortName + versionStr + '</span>';
         }).join('');
-        var ecoIcon = getEcosystemIcon(ecoKeys[k]);
+        let ecoIcon = getEcosystemIcon(ecoKeys[k]);
         rows += '<tr><td class="dep-eco-cell">' + ecoIcon + ecoKeys[k] + '</td><td class="dep-badges-cell"><div class="dep-badges">' + badges + '</div></td></tr>';
       }
       container.innerHTML = '<table class="dep-table"><tbody>' + rows + '</tbody></table>';
     }
 
     function renderTestDeps(ownerRepo) {
-      var container = document.getElementById('deps-container');
-      var sectionTitle = document.getElementById('section-title-deps');
+      let container = document.getElementById('deps-container');
+      let sectionTitle = document.getElementById('section-title-deps');
 
-      var cached = analyzeRepoCache[ownerRepo];
+      let cached = analyzeRepoCache[ownerRepo];
       if (cached && cached.testDeps) {
         container.style.display = '';
         sectionTitle.style.display = '';
@@ -1191,14 +1089,14 @@
 
       Promise.all([fetchSBOM(ownerRepo), loadTestLibs()])
         .then(function (results) {
-          var sbomData = results[0];
-          var testLibs = results[1];
+          let sbomData = results[0];
+          let testLibs = results[1];
           if (!sbomData || !sbomData.sbom) {
             container.innerHTML = '<span class="no-data-msg">Test dependencies not available.</span>';
             return;
           }
-          var packages = parseSBOM(sbomData);
-          var testDeps = filterTestDependencies(packages, testLibs);
+          let packages = parseSBOM(sbomData);
+          let testDeps = filterTestDependencies(packages, testLibs);
 
           if (cached) {
             cached.totalDeps = packages.length;
@@ -1214,9 +1112,9 @@
     }
 
 
-    // --- Owner Page ---
+    // --- Org Page ---
 
-    var ownerTableColumns = [
+    const ownerTableColumns = [
       { label: 'Repository', key: 'name', type: 'string' },
       { label: 'Language', shortLabel: 'Lang.', key: 'language', type: 'string' },
       { label: 'Stars', key: 'stars', type: 'number' },
@@ -1226,20 +1124,20 @@
 
     function buildOwnerTableHTML(repos, repoIndices, opts) {
       opts = opts || {};
-      var html = '<div class="owner-table-wrap"><table class="owner-table" id="owner-table">'
+      let html = '<div class="owner-table-wrap"><table class="owner-table" id="owner-table">'
         + '<thead><tr>';
-      for (var ci = 0; ci < ownerTableColumns.length; ci++) {
-        var words = ownerTableColumns[ci].label.split(' ');
-        var labelHtml = '<span class="th-label th-full">' + words.map(function(w) { return '<span>' + w + '</span>'; }).join(' ') + '</span>';
+      for (let ci = 0; ci < ownerTableColumns.length; ci++) {
+        let words = ownerTableColumns[ci].label.split(' ');
+        let labelHtml = '<span class="th-label th-full">' + words.map(function (w) { return '<span>' + w + '</span>'; }).join(' ') + '</span>';
         if (ownerTableColumns[ci].shortLabel) {
           labelHtml += '<span class="th-label th-short">' + ownerTableColumns[ci].shortLabel + '</span>';
         }
-        var thClass = 'sortable-th' + (ownerTableColumns[ci].shortLabel ? ' has-short-label' : '');
+        let thClass = 'sortable-th' + (ownerTableColumns[ci].shortLabel ? ' has-short-label' : '');
         html += '<th class="' + thClass + '" data-col="' + ci + '">' + labelHtml + ' <span class="sort-arrow"></span></th>';
       }
       html += '</tr></thead><tbody>';
-      for (var j = 0; j < repoIndices.length; j++) {
-        var repo = repos[repoIndices[j]];
+      for (let j = 0; j < repoIndices.length; j++) {
+        let repo = repos[repoIndices[j]];
         html += '<tr class="owner-table-row" data-repo="' + repo.full_name + '" id="repo-row-' + repoIndices[j] + '">'
           + '<td class="repo-name-cell">' + (opts.fullName ? repo.full_name : repo.name) + '</td>'
           + '<td>' + (repo.language ? '<i class="' + getDeviconClass(repo.language) + ' colored lang-icon"></i> <span class="lang-text">' + repo.language + '</span>' : '') + '</td>'
@@ -1253,16 +1151,16 @@
     }
 
     function setupTableSorting(grid) {
-      var currentSort = { col: -1, asc: true };
+      let currentSort = { col: -1, asc: true };
       function sortTable(colIdx, asc) {
-        var table = document.getElementById('owner-table');
-        var tbody = table.querySelector('tbody');
-        var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
-        var colType = ownerTableColumns[colIdx].type;
+        let table = document.getElementById('owner-table');
+        let tbody = table.querySelector('tbody');
+        let rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+        let colType = ownerTableColumns[colIdx].type;
         rows.sort(function (a, b) {
-          var cellA = a.children[colIdx];
-          var cellB = b.children[colIdx];
-          var valA, valB;
+          let cellA = a.children[colIdx];
+          let cellB = b.children[colIdx];
+          let valA, valB;
           if (colType === 'number') {
             valA = parseFloat(cellA.getAttribute('data-sort-value') || cellA.textContent) || 0;
             valB = parseFloat(cellB.getAttribute('data-sort-value') || cellB.textContent) || 0;
@@ -1274,7 +1172,7 @@
           if (valA > valB) return asc ? 1 : -1;
           return 0;
         });
-        for (var ri = 0; ri < rows.length; ri++) {
+        for (let ri = 0; ri < rows.length; ri++) {
           tbody.appendChild(rows[ri]);
         }
         grid.querySelectorAll('.sort-arrow').forEach(function (arrow) { arrow.textContent = ''; });
@@ -1283,7 +1181,7 @@
       grid.querySelectorAll('.sortable-th').forEach(function (th) {
         th.addEventListener('click', function (e) {
           e.stopPropagation();
-          var colIdx = parseInt(this.getAttribute('data-col'));
+          let colIdx = parseInt(this.getAttribute('data-col'));
           if (currentSort.col === colIdx) {
             currentSort.asc = !currentSort.asc;
           } else {
@@ -1314,7 +1212,7 @@
         grid.querySelectorAll('.lang-icon').forEach(function (icon) {
           if (icon.offsetWidth <= 1) {
             icon.style.display = 'none';
-            var text = icon.nextElementSibling;
+            let text = icon.nextElementSibling;
             if (text && text.classList.contains('lang-text')) {
               text.classList.add('no-icon');
             }
@@ -1324,21 +1222,21 @@
     }
 
     function fetchOwnerRepoStats(repos, repoIndices, sortFn) {
-      for (var k = 0; k < repoIndices.length; k++) {
+      for (let k = 0; k < repoIndices.length; k++) {
         (function (repo, index) {
           ensureAnalyzeRepo(repo.full_name).then(function (response) {
-            var sourceEl = document.getElementById('repo-source-' + index);
+            let sourceEl = document.getElementById('repo-source-' + index);
             if (!sourceEl) return;
             if (response.error) {
-              var row = document.getElementById('repo-row-' + index);
+              let row = document.getElementById('repo-row-' + index);
               if (row) row.remove();
               return;
             }
-            var result = response.result;
-            var stats = result.stats;
+            let result = response.result;
+            let stats = result.stats;
             sourceEl.textContent = stats.sourceFiles.toLocaleString();
             sourceEl.setAttribute('data-sort-value', stats.sourceFiles);
-            var testEl = document.getElementById('repo-test-' + index);
+            let testEl = document.getElementById('repo-test-' + index);
             testEl.textContent = stats.testFiles.toLocaleString();
             testEl.setAttribute('data-sort-value', stats.testFiles);
             if (sortFn) sortFn(4, false);
@@ -1348,25 +1246,25 @@
     }
 
     function buildTopTopicsHTML(repos, repoIndices, exclude) {
-      var topicCounts = {};
-      for (var i = 0; i < repoIndices.length; i++) {
-        var topics = repos[repoIndices[i]].topics;
+      let topicCounts = {};
+      for (let i = 0; i < repoIndices.length; i++) {
+        let topics = repos[repoIndices[i]].topics;
         if (topics) {
-          for (var j = 0; j < topics.length; j++) {
-            var t = topics[j];
+          for (let j = 0; j < topics.length; j++) {
+            let t = topics[j];
             if (exclude && t === exclude) continue;
             topicCounts[t] = (topicCounts[t] || 0) + 1;
           }
         }
       }
-      var sorted = Object.keys(topicCounts).sort(function (a, b) {
+      let sorted = Object.keys(topicCounts).sort(function (a, b) {
         return topicCounts[b] - topicCounts[a];
       });
-      var top = sorted.slice(0, 5).sort();
+      let top = sorted.slice(0, 5).sort();
       if (!top.length) return '';
-      var html = '<div class="owner-top-topics">' + (exclude ? '<span class="owner-top-topics-label">Related:</span>' : '');
-      for (var k = 0; k < top.length; k++) {
-        var topic = top[k];
+      let html = '<div class="owner-top-topics">' + (exclude ? '<span class="owner-top-topics-label">Related:</span>' : '');
+      for (let k = 0; k < top.length; k++) {
+        let topic = top[k];
         html += '<a href="#topic:' + encodeURIComponent(topic) + '" class="repo-topic-badge">' + escapeHtml(topic) + '</a>';
       }
       html += '</div>';
@@ -1374,13 +1272,13 @@
     }
 
     function renderOwnerRepos(owner, repos) {
-      var resultsEl = document.getElementById('results');
-      var grid = document.getElementById('stats-grid');
+      let resultsEl = document.getElementById('results');
+      let grid = document.getElementById('stats-grid');
       document.getElementById('results-title-text').innerHTML = buildOwnerIcon(owner) + owner;
       hideEmptyOwnerIcons(document.getElementById('results-title-text'));
       document.getElementById('gh-link').href = 'https://github.com/' + owner;
       document.getElementById('repo-subtitle').style.display = 'none';
-      var versionSelect = document.getElementById('version-select');
+      let versionSelect = document.getElementById('version-select');
       versionSelect.style.display = 'none';
       versionSelect.dataset.repo = '';
       document.getElementById('version-chart-container').style.display = 'none';
@@ -1389,8 +1287,8 @@
       destroyVersionChart();
       versionChartGeneration++;
 
-      var repoIndices = [];
-      for (var i = 0; i < repos.length; i++) {
+      let repoIndices = [];
+      for (let i = 0; i < repos.length; i++) {
         if (!repos[i].fork) repoIndices.push(i);
       }
 
@@ -1398,27 +1296,27 @@
       resultsEl.style.display = 'block';
 
       fixLangIcons(grid);
-      var sortFn = setupTableSorting(grid);
+      let sortFn = setupTableSorting(grid);
       setupTableRowClicks(grid);
       fetchOwnerRepoStats(repos, repoIndices, sortFn);
     }
 
     function renderTopicRepos(topic, repos) {
-      var resultsEl = document.getElementById('results');
-      var grid = document.getElementById('stats-grid');
-      var topicIconClass = getDeviconClass(topic);
-      var topicIcon = topicIconClass ? '<i class="' + topicIconClass + ' colored lang-icon"></i>' : '';
+      let resultsEl = document.getElementById('results');
+      let grid = document.getElementById('stats-grid');
+      let topicIconClass = getDeviconClass(topic);
+      let topicIcon = topicIconClass ? '<i class="' + topicIconClass + ' colored lang-icon"></i>' : '';
       document.getElementById('results-title-text').innerHTML = '<span class="owner-top-topics-label">Topic:</span> <span class="repo-topic-badge">' + topicIcon + escapeHtml(topic) + '</span>';
       if (topicIconClass) {
         setTimeout(function () {
-          var icon = document.querySelector('#results-title-text .lang-icon');
+          let icon = document.querySelector('#results-title-text .lang-icon');
           if (icon && icon.offsetWidth <= 1) icon.style.display = 'none';
         });
       }
       document.getElementById('gh-link').href = 'https://github.com/topics/' + encodeURIComponent(topic);
       document.getElementById('repo-subtitle').style.display = 'none';
       document.getElementById('tree-chart').style.display = 'none';
-      var versionSelect = document.getElementById('version-select');
+      let versionSelect = document.getElementById('version-select');
       versionSelect.style.display = 'none';
       versionSelect.dataset.repo = '';
       document.getElementById('version-chart-container').style.display = 'none';
@@ -1427,8 +1325,8 @@
       destroyVersionChart();
       versionChartGeneration++;
 
-      var repoIndices = [];
-      for (var i = 0; i < repos.length; i++) {
+      let repoIndices = [];
+      for (let i = 0; i < repos.length; i++) {
         if (!repos[i].fork) repoIndices.push(i);
       }
 
@@ -1436,45 +1334,45 @@
       resultsEl.style.display = 'block';
 
       fixLangIcons(grid);
-      var sortFn = setupTableSorting(grid);
+      let sortFn = setupTableSorting(grid);
       setupTableRowClicks(grid);
       fetchOwnerRepoStats(repos, repoIndices, sortFn);
     }
 
     // --- Analyze ---
 
-    var analyzing = false;
-    var pendingModal = null;
+    let analyzing = false;
+    let pendingModal = null;
     function showError(msg) {
-      var errorEl = document.getElementById('error');
+      let errorEl = document.getElementById('error');
       errorEl.textContent = msg;
       errorEl.style.display = 'block';
     }
 
     function showRateLimitError() {
-      var errorEl = document.getElementById('error');
+      let errorEl = document.getElementById('error');
       errorEl.innerHTML = 'GitHub API rate limit exceeded. Add a GitHub token to increase the rate limit. ' +
         '<button class="gh-token-btn" onclick="openTokenModal()" style="margin-left:8px;vertical-align:middle;">Add GitHub token</button>';
       errorEl.style.display = 'block';
     }
 
-    var SEARCH_ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+    const SEARCH_ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
 
     function setBtnLoading(text) {
-      var btn = document.getElementById('analyze-btn');
+      let btn = document.getElementById('analyze-btn');
       btn.disabled = true;
       btn.innerHTML = SEARCH_ICON_SVG;
     }
 
     function setBtnReady() {
-      var btn = document.getElementById('analyze-btn');
+      let btn = document.getElementById('analyze-btn');
       btn.disabled = false;
       btn.innerHTML = SEARCH_ICON_SVG;
     }
 
     async function analyzeOwner(owner) {
       setBtnLoading('Searching...');
-      var repos = await fetchOwnerRepos(owner);
+      let repos = await fetchOwnerRepos(owner);
       setBtnReady();
       if (!repos) {
         if (rateLimitExhausted) {
@@ -1490,7 +1388,7 @@
 
     async function analyzeTopic(topic) {
       setBtnLoading('Searching...');
-      var repos = await fetchTopicRepos(topic);
+      let repos = await fetchTopicRepos(topic);
       setBtnReady();
       if (!repos) {
         if (rateLimitExhausted) {
@@ -1506,13 +1404,13 @@
 
     async function analyzeSingleRepo(ownerRepo, version) {
       setBtnLoading('Analyzing...');
-      var response = await ensureAnalyzeRepo(ownerRepo, version);
+      let response = await ensureAnalyzeRepo(ownerRepo, version);
       setBtnReady();
 
       if (response.error === 'too_large') {
-        var tooLargeOwner = ownerRepo.split('/')[0];
+        let tooLargeOwner = ownerRepo.split('/')[0];
         showError('Repository "' + ownerRepo + '"size is too large. Try another repository of ' + tooLargeOwner + '...');
-        var tooLargeRepos = await fetchOwnerRepos(tooLargeOwner);
+        let tooLargeRepos = await fetchOwnerRepos(tooLargeOwner);
         if (tooLargeRepos) {
           renderOwnerRepos(tooLargeOwner, tooLargeRepos);
         }
@@ -1528,9 +1426,9 @@
         return;
       }
 
-      var cacheKey = version ? ownerRepo + '@' + version : ownerRepo;
-      var repoInfo = await fetchRepoInfo(ownerRepo);
-      var defaultBranch = repoInfo ? repoInfo.default_branch : null;
+      let cacheKey = version ? ownerRepo + '@' + version : ownerRepo;
+      let repoInfo = await fetchRepoInfo(ownerRepo);
+      let defaultBranch = repoInfo ? repoInfo.default_branch : null;
       renderRepoStats(cacheKey, response.result.stats, defaultBranch, repoInfo);
       try { renderFileTree(cacheKey, defaultBranch); } catch (e) { console.error('Tree render error:', e); }
       renderTestDeps(ownerRepo);
@@ -1538,10 +1436,10 @@
       applyPendingModal();
 
       // Load versions dropdown
-      var versionSelect = document.getElementById('version-select');
+      let versionSelect = document.getElementById('version-select');
       if (versionSelect.dataset.repo !== ownerRepo) {
         versionSelect.style.display = 'none';
-        var versions = await fetchJsDelivrVersions(ownerRepo);
+        let versions = await fetchJsDelivrVersions(ownerRepo);
         versionSelect.innerHTML = '<option value="">main</option>' +
           versions.map(function (v) {
             return '<option value="' + v + '"' + (v === version ? ' selected' : '') + '>' + v + '</option>';
@@ -1559,7 +1457,7 @@
       analyzing = true;
       try {
         await loadExtensions();
-        var input = document.getElementById('repo-input').value.trim();
+        let input = document.getElementById('repo-input').value.trim();
 
         document.getElementById('error').style.display = 'none';
         document.getElementById('results').style.display = 'none';
@@ -1574,16 +1472,16 @@
         }
 
         if (input.indexOf('topic:') === 0) {
-          var topic = input.substring(6).trim();
+          let topic = input.substring(6).trim();
           if (topic) {
             await analyzeTopic(topic);
             return;
           }
         }
 
-        var ownerRepo = parseGitHubOwnerRepo(input);
+        let ownerRepo = parseGitHubOwnerRepo(input);
         if (!ownerRepo) {
-          var owner = parseGitHubOwner(input);
+          let owner = parseGitHubOwner(input);
           if (owner) {
             history.replaceState(null, '', '#' + owner);
             await analyzeOwner(owner);
@@ -1601,24 +1499,25 @@
     }
 
     document.getElementById('version-select').addEventListener('change', function () {
-      var repo = this.dataset.repo;
+      let repo = this.dataset.repo;
       if (!repo) return;
-      var version = this.value || undefined;
+      let version = this.value || undefined;
       analyzeSingleRepo(repo, version);
     });
 
     loadExtensions();
 
     // --- Suggestions ---
+
     function renderSuggestions() {
-      var container = document.getElementById('suggestions');
-      var suggestions = tminerConfig.search_suggestions;
-      suggestions.forEach(function(val) {
-        var btn = document.createElement('button');
+      let container = document.getElementById('suggestions');
+      let suggestions = tminerConfig.search_suggestions;
+      suggestions.forEach(function (val) {
+        let btn = document.createElement('button');
         btn.className = 'suggestion-btn';
         btn.setAttribute('data-value', val);
         btn.textContent = val;
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
           document.getElementById('repo-input').value = val;
           analyze();
         });
@@ -1628,16 +1527,17 @@
     tminerConfigReady.then(renderSuggestions);
 
     // --- Autocomplete ---
-    var repoData = [];
-    var ownerData = [];
-    var activeIndex = -1;
+
+    const repoData = [];
+    const ownerData = [];
+    let activeIndex = -1;
 
     fetch('data/repos.csv')
       .then(function (r) { return r.text(); })
       .then(function (text) {
-        var lines = text.trim().split('\n');
-        for (var i = 1; i < lines.length; i++) {
-          var cols = lines[i].split(',');
+        let lines = text.trim().split('\n');
+        for (let i = 1; i < lines.length; i++) {
+          let cols = lines[i].split(',');
           repoData.push({
             name: cols[0],
             language: cols[1] || '',
@@ -1649,9 +1549,9 @@
     fetch('data/owners.csv')
       .then(function (r) { return r.text(); })
       .then(function (text) {
-        var lines = text.trim().split('\n');
-        for (var i = 1; i < lines.length; i++) {
-          var owner = lines[i].trim();
+        let lines = text.trim().split('\n');
+        for (let i = 1; i < lines.length; i++) {
+          let owner = lines[i].trim();
           if (owner) {
             ownerData.push(owner);
           }
@@ -1659,13 +1559,13 @@
       })
       .catch(function (err) { console.error('Failed to load owners.csv:', err); });
 
-    var topicData = [];
+    const topicData = [];
     fetch('data/topics.csv')
       .then(function (r) { return r.text(); })
       .then(function (text) {
-        var lines = text.trim().split('\n');
-        for (var i = 1; i < lines.length; i++) {
-          var topic = lines[i].trim();
+        let lines = text.trim().split('\n');
+        for (let i = 1; i < lines.length; i++) {
+          let topic = lines[i].trim();
           if (topic) {
             topicData.push(topic);
           }
@@ -1673,16 +1573,16 @@
       })
       .catch(function (err) { console.error('Failed to load topics.csv:', err); });
 
-    var repoInput = document.getElementById('repo-input');
-    var acList = document.getElementById('autocomplete-list');
+    const repoInput = document.getElementById('repo-input');
+    const acList = document.getElementById('autocomplete-list');
 
     function searchRepos(query) {
-      var q = query.toLowerCase();
-      var results = [];
+      let q = query.toLowerCase();
+      let results = [];
 
       // Search owners
-      var ownerCount = 0;
-      for (var j = 0; j < ownerData.length && ownerCount < 4; j++) {
+      let ownerCount = 0;
+      for (let j = 0; j < ownerData.length && ownerCount < 4; j++) {
         if (ownerData[j].toLowerCase().startsWith(q)) {
           results.push({ type: 'owner', name: ownerData[j] });
           ownerCount++;
@@ -1690,8 +1590,8 @@
       }
 
       // Search topics
-      var topicCount = 0;
-      for (var k = 0; k < topicData.length && topicCount < 4; k++) {
+      let topicCount = 0;
+      for (let k = 0; k < topicData.length && topicCount < 4; k++) {
         if (topicData[k].toLowerCase().startsWith(q)) {
           results.push({ type: 'topic', name: topicData[k] });
           topicCount++;
@@ -1699,13 +1599,13 @@
       }
 
       // Search repos
-      for (var i = 0; i < repoData.length && results.length < 12; i++) {
-        var r = repoData[i];
-        var matchedOn = [];
+      for (let i = 0; i < repoData.length && results.length < 12; i++) {
+        let r = repoData[i];
+        let matchedOn = [];
         if (r.name.toLowerCase().startsWith(q)) {
           matchedOn.push('name');
         }
-        if (r.topics && r.topics.split(';').some(function(t) { return t.toLowerCase().startsWith(q); })) {
+        if (r.topics && r.topics.split(';').some(function (t) { return t.toLowerCase().startsWith(q); })) {
           matchedOn.push('topics');
         }
         if (matchedOn.length > 0) {
@@ -1716,34 +1616,34 @@
     }
 
     function highlightMatch(text, query) {
-      var idx = text.toLowerCase().indexOf(query);
+      let idx = text.toLowerCase().indexOf(query);
       if (idx === -1) return text;
       return text.substring(0, idx) + '<mark>' + text.substring(idx, idx + query.length) + '</mark>' + text.substring(idx + query.length);
     }
 
     function buildTopicItemHTML(r, q, index) {
-      var topicName = highlightMatch(r.name, q);
+      let topicName = highlightMatch(r.name, q);
       return '<div class="autocomplete-item" data-index="' + index + '"><span class="ac-tag">topic</span><span class="ac-name">' + topicName + '</span></div>';
     }
 
     function buildOwnerItemHTML(r, q, index) {
-      var ownerName = highlightMatch(r.name, q);
+      let ownerName = highlightMatch(r.name, q);
       return '<div class="autocomplete-item" data-index="' + index + '"><span class="ac-tag">owner</span><span class="ac-name">' + ownerName + '</span></div>';
     }
 
     function buildRepoItemHTML(r, q, index) {
-      var topicDetail = '';
+      let topicDetail = '';
       if (r.matchedOn.indexOf('topics') >= 0) {
-        var matched = r.repo.topics.split(';').filter(function (t) { return t.toLowerCase().includes(q); });
+        let matched = r.repo.topics.split(';').filter(function (t) { return t.toLowerCase().includes(q); });
         if (matched.length > 0) {
           topicDetail = '<span class="match-detail">topics: ' + matched.map(function (t) { return highlightMatch(t, q); }).join(', ') + '</span>';
         }
       }
-      var name = r.matchedOn.indexOf('name') >= 0 ? highlightMatch(r.repo.name, q) : r.repo.name;
-      var langRight = '';
+      let name = r.matchedOn.indexOf('name') >= 0 ? highlightMatch(r.repo.name, q) : r.repo.name;
+      let langRight = '';
       if (r.repo.language) {
-        var langIconClass = getDeviconClass(r.repo.language);
-        var langIcon = langIconClass ? '<i class="' + langIconClass + ' colored lang-icon"></i>' : '';
+        let langIconClass = getDeviconClass(r.repo.language);
+        let langIcon = langIconClass ? '<i class="' + langIconClass + ' colored lang-icon"></i>' : '';
         langRight = '<span class="ac-lang"><span class="ac-lang-name">' + r.repo.language + '</span>' + langIcon + '</span>';
       }
       return '<div class="autocomplete-item" data-index="' + index + '"><span class="ac-tag">repo</span><span class="ac-name">' + name + topicDetail + '</span>' + langRight + '</div>';
@@ -1754,10 +1654,10 @@
         acList.style.display = 'none';
         return;
       }
-      var q = repoInput.value.trim().toLowerCase();
-      var html = '';
-      for (var i = 0; i < results.length; i++) {
-        var r = results[i];
+      let q = repoInput.value.trim().toLowerCase();
+      let html = '';
+      for (let i = 0; i < results.length; i++) {
+        let r = results[i];
         html += r.type === 'topic' ? buildTopicItemHTML(r, q, i) : r.type === 'owner' ? buildOwnerItemHTML(r, q, i) : buildRepoItemHTML(r, q, i);
       }
       acList.innerHTML = html;
@@ -1766,7 +1666,7 @@
     }
 
     repoInput.addEventListener('input', function () {
-      var q = this.value.trim();
+      let q = this.value.trim();
       if (q.length < 2) {
         acList.style.display = 'none';
         return;
@@ -1775,7 +1675,7 @@
     });
 
     repoInput.addEventListener('keydown', function (e) {
-      var items = acList.querySelectorAll('.autocomplete-item');
+      let items = acList.querySelectorAll('.autocomplete-item');
       if (e.key === 'ArrowDown') {
         e.preventDefault();
         activeIndex = Math.min(activeIndex + 1, items.length - 1);
@@ -1798,7 +1698,7 @@
     });
 
     function updateActive(items) {
-      for (var i = 0; i < items.length; i++) {
+      for (let i = 0; i < items.length; i++) {
         items[i].classList.toggle('active', i === activeIndex);
       }
       if (items[activeIndex]) {
@@ -1807,8 +1707,8 @@
     }
 
     function selectItem(item) {
-      var idx = parseInt(item.getAttribute('data-index'));
-      var results = searchRepos(repoInput.value.trim());
+      let idx = parseInt(item.getAttribute('data-index'));
+      let results = searchRepos(repoInput.value.trim());
       if (results[idx]) {
         repoInput.value = results[idx].type === 'repo' ? results[idx].repo.name : results[idx].type === 'topic' ? 'topic:' + results[idx].name : results[idx].name;
       }
@@ -1816,7 +1716,7 @@
     }
 
     acList.addEventListener('mousedown', function (e) {
-      var item = e.target.closest('.autocomplete-item');
+      let item = e.target.closest('.autocomplete-item');
       if (item) {
         e.preventDefault();
         selectItem(item);
@@ -1832,8 +1732,8 @@
     // --- Copy Link ---
 
     document.getElementById('copy-link-btn').addEventListener('click', function () {
-      var url = location.href.split('#')[0] + location.hash;
-      var btn = document.getElementById('copy-link-btn');
+      let url = location.href.split('#')[0] + location.hash;
+      let btn = document.getElementById('copy-link-btn');
       function showCopied() {
         btn.classList.add('copied');
         setTimeout(function () { btn.classList.remove('copied'); }, 1500);
@@ -1852,12 +1752,12 @@
     // --- Share ---
 
     document.getElementById('share-btn').addEventListener('click', function () {
-      var url = location.href.split('#')[0] + location.hash;
-      var title = document.getElementById('results-title-text').textContent || 'TestMiner';
+      let url = location.href.split('#')[0] + location.hash;
+      let title = document.getElementById('results-title-text').textContent || 'TestMiner';
       if (navigator.share) {
         navigator.share({ title: title, url: url });
       } else if (navigator.clipboard && navigator.clipboard.writeText) {
-        var btn = document.getElementById('share-btn');
+        let btn = document.getElementById('share-btn');
         navigator.clipboard.writeText(url).then(function () {
           btn.title = 'Copied!';
           setTimeout(function () { btn.title = 'Share'; }, 1500);
@@ -1868,19 +1768,20 @@
     });
 
     function fallbackCopy(text) {
-      var ta = document.createElement('textarea');
+      let ta = document.createElement('textarea');
       ta.value = text;
       ta.style.position = 'fixed';
       ta.style.opacity = '0';
       document.body.appendChild(ta);
       ta.focus();
       ta.select();
-      try { document.execCommand('copy'); } catch (e) {}
+      try { document.execCommand('copy'); } catch (e) { }
       document.body.removeChild(ta);
     }
 
     // --- Section Toggle ---
-    var sectionToggleMap = {
+
+    const sectionToggleMap = {
       'section-title-overview': 'stats-grid',
       'section-title-state': 'tree-chart',
       'section-title-deps': 'deps-container',
@@ -1888,28 +1789,29 @@
     };
     Object.keys(sectionToggleMap).forEach(function (titleId) {
       document.getElementById(titleId).addEventListener('click', function () {
-        var content = document.getElementById(sectionToggleMap[titleId]);
-        var collapsed = this.classList.toggle('collapsed');
+        let content = document.getElementById(sectionToggleMap[titleId]);
+        let collapsed = this.classList.toggle('collapsed');
         content.style.display = collapsed ? 'none' : '';
       });
     });
 
     // --- URL Hash ---
+
     function analyzeFromHash() {
-      var hash = location.hash.substring(1);
+      let hash = location.hash.substring(1);
       if (hash) {
         if (hash.indexOf('topic:') === 0) {
-          var topic = decodeURIComponent(hash.substring(6));
+          let topic = decodeURIComponent(hash.substring(6));
           document.getElementById('repo-input').value = 'topic:' + topic;
           analyzeTopic(topic);
           return;
         }
-        var colonIdx = hash.indexOf(':');
-        var repoHash = colonIdx >= 0 ? hash.substring(0, colonIdx) : hash;
+        let colonIdx = hash.indexOf(':');
+        let repoHash = colonIdx >= 0 ? hash.substring(0, colonIdx) : hash;
         pendingModal = colonIdx >= 0 ? hash.substring(colonIdx + 1) : null;
-        var atIdx = repoHash.indexOf('@');
-        var repoOnly = atIdx >= 0 ? repoHash.substring(0, atIdx) : repoHash;
-        var hashVersion = atIdx >= 0 ? repoHash.substring(atIdx + 1) : null;
+        let atIdx = repoHash.indexOf('@');
+        let repoOnly = atIdx >= 0 ? repoHash.substring(0, atIdx) : repoHash;
+        let hashVersion = atIdx >= 0 ? repoHash.substring(atIdx + 1) : null;
         document.getElementById('repo-input').value = decodeURIComponent(repoOnly);
         if (hashVersion) {
           analyzeSingleRepo(decodeURIComponent(repoOnly), hashVersion);
@@ -1928,9 +1830,9 @@
     // --- GitHub Token ---
 
     function updateTokenBtn() {
-      var btn = document.getElementById('gh-token-btn');
+      let btn = document.getElementById('gh-token-btn');
       if (!btn) return;
-      var token = getGitHubToken();
+      let token = getGitHubToken();
       if (token) {
         btn.textContent = 'GitHub token active';
         btn.classList.add('has-token');
@@ -1941,7 +1843,7 @@
     }
 
     function openTokenModal() {
-      var token = getGitHubToken();
+      let token = getGitHubToken();
       document.getElementById('gh-token-input').value = token;
       document.getElementById('gh-token-remove-btn').style.display = token ? '' : 'none';
       document.getElementById('gh-token-modal-overlay').style.display = 'flex';
@@ -1953,7 +1855,7 @@
     }
 
     function saveToken() {
-      var token = document.getElementById('gh-token-input').value.trim();
+      let token = document.getElementById('gh-token-input').value.trim();
       if (token) {
         saveGitHubToken(token);
       } else {
@@ -1975,7 +1877,8 @@
   </script>
 
   <!-- File list modal -->
-  <div id="file-list-modal" class="file-list-modal-overlay" style="display:none;" onclick="if(event.target===this){closeFileListModal();}">
+  <div id="file-list-modal" class="file-list-modal-overlay" style="display:none;"
+    onclick="if(event.target===this){closeFileListModal();}">
     <div class="file-list-modal">
       <div class="file-list-modal-header">
         <span id="file-list-modal-title" class="file-list-modal-title"></span>
@@ -1987,4 +1890,5 @@
   </div>
 
 </body>
+
 </html>

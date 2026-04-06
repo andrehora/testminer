@@ -1,9 +1,9 @@
-var ownerReposCache = {};
-var analyzeRepoCache = loadAnalyzeRepoCache();
-var extensionSet = null;
-var testLibsSet = null;
+const ownerReposCache = {};
+let analyzeRepoCache = loadAnalyzeRepoCache();
+let extensionSet = null;
+let testLibsSet = null;
 
-var tminerConfig = {
+const tminerConfig = {
   max_repos_per_page: 30,
   max_analyze_cache: 100,
   top_n_test_terms: 5,
@@ -12,11 +12,11 @@ var tminerConfig = {
   search_suggestions: []
 };
 
-var tminerConfigReady = fetch('data/config.json')
+const tminerConfigReady = fetch('data/config.json')
   .then(function(r) { return r.json(); })
   .then(function(data) {
-    var keys = Object.keys(data);
-    for (var i = 0; i < keys.length; i++) {
+    const keys = Object.keys(data);
+    for (let i = 0; i < keys.length; i++) {
       tminerConfig[keys[i]] = data[keys[i]];
     }
   })
@@ -36,21 +36,21 @@ function removeGitHubToken() {
 
 function githubFetch(url, options) {
   options = options || {};
-  var token = getGitHubToken();
+  const token = getGitHubToken();
   if (token) {
     options.headers = Object.assign({ 'Authorization': 'Bearer ' + token }, options.headers || {});
   }
   return fetch(url, options);
 }
 
-var rateLimitExhausted = false;
+let rateLimitExhausted = false;
 
 function updateRateLimit(response) {
-  var remaining = response.headers.get('X-RateLimit-Remaining');
-  var limit = response.headers.get('X-RateLimit-Limit');
+  const remaining = response.headers.get('X-RateLimit-Remaining');
+  const limit = response.headers.get('X-RateLimit-Limit');
   if (remaining === null || limit === null) return;
   rateLimitExhausted = (parseInt(remaining, 10) === 0);
-  var el = document.getElementById('github-rate-limit-text');
+  const el = document.getElementById('github-rate-limit-text');
   if (el) el.textContent = 'GitHub API requests: ' + remaining + ' / ' + limit + ' remaining.';
 }
 
@@ -63,7 +63,7 @@ function fetchRateLimit() {
 }
 
 function ensureAnalyzeRepo(repoKey, version) {
-  var cacheKey = version ? repoKey + '@' + version : repoKey;
+  const cacheKey = version ? repoKey + '@' + version : repoKey;
   if (analyzeRepoCache[cacheKey]) {
     return Promise.resolve({ result: analyzeRepoCache[cacheKey] });
   }
@@ -74,13 +74,13 @@ function ensureAnalyzeRepo(repoKey, version) {
     if (data.error) {
       return { error: data.error };
     }
-    var files = parseJsDelivrFiles(data);
+    const files = parseJsDelivrFiles(data);
     return { result: analyzeRepo(cacheKey, files) };
   });
 }
 
 function fetchJsDelivrVersions(ownerRepo) {
-  var url = 'https://data.jsdelivr.com/v1/packages/gh/' + ownerRepo;
+  const url = 'https://data.jsdelivr.com/v1/packages/gh/' + ownerRepo;
   return fetch(url)
     .then(function (response) {
       if (!response.ok) return null;
@@ -96,11 +96,11 @@ function fetchJsDelivrVersions(ownerRepo) {
 }
 
 function fetchOwnerRepos(owner) {
-  var key = owner.toLowerCase();
+  const key = owner.toLowerCase();
   if (ownerReposCache[key]) {
     return Promise.resolve(ownerReposCache[key]);
   }
-  var url = 'https://api.github.com/users/' + owner + '/repos?sort=pushed&per_page=' + tminerConfig.max_repos_per_page;
+  const url = 'https://api.github.com/users/' + owner + '/repos?sort=pushed&per_page=' + tminerConfig.max_repos_per_page;
   return githubFetch(url, {
     headers: { 'Accept': 'application/vnd.github.mercy-preview+json' }
   })
@@ -123,11 +123,11 @@ function fetchOwnerRepos(owner) {
 }
 
 function fetchTopicRepos(topic) {
-  var key = topic.toLowerCase();
+  const key = topic.toLowerCase();
   if (ownerReposCache['topic:' + key]) {
     return Promise.resolve(ownerReposCache['topic:' + key]);
   }
-  var url = 'https://api.github.com/search/repositories?q=topic:' + encodeURIComponent(topic) + '&sort=stars&order=desc&per_page=' + tminerConfig.max_repos_per_page;
+  const url = 'https://api.github.com/search/repositories?q=topic:' + encodeURIComponent(topic) + '&sort=stars&order=desc&per_page=' + tminerConfig.max_repos_per_page;
   return githubFetch(url)
     .then(function (response) {
       updateRateLimit(response);
@@ -147,7 +147,7 @@ function fetchTopicRepos(topic) {
 }
 
 function fetchJsDelivrFilesByRef(ownerRepo, ref) {
-  var filesUrl = 'https://data.jsdelivr.com/v1/packages/gh/' + ownerRepo + '@' + ref;
+  const filesUrl = 'https://data.jsdelivr.com/v1/packages/gh/' + ownerRepo + '@' + ref;
   return fetch(filesUrl)
     .then(function (response) {
       if (!response) {
@@ -185,7 +185,7 @@ function fetchJsDelivrFiles(ownerRepo, version) {
 }
 
 function fetchRepoInfo(ownerRepo) {
-  var url = 'https://api.github.com/repos/' + ownerRepo;
+  const url = 'https://api.github.com/repos/' + ownerRepo;
   return githubFetch(url)
     .then(function (response) {
       updateRateLimit(response);
@@ -225,9 +225,9 @@ function loadExtensions() {
     .then(function (r) { return r.text(); })
     .then(function (text) {
       extensionSet = new Set();
-      var lines = text.trim().split('\n');
-      for (var i = 1; i < lines.length; i++) {
-        var ext = lines[i].trim();
+      const lines = text.trim().split('\n');
+      for (let i = 1; i < lines.length; i++) {
+        const ext = lines[i].trim();
         if (ext) {
           extensionSet.add(ext.toLowerCase());
         }
@@ -241,7 +241,7 @@ function loadTestLibs() {
   return fetch('data/test_libs.csv')
     .then(function (r) { return r.text(); })
     .then(function (text) {
-      var lines = text.trim().split('\n').slice(1)
+      const lines = text.trim().split('\n').slice(1)
         .map(function (l) { return l.trim().toLowerCase(); })
         .filter(function (l) { return l; })
         .sort();
@@ -252,20 +252,20 @@ function loadTestLibs() {
 
 function filterTestDependencies(sbomPackages, testLibs, keywords) {
   keywords = keywords || tminerConfig.dep_keywords;
-  var results = new Set();
-  for (var i = 0; i < sbomPackages.length; i++) {
-    var pkg = sbomPackages[i];
-    var nameLower = pkg.name.toLowerCase();
-    var shortName = nameLower.split('/').pop().split(':').pop();
-    var matched = false;
-    for (var k = 0; k < keywords.length; k++) {
+  const results = new Set();
+  for (let i = 0; i < sbomPackages.length; i++) {
+    const pkg = sbomPackages[i];
+    const nameLower = pkg.name.toLowerCase();
+    const shortName = nameLower.split('/').pop().split(':').pop();
+    let matched = false;
+    for (let k = 0; k < keywords.length; k++) {
       if (shortName.indexOf(keywords[k]) !== -1) { matched = true; break; }
     }
     if (matched) {
       results.add(pkg);
       continue;
     }
-    for (var it = testLibs.values(), val = it.next(); !val.done; val = it.next()) {
+    for (let it = testLibs.values(), val = it.next(); !val.done; val = it.next()) {
       if (shortName === val.value || nameLower === val.value ||
           shortName.indexOf(val.value + '-') === 0 || shortName.indexOf(val.value + '_') === 0) {
         results.add(pkg);
@@ -274,6 +274,13 @@ function filterTestDependencies(sbomPackages, testLibs, keywords) {
     }
   }
   return [...results];
+}
+
+function parseOwnerRepo(ownerRepo) {
+  const atIdx = ownerRepo.indexOf('@');
+  const baseRepo = atIdx !== -1 ? ownerRepo.substring(0, atIdx) : ownerRepo;
+  const versionTag = atIdx !== -1 ? ownerRepo.substring(atIdx + 1) : '';
+  return { baseRepo: baseRepo, versionTag: versionTag };
 }
 
 function parseGitHubOwnerRepo(url) {
@@ -303,26 +310,26 @@ function analyzeRepo(repoKey, filepaths) {
   if (analyzeRepoCache[repoKey]) {
     return analyzeRepoCache[repoKey];
   }
-  var classified = classifyFiles(filepaths);
-  var stats = computeTestStats(classified);
-  var result = { repo: repoKey, stats: stats, files: classified };
+  const classified = classifyFiles(filepaths);
+  const stats = computeTestStats(classified);
+  const result = { repo: repoKey, stats: stats, files: classified };
   analyzeRepoCache[repoKey] = result;
   saveAnalyzeRepoCache();
   return result;
 }
 
 function parseJsDelivrFiles(data) {
-  var filepaths = [];
+  const filepaths = [];
   collectFilePaths(data.files, '', filepaths);
   return filepaths;
 }
 
 function parseSBOM(data) {
-  var packages = [];
-  var sbomPackages = data.sbom.packages;
-  for (var i = 0; i < sbomPackages.length; i++) {
-    var pkg = sbomPackages[i];
-    var ecosystem = parseEcosystemFromPurl(pkg);
+  const packages = [];
+  const sbomPackages = data.sbom.packages;
+  for (let i = 0; i < sbomPackages.length; i++) {
+    const pkg = sbomPackages[i];
+    const ecosystem = parseEcosystemFromPurl(pkg);
     if (ecosystem && ecosystem !== 'github' && ecosystem !== 'githubactions') {
       packages.push({ name: pkg.name, ecosystem: ecosystem });
     }
@@ -331,13 +338,13 @@ function parseSBOM(data) {
 }
 
 function classifyFiles(filepaths) {
-  var result = {};
+  const result = {};
   filepaths.forEach(function (filepath) {
-    var filename = filepath.split('/').pop();
-    var dotIndex = filename.lastIndexOf('.');
-    var ext = dotIndex === -1 ? '' : filename.substring(dotIndex).toLowerCase();
+    const filename = filepath.split('/').pop();
+    const dotIndex = filename.lastIndexOf('.');
+    const ext = dotIndex === -1 ? '' : filename.substring(dotIndex).toLowerCase();
     if (extensionSet && (dotIndex === -1 || !extensionSet.has(ext))) return;
-    var classification = classifyFile(filepath);
+    const classification = classifyFile(filepath);
     if (!result[classification]) {
       result[classification] = [];
     }
@@ -347,12 +354,12 @@ function classifyFiles(filepaths) {
 }
 
 function computeTestStats(classified) {
-  var total = 0;
+  let total = 0;
   Object.keys(classified).forEach(function (key) {
     total += classified[key].length;
   });
-  var testCount = (classified['test'] || []).length;
-  var sourceCount = (classified['source'] || []).length;
+  const testCount = (classified['test'] || []).length;
+  const sourceCount = (classified['source'] || []).length;
   return {
     total: total,
     sourceFiles: sourceCount,
@@ -382,9 +389,9 @@ function classifyFile(filepath) {
 }
 
 function collectFilePaths(files, prefix, result) {
-  for (var i = 0; i < files.length; i++) {
-    var entry = files[i];
-    var path = prefix + entry.name;
+  for (let i = 0; i < files.length; i++) {
+    const entry = files[i];
+    const path = prefix + entry.name;
     if (entry.type === 'file') {
       result.push(path);
     } else if (entry.type === 'directory') {
@@ -397,10 +404,10 @@ function parseEcosystemFromPurl(pkg) {
   if (!pkg.externalRefs) {
     return null;
   }
-  for (var i = 0; i < pkg.externalRefs.length; i++) {
-    var ref = pkg.externalRefs[i];
+  for (let i = 0; i < pkg.externalRefs.length; i++) {
+    const ref = pkg.externalRefs[i];
     if (ref.referenceType === 'purl') {
-      var match = ref.referenceLocator.match(/^pkg:([^/]+)\//);
+      const match = ref.referenceLocator.match(/^pkg:([^/]+)\//);
       if (match) {
         return match[1];
       }
@@ -410,12 +417,12 @@ function parseEcosystemFromPurl(pkg) {
 }
 
 function isTestFile(filepath) {
-  var filename = filepath.split('/').pop();
+  const filename = filepath.split('/').pop();
   return containsTest(filename) || filename.toLowerCase().includes('spec.');
 }
 
 function isTestHelperFile(filepath) {
-  var parts = filepath.split('/');
+  const parts = filepath.split('/');
   parts.pop();
   return parts.some(function (dir) {
     return containsTest(dir) || dir.toLowerCase() === 'spec';
@@ -429,12 +436,12 @@ function inTestFolder(parts) {
 }
 
 function isMockFile(filepath) {
-  var parts = filepath.split('/');
-  var filename = parts.pop();
+  const parts = filepath.split('/');
+  const filename = parts.pop();
   if (!inTestFolder(parts)) {
     return false;
   }
-  var mockPatterns = ['mock', 'stub', 'spy', 'dummy', 'fake', 'spies', 'dummies'];
+  const mockPatterns = ['mock', 'stub', 'spy', 'dummy', 'fake', 'spies', 'dummies'];
   return mockPatterns.some(function (pattern) {
     return filename.toLowerCase().includes(pattern);
   });
@@ -445,12 +452,12 @@ function isE2EFile(filepath) {
 }
 
 function isSnapshotFile(filepath) {
-  var parts = filepath.split('/');
-  var filename = parts.pop();
+  const parts = filepath.split('/');
+  const filename = parts.pop();
   if (!inTestFolder(parts)) {
     return false;
   }
-  var inSnapshotFolder = parts.some(function (dir) {
+  const inSnapshotFolder = parts.some(function (dir) {
     return dir.toLowerCase().includes('snapshot');
   });
   return inSnapshotFolder || filename.toLowerCase().endsWith('.snap');
@@ -461,7 +468,7 @@ function isSmokeFile(filepath) {
 }
 
 function isFixtureFile(filepath) {
-  var parts = filepath.split('/');
+  const parts = filepath.split('/');
   parts.pop();
   if (!inTestFolder(parts)) {
     return false;
@@ -474,10 +481,10 @@ function isBenchmarkFile(filepath) {
 }
 
 function isCITestFile(filepath) {
-  var parts = filepath.split('/');
-  var filename = parts.pop();
-  var ciPatterns = ['.github', '.travis', '.circleci'];
-  var inCIFolder = parts.some(function (dir) {
+  const parts = filepath.split('/');
+  const filename = parts.pop();
+  const ciPatterns = ['.github', '.travis', '.circleci'];
+  const inCIFolder = parts.some(function (dir) {
     return ciPatterns.some(function (pattern) {
       return dir.toLowerCase() === pattern;
     });
@@ -490,13 +497,13 @@ function isCITestFile(filepath) {
 
 
 function filterSemverVersions(versions) {
-  var semverRe = /^v?\d+\.\d+\.\d+$/;
+  const semverRe = /^v?\d+\.\d+\.\d+$/;
   return versions.filter(function (v) { return semverRe.test(v); });
 }
 
 function containsTest(str) {
-  var lower = str.toLowerCase();
-  var excludePatterns = ['latest', 'contest', 'attestation'];
+  const lower = str.toLowerCase();
+  const excludePatterns = ['latest', 'contest', 'attestation'];
   if (excludePatterns.some(function (pattern) { return lower.includes(pattern); })) return false;
   return lower.includes('test');
 }
@@ -510,11 +517,11 @@ function loadAnalyzeRepoCache() {
 
 
 function groupFilesByDir(classifiedFiles) {
-  var dirs = {};
+  const dirs = {};
   Object.keys(classifiedFiles).forEach(function (category) {
     classifiedFiles[category].forEach(function (filepath) {
-      var parts = filepath.split('/');
-      var dir = parts.length > 1 ? parts.slice(0, -1).join('/') : '.';
+      const parts = filepath.split('/');
+      const dir = parts.length > 1 ? parts.slice(0, -1).join('/') : '.';
       if (!dirs[dir]) dirs[dir] = [];
       dirs[dir].push({ name: parts[parts.length - 1], path: filepath, category: category });
     });
@@ -523,12 +530,12 @@ function groupFilesByDir(classifiedFiles) {
 }
 
 function groupFilesByDepth(classifiedFiles, depth) {
-  var groups = {};
+  const groups = {};
   Object.keys(classifiedFiles).forEach(function (category) {
     classifiedFiles[category].forEach(function (filepath) {
-      var parts = filepath.split('/');
-      var dirParts = parts.slice(0, -1);
-      var groupKey;
+      const parts = filepath.split('/');
+      const dirParts = parts.slice(0, -1);
+      let groupKey;
       if (depth === 0 || dirParts.length === 0) {
         groupKey = '.';
       } else {
@@ -542,12 +549,12 @@ function groupFilesByDepth(classifiedFiles, depth) {
 }
 
 function getMaxDepth(classifiedFiles) {
-  var max = 0;
+  let max = 0;
   Object.keys(classifiedFiles).forEach(function (category) {
     classifiedFiles[category].forEach(function (filepath) {
-      var parts = filepath.split('/');
+      const parts = filepath.split('/');
       // depth = number of directory segments (parts.length - 1 for the file)
-      var d = parts.length - 1;
+      const d = parts.length - 1;
       if (d > max) max = d;
     });
   });
@@ -556,10 +563,10 @@ function getMaxDepth(classifiedFiles) {
 
 function saveAnalyzeRepoCache() {
   try {
-    var keys = Object.keys(analyzeRepoCache);
+    const keys = Object.keys(analyzeRepoCache);
     if (keys.length > tminerConfig.max_analyze_cache) {
-      var excess = keys.length - tminerConfig.max_analyze_cache;
-      for (var i = 0; i < excess; i++) {
+      const excess = keys.length - tminerConfig.max_analyze_cache;
+      for (let i = 0; i < excess; i++) {
         delete analyzeRepoCache[keys[i]];
       }
     }
@@ -568,7 +575,7 @@ function saveAnalyzeRepoCache() {
 }
 
 function parseTerms(str) {
-  var omitPatterns = ['test', 'tests', 'testing', 'tester', 'spec'];
+  const omitPatterns = ['test', 'tests', 'testing', 'tester', 'spec'];
   return str
     .replace(/([a-z])([A-Z])/g, '$1\x00$2')
     .replace(/([A-Z]+)([A-Z][a-z])/g, '$1\x00$2')
@@ -584,11 +591,11 @@ function parseTerms(str) {
 }
 
 function groupFilesByTerms(filepaths) {
-  var termMap = Object.create(null);
+  const termMap = Object.create(null);
   filepaths.forEach(function(filepath) {
-    var filename = filepath.split('/').pop();
-    var stem = filename.replace(/(\.[^/.]+)+$/, '');
-    var terms = parseTerms(stem);
+    const filename = filepath.split('/').pop();
+    const stem = filename.replace(/(\.[^/.]+)+$/, '');
+    const terms = parseTerms(stem);
     terms.forEach(function(term) {
       if (!termMap[term]) termMap[term] = [];
       termMap[term].push(filepath);
@@ -601,6 +608,7 @@ if (typeof module !== 'undefined') {
   module.exports = {
     parseTerms: parseTerms,
     groupFilesByTerms: groupFilesByTerms,
+    parseOwnerRepo: parseOwnerRepo,
     parseGitHubOwnerRepo: parseGitHubOwnerRepo,
     parseGitHubOwner: parseGitHubOwner,
     parseEcosystemFromPurl: parseEcosystemFromPurl,

@@ -1,7 +1,30 @@
 var tm = require('../src/tminer');
+var parseOwnerRepo = tm.parseOwnerRepo;
 var parseGitHubOwnerRepo = tm.parseGitHubOwnerRepo;
 var parseGitHubOwner = tm.parseGitHubOwner;
 var parseEcosystemFromPurl = tm.parseEcosystemFromPurl;
+
+describe('parseOwnerRepo', function () {
+
+  it('should return baseRepo and empty versionTag when no @', function () {
+    const result = parseOwnerRepo('octocat/hello-world');
+    expect(result.baseRepo).toEqual('octocat/hello-world');
+    expect(result.versionTag).toEqual('');
+  });
+
+  it('should split baseRepo and versionTag at @', function () {
+    const result = parseOwnerRepo('octocat/hello-world@v1.0.0');
+    expect(result.baseRepo).toEqual('octocat/hello-world');
+    expect(result.versionTag).toEqual('v1.0.0');
+  });
+
+  it('should handle version tag without v prefix', function () {
+    const result = parseOwnerRepo('octocat/hello-world@1.2.3');
+    expect(result.baseRepo).toEqual('octocat/hello-world');
+    expect(result.versionTag).toEqual('1.2.3');
+  });
+
+});
 
 describe('parseGitHubOwnerRepo', function () {
 
