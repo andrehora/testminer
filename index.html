@@ -511,6 +511,19 @@
           btn.appendChild(document.createTextNode(label));
           legendEl.appendChild(btn);
         });
+        if (activeFilters.indexOf('source') >= 0) {
+          var srcColor = classificationColors['source'] || '#1e293b';
+          var srcBgColor = classificationBgColors['source'] || '#f1f5f9';
+          var srcBorderColor = classificationBorderColors['source'] || '#cbd5e1';
+          var srcTextColor = classificationTextColors['source'] || '#475569';
+          var srcBtn = document.createElement('span');
+          srcBtn.style.cssText = 'display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;background:' + srcBgColor + ';border:1px solid ' + srcBorderColor + ';color:' + srcTextColor + ';font-size:0.78rem;font-weight:500;';
+          var srcSwatch = document.createElement('span');
+          srcSwatch.style.cssText = 'display:inline-block;width:9px;height:9px;border-radius:2px;background:' + srcColor + ';flex-shrink:0;';
+          srcBtn.appendChild(srcSwatch);
+          srcBtn.appendChild(document.createTextNode('source'));
+          legendEl.appendChild(srcBtn);
+        }
 
         chartEl.insertBefore(legendEl, chartEl.firstChild);
         chartEl.insertBefore(titleEl, chartEl.firstChild);
@@ -1393,7 +1406,15 @@
     function renderTopicRepos(topic, repos) {
       var resultsEl = document.getElementById('results');
       var grid = document.getElementById('stats-grid');
-      document.getElementById('results-title-text').innerHTML = '<span class="owner-top-topics-label">Topic:</span> <span class="repo-topic-badge">' + escapeHtml(topic) + '</span>';
+      var topicIconClass = getDeviconClass(topic);
+      var topicIcon = topicIconClass ? '<i class="' + topicIconClass + ' colored lang-icon"></i> ' : '';
+      document.getElementById('results-title-text').innerHTML = '<span class="owner-top-topics-label">Topic:</span> <span class="repo-topic-badge">' + topicIcon + escapeHtml(topic) + '</span>';
+      if (topicIconClass) {
+        setTimeout(function () {
+          var icon = document.querySelector('#results-title-text .lang-icon');
+          if (icon && icon.offsetWidth <= 1) icon.style.display = 'none';
+        });
+      }
       document.getElementById('gh-link').href = 'https://github.com/topics/' + encodeURIComponent(topic);
       document.getElementById('repo-subtitle').style.display = 'none';
       document.getElementById('tree-chart').style.display = 'none';
