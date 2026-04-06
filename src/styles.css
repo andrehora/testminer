@@ -258,6 +258,14 @@ body {
 }
 
 
+.owner-icon {
+  margin-right: 6px;
+}
+
+.owner-icon.no-icon {
+  display: none;
+}
+
 .owner-link {
   color: #16a34a;
   text-decoration: none;

@@ -190,7 +190,17 @@
     }
 
     function buildOwnerIcon(owner) {
-      return '<i class="devicon-' + owner.toLowerCase() + '-plain colored" style="margin-right:6px;"></i>';
+      return '<i class="devicon-' + owner.toLowerCase() + '-plain colored owner-icon" data-owner-icon></i>';
+    }
+
+    function hideEmptyOwnerIcons(root) {
+      (root || document).querySelectorAll('[data-owner-icon]').forEach(function (el) {
+        var style = window.getComputedStyle(el, '::before');
+        var content = style.getPropertyValue('content');
+        if (!content || content === 'none' || content === '""' || content === "''") {
+          el.classList.add('no-icon');
+        }
+      });
     }
 
     function hideSections(ids) {
@@ -919,6 +929,7 @@
       var repoPart = baseRepo.split('/')[1];
       document.getElementById('results-title-text').innerHTML = buildOwnerIcon(ownerPart) + '<a class="owner-link" href="#' + ownerPart + '">' + ownerPart + '</a> / ' + repoPart + (parsed.versionTag ? '@' + parsed.versionTag : '');
       document.getElementById('gh-link').href = 'https://github.com/' + baseRepo + (parsed.versionTag ? '/tree/' + parsed.versionTag : '');
+      hideEmptyOwnerIcons(document.getElementById('results-title-text'));
       renderRepoSubtitle(repoInfo);
       showSections(['section-title-overview', 'section-title-state', 'section-title-deps']);
       hideSections(['section-title-history']);
@@ -1031,7 +1042,9 @@
 
             var ownerPart = baseRepo ? baseRepo.split('/')[0] : '';
             var ownerIconHtml = ownerPart ? buildOwnerIcon(ownerPart) : '';
-            document.getElementById('file-list-modal-title').innerHTML = ownerIconHtml + term + ' (' + files.length + ')';
+            var titleEl = document.getElementById('file-list-modal-title');
+            titleEl.innerHTML = ownerIconHtml + term + ' (' + files.length + ')';
+            hideEmptyOwnerIcons(titleEl);
             document.getElementById('file-list-modal-items').innerHTML = files.map(function (f, i) {
               var num = '<span style="color:#94a3b8;min-width:2em;text-align:right;display:inline-block;margin-right:8px;font-size:0.85em;">' + (i + 1) + '</span>';
               if (linkRef) {
@@ -1102,7 +1115,9 @@
           var catLabel = this.querySelector('.dash-card-label').textContent.trim();
           var ownerPart = baseRepo ? baseRepo.split('/')[0] : '';
           var ownerIconHtml = ownerPart ? buildOwnerIcon(ownerPart) : '';
-          document.getElementById('file-list-modal-title').innerHTML = ownerIconHtml + catLabel + ' (' + files.length + ')';
+          var titleEl = document.getElementById('file-list-modal-title');
+          titleEl.innerHTML = ownerIconHtml + catLabel + ' (' + files.length + ')';
+          hideEmptyOwnerIcons(titleEl);
           document.getElementById('file-list-modal-items').innerHTML = files.map(function (f, i) {
             var num = '<span style="color:#94a3b8;min-width:2em;text-align:right;display:inline-block;margin-right:8px;font-size:0.85em;">' + (i + 1) + '</span>';
             if (linkRef) {
@@ -1329,6 +1344,7 @@
       var resultsEl = document.getElementById('results');
       var grid = document.getElementById('stats-grid');
       document.getElementById('results-title-text').innerHTML = buildOwnerIcon(owner) + owner;
+      hideEmptyOwnerIcons(document.getElementById('results-title-text'));
       document.getElementById('gh-link').href = 'https://github.com/' + owner;
       document.getElementById('repo-subtitle').style.display = 'none';
       var versionSelect = document.getElementById('version-select');
