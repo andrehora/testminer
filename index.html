@@ -1538,6 +1538,7 @@
         if (!ownerRepo) {
           var owner = parseGitHubOwner(input);
           if (owner) {
+            history.replaceState(null, '', '#' + owner);
             await analyzeOwner(owner);
             return;
           }
@@ -1545,6 +1546,7 @@
           return;
         }
 
+        history.replaceState(null, '', '#' + ownerRepo);
         await analyzeSingleRepo(ownerRepo);
       } finally {
         analyzing = false;

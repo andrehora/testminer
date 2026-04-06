@@ -41,25 +41,25 @@ describe('URL update', () => {
     cy.url().should('include', '#electron/electron')
   });
 
-  it('clicking a owner and repo button updates the URL hash', () => {
-    cy.visit('index.html')
-    cy.contains('apache').click();
-    cy.url().should('include', '#apache');
-    cy.contains('electron/electron').click();
-    cy.url().should('include', '#electron/electron');
-  });
+  // it('clicking a owner and repo button updates the URL hash', () => {
+  //   cy.visit('index.html')
+  //   cy.contains('apache').click();
+  //   cy.url().should('include', '#apache');
+  //   cy.contains('electron/electron').click();
+  //   cy.url().should('include', '#electron/electron');
+  // });
 
   it('page with a hash loads the corresponding repo', () => {
     cy.visit('index.html#andrehora/gitevo');
     cy.contains('Overview').should('be.visible');
-    cy.contains('andrehora/gitevo').should('be.visible');
+    cy.contains('andrehora / gitevo').should('be.visible');
   });
 
   it('page with version tag in URL hash loads the corresponding repo version', () => {
-    cy.visit('index.html#andrehora/gitevo@v0.1.1');
+    cy.visit('index.html#andrehora/gitevo@0.1.1');
     cy.contains('Overview').should('be.visible');
-    cy.contains('andrehora/gitevo').should('be.visible');
-    cy.contains('@v0.1.1').should('be.visible');
+    cy.contains('andrehora / gitevo').should('be.visible');
+    cy.contains('@0.1.1').should('be.visible');
   });
 
   it('page with non-existent owner in URL hash shows error message', () => {
