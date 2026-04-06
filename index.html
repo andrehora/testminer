@@ -98,7 +98,7 @@
   <script>
     var classificationColors = {
       'test': '#22c55e',
-      'test-related': '#86efac',
+      'test-helper': '#86efac',
       'mock': '#94a3b8',
       'e2e': '#8b5cf6',
       'snapshot': '#ec4899',
@@ -111,7 +111,7 @@
 
     var classificationBgColors = {
       'test':         '#dcfce7',
-      'test-related': '#f0fdf4',
+      'test-helper': '#f0fdf4',
       'mock':         '#f1f5f9',
       'e2e':          '#f5f3ff',
       'snapshot':     '#fdf2f8',
@@ -124,7 +124,7 @@
 
     var classificationBorderColors = {
       'test':         '#86efac',
-      'test-related': '#bbf7d0',
+      'test-helper': '#bbf7d0',
       'mock':         '#cbd5e1',
       'e2e':          '#c4b5fd',
       'snapshot':     '#f9a8d4',
@@ -137,7 +137,7 @@
 
     var classificationTextColors = {
       'test':         '#16a34a',
-      'test-related': '#16a34a',
+      'test-helper': '#16a34a',
       'mock':         '#475569',
       'e2e':          '#6d28d9',
       'snapshot':     '#be185d',
@@ -354,6 +354,10 @@
         var swatchColor = classificationColors[keys[0]] || '#94a3b8';
         row1HTML += '<button class="block-sort-btn" data-showonly="' + keys.join(',') + '"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:' + swatchColor + ';margin-right:4px;vertical-align:middle;flex-shrink:0;outline:1.5px solid rgba(255,255,255,0.7);outline-offset:-1px;"></span>' + label + '</button>';
       });
+      if (cached.files['source'] && cached.files['source'].length > 0) {
+        var sourceColor = classificationColors['source'] || '#1e293b';
+        row1HTML += '<span class="block-sort-sep">|</span><button class="block-sort-btn" data-showonly="source"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:' + sourceColor + ';margin-right:4px;vertical-align:middle;flex-shrink:0;outline:1.5px solid rgba(255,255,255,0.7);outline-offset:-1px;"></span>source</button>';
+      }
       row1HTML += '</div>';
 
       var row2HTML = '<div class="block-sort">';
@@ -418,14 +422,18 @@
       }
 
       function getActiveFilters() {
-        var filterBtns = chartEl.querySelectorAll('.block-sort-btn.active[data-showonly]');
+        var sourceBtn = chartEl.querySelector('.block-sort-btn[data-showonly="source"]');
+        var sourceBtnActive = sourceBtn && sourceBtn.classList.contains('active');
+        var filterBtns = chartEl.querySelectorAll('.block-sort-btn.active[data-showonly]:not([data-showonly="source"])');
         if (filterBtns.length > 0) {
           var filters = [];
           filterBtns.forEach(function (btn) {
             btn.getAttribute('data-showonly').split(',').forEach(function (k) { filters.push(k); });
           });
+          if (sourceBtnActive) filters.push('source');
           return filters;
         }
+        if (sourceBtnActive) return testCategoryKeys.concat(['source']);
         return testCategoryKeys;
       }
 
@@ -587,7 +595,7 @@
 
     var versionMetricOptions = [
       { key: 'testFiles', label: 'test', category: 'test' },
-      { key: 'testRelatedFiles', label: 'test-related', category: 'test-related' },
+      { key: 'testHelperFiles', label: 'test-helper', category: 'test-helper' },
       { key: 'mockFiles', label: 'mock', category: 'mock' },
       { key: 'e2eFiles', label: 'e2e', category: 'e2e' },
       { key: 'snapshotFiles', label: 'snapshot', category: 'snapshot' },
@@ -870,13 +878,13 @@
 
     function renderRepoStats(ownerRepo, stats, gitRef, repoInfo) {
       var cards = [
-        { label: 'Source files',  value: stats.sourceFiles,       category: 'source' },
+        { label: 'Source Files',  value: stats.sourceFiles,       category: 'source' },
         { label: 'Tests',         value: stats.testFiles,         category: 'test' },
-        { label: 'Test-related', value: stats.testRelatedFiles,  category: 'test-related' },
+        { label: 'Test Helper', value: stats.testHelperFiles,  category: 'test-helper' },
         { label: 'Mocks',        value: stats.mockFiles,         category: 'mock' },
         { label: 'E2E',          value: stats.e2eFiles,          category: 'e2e' },
         { label: 'Snapshots',    value: stats.snapshotFiles,     category: 'snapshot' },
-        { label: 'CI tests',     value: stats.ciTestFiles,       category: 'ci-test' },
+        { label: 'CI Tests',     value: stats.ciTestFiles,       category: 'ci-test' },
         { label: 'Smoke',        value: stats.smokeFiles,        category: 'smoke' },
         { label: 'Fixtures',     value: stats.fixtureFiles,      category: 'fixture' },
         { label: 'Benchmarks',   value: stats.benchmarkFiles,    category: 'benchmark' },
@@ -929,7 +937,7 @@
 
       var categories = [
         { key: 'test',         label: 'Test' },
-        { key: 'test-related', label: 'Test-Related' },
+        { key: 'test-helper', label: 'Test Helper' },
         { key: 'mock',         label: 'Mock' },
         { key: 'e2e',          label: 'E2E' },
         { key: 'snapshot',     label: 'Snapshot' },

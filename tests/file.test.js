@@ -4,7 +4,7 @@ var classifyFiles = tm.classifyFiles;
 var classifyFile = tm.classifyFile;
 var analyzeRepo = tm.analyzeRepo;
 var containsTest = tm.containsTest;
-var isTestRelatedFile = tm.isTestRelatedFile;
+var isTestHelperFile = tm.isTestHelperFile;
 var isBenchmarkFile = tm.isBenchmarkFile;
 var isFixtureFile = tm.isFixtureFile;
 var isSmokeFile = tm.isSmokeFile;
@@ -34,7 +34,7 @@ describe('computeTestStats', function () {
     expect(result.smokeFiles).toEqual(0);
     expect(result.fixtureFiles).toEqual(0);
     expect(result.benchmarkFiles).toEqual(0);
-    expect(result.testRelatedFiles).toEqual(0);
+    expect(result.testHelperFiles).toEqual(0);
   });
 
   it('should return correct total count', function () {
@@ -82,9 +82,9 @@ describe('computeTestStats', function () {
     expect(result.benchmarkFiles).toEqual(2);
   });
 
-  it('should return correct test related file count', function () {
-    const result = computeTestStats({ source: ['src/app.js'], 'test-related': ['tests/utils.js', 'spec/helpers.js'] });
-    expect(result.testRelatedFiles).toEqual(2);
+  it('should return correct test helper file count', function () {
+    const result = computeTestStats({ source: ['src/app.js'], 'test-helper': ['tests/utils.js', 'spec/helpers.js'] });
+    expect(result.testHelperFiles).toEqual(2);
   });
 });
 
@@ -155,33 +155,33 @@ describe('containsTest', function () {
 
 });
 
-describe('isTestRelatedFile', function () {
+describe('isTestHelperFile', function () {
 
   it('should return true for a file inside a folder containing "test"', function () {
-    expect(isTestRelatedFile('tests/app.js')).toBe(true);
-    expect(isTestRelatedFile('test/app.js')).toBe(true);
-    expect(isTestRelatedFile('src/test_helpers/utils.js')).toBe(true);
+    expect(isTestHelperFile('tests/app.js')).toBe(true);
+    expect(isTestHelperFile('test/app.js')).toBe(true);
+    expect(isTestHelperFile('src/test_helpers/utils.js')).toBe(true);
   });
 
   it('should return true for a file inside a folder exactly named "spec"', function () {
-    expect(isTestRelatedFile('spec/app.js')).toBe(true);
-    expect(isTestRelatedFile('src/spec/utils.js')).toBe(true);
+    expect(isTestHelperFile('spec/app.js')).toBe(true);
+    expect(isTestHelperFile('src/spec/utils.js')).toBe(true);
   });
 
   it('should return false for a file inside a folder named "specs" (not exact match)', function () {
-    expect(isTestRelatedFile('specs/app.js')).toBe(false);
-    expect(isTestRelatedFile('myspec/app.js')).toBe(false);
+    expect(isTestHelperFile('specs/app.js')).toBe(false);
+    expect(isTestHelperFile('myspec/app.js')).toBe(false);
   });
 
   it('should return false for a file not inside any test or spec folder', function () {
-    expect(isTestRelatedFile('src/app.js')).toBe(false);
-    expect(isTestRelatedFile('app.js')).toBe(false);
+    expect(isTestHelperFile('src/app.js')).toBe(false);
+    expect(isTestHelperFile('app.js')).toBe(false);
   });
 
   it('should return false for a file inside a folder with an exclude pattern', function () {
-    expect(isTestRelatedFile('latest/app.js')).toBe(false);
-    expect(isTestRelatedFile('attestation/app.js')).toBe(false);
-    expect(isTestRelatedFile('contest/app.js')).toBe(false);
+    expect(isTestHelperFile('latest/app.js')).toBe(false);
+    expect(isTestHelperFile('attestation/app.js')).toBe(false);
+    expect(isTestHelperFile('contest/app.js')).toBe(false);
   });
 
 });
@@ -553,9 +553,9 @@ describe('classifyFile', function () {
     expect(classifyFile('app.spec.js')).toEqual('test');
   });
 
-  it('should return "test-related" for test-related files', function () {
-    expect(classifyFile('tests/utils.js')).toEqual('test-related');
-    expect(classifyFile('spec/helpers.js')).toEqual('test-related');
+  it('should return "test-helper" for test helper files', function () {
+    expect(classifyFile('tests/utils.js')).toEqual('test-helper');
+    expect(classifyFile('spec/helpers.js')).toEqual('test-helper');
   });
 
   it('should return "source" for regular source files', function () {
@@ -625,7 +625,7 @@ describe('classifyFiles', function () {
     expect(result.smoke).toEqual(['smoke/login.js']);
     expect(result['ci-test']).toEqual(['.github/workflows/test.yml']);
     expect(result.snapshot).toEqual(['tests/__snapshots__/app.snap']);
-    expect(result['test-related']).toEqual(['tests/utils.js']);
+    expect(result['test-helper']).toEqual(['tests/utils.js']);
   });
 
   it('should group multiple files under the same classification', function () {

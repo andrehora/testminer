@@ -65,7 +65,7 @@ describe('parseJsDelivrFiles', function () {
       expect(result.smokeFiles).toEqual(0);
       expect(result.fixtureFiles).toEqual(0);
       expect(result.benchmarkFiles).toEqual(0);
-      expect(result.testRelatedFiles).toEqual(0);
+      expect(result.testHelperFiles).toEqual(0);
   });
 
   it('should classify real jsdelivr data', function () {

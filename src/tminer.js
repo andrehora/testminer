@@ -364,7 +364,7 @@ function computeTestStats(classified) {
     smokeFiles: (classified['smoke'] || []).length,
     fixtureFiles: (classified['fixture'] || []).length,
     benchmarkFiles: (classified['benchmark'] || []).length,
-    testRelatedFiles: (classified['test-related'] || []).length
+    testHelperFiles: (classified['test-helper'] || []).length
   };
 }
 
@@ -377,7 +377,7 @@ function classifyFile(filepath) {
   if (isMockFile(filepath)) return 'mock';
   if (isSnapshotFile(filepath)) return 'snapshot';
   if (isTestFile(filepath)) return 'test';
-  if (isTestRelatedFile(filepath)) return 'test-related';
+  if (isTestHelperFile(filepath)) return 'test-helper';
   return 'source';
 }
 
@@ -414,7 +414,7 @@ function isTestFile(filepath) {
   return containsTest(filename) || filename.toLowerCase().includes('spec.');
 }
 
-function isTestRelatedFile(filepath) {
+function isTestHelperFile(filepath) {
   var parts = filepath.split('/');
   parts.pop();
   return parts.some(function (dir) {
@@ -611,7 +611,7 @@ if (typeof module !== 'undefined') {
     computeTestStats: computeTestStats,
     analyzeRepo: analyzeRepo,
     containsTest: containsTest,
-    isTestRelatedFile: isTestRelatedFile,
+    isTestHelperFile: isTestHelperFile,
     isTestFile: isTestFile,
     isMockFile: isMockFile,
     isE2EFile: isE2EFile,
