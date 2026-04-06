@@ -1407,7 +1407,7 @@
       var resultsEl = document.getElementById('results');
       var grid = document.getElementById('stats-grid');
       var topicIconClass = getDeviconClass(topic);
-      var topicIcon = topicIconClass ? '<i class="' + topicIconClass + ' colored lang-icon"></i> ' : '';
+      var topicIcon = topicIconClass ? '<i class="' + topicIconClass + ' colored lang-icon"></i>' : '';
       document.getElementById('results-title-text').innerHTML = '<span class="owner-top-topics-label">Topic:</span> <span class="repo-topic-badge">' + topicIcon + escapeHtml(topic) + '</span>';
       if (topicIconClass) {
         setTimeout(function () {

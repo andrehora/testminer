@@ -243,7 +243,9 @@ body {
 }
 
 .repo-topic-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   background: #ddf4ff;
   color: #0969da;
   font-size: 0.75rem;
@@ -961,6 +963,12 @@ body {
   }
   #results-title-text .repo-topic-badge {
     font-size: 1.1rem;
+  }
+  #results-title-text .repo-topic-badge .lang-icon {
+    font-size: 1rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
   }
   #results-title-text .owner-top-topics-label {
     font-size: 1.1rem;
