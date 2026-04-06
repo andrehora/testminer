@@ -9,7 +9,7 @@ A webapp for exploring and visualizing *software testing* across GitHub reposito
 Examples: 
 - Organizations: [Google](https://andrehora.github.io/testminer/#google), [Microsoft](https://andrehora.github.io/testminer/#microsoft), [Apple](https://andrehora.github.io/testminer/#apple), [Facebook](https://andrehora.github.io/testminer/#facebook), [Netflix](https://andrehora.github.io/testminer/#netflix), 
 [GitHub](https://andrehora.github.io/testminer/#github), [Apache](https://andrehora.github.io/testminer/#apache), [HuggingFace](https://andrehora.github.io/testminer/#huggingface)
-- Topics: [ai](https://andrehora.github.io/testminer/#ai), [llm](https://andrehora.github.io/testminer/#llm), [api](https://andrehora.github.io/testminer/#api), [nodejs](https://andrehora.github.io/testminer/#nodejs), [android](https://andrehora.github.io/testminer/#android), [python](https://andrehora.github.io/testminer/#python), [typescript](https://andrehora.github.io/testminer/#typescript), [rust](https://andrehora.github.io/testminer/#rust)
+- Topics: [ai](https://andrehora.github.io/testminer/#topic:ai), [llm](https://andrehora.github.io/testminer/#topic:llm), [api](https://andrehora.github.io/testminer/#topic:api), [nodejs](https://andrehora.github.io/testminer/#topic:nodejs), [android](https://andrehora.github.io/testminer/#topic:android), [python](https://andrehora.github.io/testminer/#topic:python), [typescript](https://andrehora.github.io/testminer/#topic:typescript), [rust](https://andrehora.github.io/testminer/#topic:rust)
 - Repositories: [fastapi/fastapi](https://andrehora.github.io/testminer/#fastapi/fastapi), [prisma/prisma](https://andrehora.github.io/testminer/#prisma/prisma), [github/linguist](https://andrehora.github.io/testminer/#github/linguist)
 
 
