@@ -5,7 +5,6 @@ var testLibsSet = null;
 
 var tminerConfig = {
   max_repos_per_page: 30,
-  max_search_cache: 5,
   max_analyze_cache: 100,
   top_n_test_terms: 5,
   top_n_test_terms_mobile: 3,
@@ -123,6 +122,30 @@ function fetchOwnerRepos(owner) {
     });
 }
 
+function fetchTopicRepos(topic) {
+  var key = topic.toLowerCase();
+  if (ownerReposCache['topic:' + key]) {
+    return Promise.resolve(ownerReposCache['topic:' + key]);
+  }
+  var url = 'https://api.github.com/search/repositories?q=topic:' + encodeURIComponent(topic) + '&sort=stars&order=desc&per_page=' + tminerConfig.max_repos_per_page;
+  return githubFetch(url)
+    .then(function (response) {
+      updateRateLimit(response);
+      if (!response.ok) return null;
+      return response.json();
+    })
+    .then(function (data) {
+      if (data && data.items) {
+        ownerReposCache['topic:' + key] = data.items;
+        return data.items;
+      }
+      return null;
+    })
+    .catch(function () {
+      return null;
+    });
+}
+
 function fetchJsDelivrFilesByRef(ownerRepo, ref) {
   var filesUrl = 'https://data.jsdelivr.com/v1/packages/gh/' + ownerRepo + '@' + ref;
   return fetch(filesUrl)
@@ -161,7 +184,7 @@ function fetchJsDelivrFiles(ownerRepo, version) {
   });
 }
 
-function fetchDefaultBranch(ownerRepo) {
+function fetchRepoInfo(ownerRepo) {
   var url = 'https://api.github.com/repos/' + ownerRepo;
   return githubFetch(url)
     .then(function (response) {
@@ -170,7 +193,14 @@ function fetchDefaultBranch(ownerRepo) {
       return response.json();
     })
     .then(function (data) {
-      return data ? data.default_branch : null;
+      if (!data) return null;
+      return {
+        default_branch: data.default_branch,
+        description: data.description || '',
+        stargazers_count: data.stargazers_count || 0,
+        language: data.language || '',
+        topics: data.topics || []
+      };
     })
     .catch(function () {
       return null;

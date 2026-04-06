@@ -73,34 +73,6 @@ describe('URL update', () => {
   });
 });
 
-describe('Cache management', () => {
-
-  beforeEach(() => {
-    cy.clearLocalStorage();
-    cy.visit('index.html')
-  });
-
-  it('clear cache is not visible on page load', () => {
-    cy.contains('Clear all').should('not.be.visible');
-  });
-
-  it('clear cache is visible on click', () => {
-    cy.contains('Clear all').should('not.be.visible');
-    cy.contains('Recently viewed').should('not.be.visible');
-    cy.contains('apache').click();
-    cy.contains('Recently viewed', { timeout: 10000 }).should('be.visible');
-  });
-
-  it('clear cache is visible and then hidden', () => {
-    cy.contains('Clear all').should('not.be.visible');
-    cy.contains('Recently viewed').should('not.be.visible');
-    cy.contains('apache').click();
-    cy.contains('Recently viewed', { timeout: 10000 }).should('be.visible');
-    cy.contains('Clear all').click();
-    cy.contains('Recently viewed').should('not.be.visible');
-  });
-});
-
 describe('Owner page', () => {
 
   beforeEach(() => {

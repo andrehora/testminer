@@ -57,18 +57,11 @@
       <span class="suggestion-label">Try:</span>
     </div>
 
-    <div id="recent" class="recent">
-      <div class="recent-header">
-        <div class="recent-label">Recently viewed</div>
-        <button class="recent-clear" id="recent-clear">Clear all</button>
-      </div>
-      <div class="recent-list" id="recent-list"></div>
-    </div>
-
     <div id="error"></div>
 
     <div id="results">
       <h2 id="results-title" class="results-title"><span id="results-title-text"></span><button class="copy-link-btn" id="copy-link-btn">Copy link</button><span class="results-title-actions"><select id="version-select" class="version-select" style="display:none;"></select></span><a id="gh-link" class="gh-link" target="_blank" rel="noopener"><i class="devicon-github-original"></i></a></h2>
+      <div id="repo-subtitle" class="repo-subtitle" style="display:none;"></div>
       <h3 class="section-title" id="section-title-overview" style="display:none;">Overview</h3>
       <div class="stats-grid" id="stats-grid"></div>
       <h3 class="section-title" id="section-title-state" style="display:none;">Test Location</h3>
@@ -188,6 +181,12 @@
     function getActiveChartType() {
       var btn = document.querySelector('#version-chart-type-btns button.active');
       return btn ? btn.getAttribute('data-type') : 'line';
+    }
+
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.appendChild(document.createTextNode(str));
+      return div.innerHTML;
     }
 
     function buildOwnerIcon(owner) {
@@ -832,7 +831,55 @@
 
     // --- Repo Stats ---
 
-    function renderRepoStats(ownerRepo, stats, gitRef) {
+    function renderRepoSubtitle(repoInfo) {
+      var el = document.getElementById('repo-subtitle');
+      if (!repoInfo) { el.style.display = 'none'; return; }
+      var parts = [];
+      if (repoInfo.description) {
+        parts.push('<span class="repo-subtitle-desc">' + escapeHtml(repoInfo.description) + '</span>');
+      }
+      var meta = [];
+      if (repoInfo.stargazers_count > 0) {
+        meta.push('<span class="repo-subtitle-stars">\u2605 ' + repoInfo.stargazers_count.toLocaleString() + '</span>');
+      }
+      if (repoInfo.language) {
+        meta.push('<span class="repo-subtitle-lang"><i class="' + getDeviconClass(repoInfo.language) + ' colored"></i> ' + escapeHtml(repoInfo.language) + '</span>');
+      }
+      if (repoInfo.topics && repoInfo.topics.length) {
+        var MAX_TOPICS = 3;
+        var visibleTopics = repoInfo.topics.slice(0, MAX_TOPICS);
+        var hiddenTopics = repoInfo.topics.slice(MAX_TOPICS);
+        var topicsHTML = visibleTopics.map(function (t) {
+          return '<a href="#topic:' + encodeURIComponent(t) + '" class="repo-topic-badge">' + escapeHtml(t) + '</a>';
+        }).join('');
+        if (hiddenTopics.length) {
+          topicsHTML += '<span class="repo-topics-hidden" style="display:none;">' + hiddenTopics.map(function (t) {
+            return '<a href="#topic:' + encodeURIComponent(t) + '" class="repo-topic-badge">' + escapeHtml(t) + '</a>';
+          }).join('') + '</span>';
+          topicsHTML += '<span class="repo-topics-toggle-btn repo-topic-badge" style="cursor:pointer;">+' + hiddenTopics.length + '</span>';
+        }
+        meta.push(topicsHTML);
+      }
+      if (meta.length) parts.push('<span class="repo-subtitle-meta">' + meta.join('<span class="repo-subtitle-sep">\u00b7</span>') + '</span>');
+      el.innerHTML = parts.join('');
+      el.style.display = parts.length ? '' : 'none';
+      var toggleBtn = el.querySelector('.repo-topics-toggle-btn');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          var hidden = el.querySelector('.repo-topics-hidden');
+          if (hidden.style.display === 'none') {
+            hidden.style.display = 'inline';
+            this.textContent = '-';
+          } else {
+            hidden.style.display = 'none';
+            this.textContent = '+' + hiddenTopics.length;
+          }
+        });
+      }
+    }
+
+    function renderRepoStats(ownerRepo, stats, gitRef, repoInfo) {
       var cards = [
         { label: 'Source files',  value: stats.sourceFiles,       category: 'source' },
         { label: 'Tests',         value: stats.testFiles,         category: 'test' },
@@ -872,6 +919,7 @@
       var repoPart = baseRepo.split('/')[1];
       document.getElementById('results-title-text').innerHTML = buildOwnerIcon(ownerPart) + '<a class="owner-link" href="#' + ownerPart + '">' + ownerPart + '</a> / ' + repoPart + (parsed.versionTag ? '@' + parsed.versionTag : '');
       document.getElementById('gh-link').href = 'https://github.com/' + baseRepo + (parsed.versionTag ? '/tree/' + parsed.versionTag : '');
+      renderRepoSubtitle(repoInfo);
       showSections(['section-title-overview', 'section-title-state', 'section-title-deps']);
       hideSections(['section-title-history']);
       document.getElementById('stats-grid').style.display = '';
@@ -981,10 +1029,9 @@
             document.querySelectorAll('.test-term-badge.active').forEach(function (b) { b.classList.remove('active'); });
             this.classList.add('active');
 
-            document.getElementById('file-list-modal-title').innerHTML = term + ' (' + files.length + ')';
             var ownerPart = baseRepo ? baseRepo.split('/')[0] : '';
-            var repoIconHtml = ownerPart ? '<i class="devicon-' + ownerPart.toLowerCase() + '-plain colored"></i>' : '';
-            document.getElementById('file-list-modal-repo').innerHTML = repoIconHtml + (baseRepo ? baseRepo : '');
+            var ownerIconHtml = ownerPart ? buildOwnerIcon(ownerPart) : '';
+            document.getElementById('file-list-modal-title').innerHTML = ownerIconHtml + term + ' (' + files.length + ')';
             document.getElementById('file-list-modal-items').innerHTML = files.map(function (f, i) {
               var num = '<span style="color:#94a3b8;min-width:2em;text-align:right;display:inline-block;margin-right:8px;font-size:0.85em;">' + (i + 1) + '</span>';
               if (linkRef) {
@@ -1052,10 +1099,10 @@
           grid.querySelectorAll('.dash-card.active').forEach(function (r) { r.classList.remove('active'); });
           this.classList.add('active');
 
-          document.getElementById('file-list-modal-title').innerHTML = this.querySelector('.dash-card-label').textContent.trim() + ' (' + files.length + ')';
+          var catLabel = this.querySelector('.dash-card-label').textContent.trim();
           var ownerPart = baseRepo ? baseRepo.split('/')[0] : '';
-          var repoIconHtml = ownerPart ? '<i class="devicon-' + ownerPart.toLowerCase() + '-plain colored"></i>' : '';
-          document.getElementById('file-list-modal-repo').innerHTML = repoIconHtml + (baseRepo ? baseRepo : '');
+          var ownerIconHtml = ownerPart ? buildOwnerIcon(ownerPart) : '';
+          document.getElementById('file-list-modal-title').innerHTML = ownerIconHtml + catLabel + ' (' + files.length + ')';
           document.getElementById('file-list-modal-items').innerHTML = files.map(function (f, i) {
             var num = '<span style="color:#94a3b8;min-width:2em;text-align:right;display:inline-block;margin-right:8px;font-size:0.85em;">' + (i + 1) + '</span>';
             if (linkRef) {
@@ -1161,7 +1208,8 @@
       { label: 'Test files', key: 'test', type: 'number' },
     ];
 
-    function buildOwnerTableHTML(repos, repoIndices) {
+    function buildOwnerTableHTML(repos, repoIndices, opts) {
+      opts = opts || {};
       var html = '<div class="owner-table-wrap"><table class="owner-table" id="owner-table">'
         + '<thead><tr>';
       for (var ci = 0; ci < ownerTableColumns.length; ci++) {
@@ -1177,7 +1225,7 @@
       for (var j = 0; j < repoIndices.length; j++) {
         var repo = repos[repoIndices[j]];
         html += '<tr class="owner-table-row" data-repo="' + repo.full_name + '" id="repo-row-' + repoIndices[j] + '">'
-          + '<td class="repo-name-cell">' + repo.name + '</td>'
+          + '<td class="repo-name-cell">' + (opts.fullName ? repo.full_name : repo.name) + '</td>'
           + '<td>' + (repo.language ? '<i class="' + getDeviconClass(repo.language) + ' colored lang-icon"></i> <span class="lang-text">' + repo.language + '</span>' : '') + '</td>'
           + '<td data-sort-value="' + repo.stargazers_count + '">' + repo.stargazers_count.toLocaleString() + '</td>'
           + '<td id="repo-source-' + repoIndices[j] + '" data-sort-value=""><span class="spinner"></span></td>'
@@ -1282,6 +1330,7 @@
       var grid = document.getElementById('stats-grid');
       document.getElementById('results-title-text').innerHTML = buildOwnerIcon(owner) + owner;
       document.getElementById('gh-link').href = 'https://github.com/' + owner;
+      document.getElementById('repo-subtitle').style.display = 'none';
       var versionSelect = document.getElementById('version-select');
       versionSelect.style.display = 'none';
       versionSelect.dataset.repo = '';
@@ -1299,6 +1348,36 @@
       grid.innerHTML = buildOwnerTableHTML(repos, repoIndices);
       resultsEl.style.display = 'block';
 
+
+      fixLangIcons(grid);
+      setupTableSorting(grid);
+      setupTableRowClicks(grid);
+      fetchOwnerRepoStats(repos, repoIndices);
+    }
+
+    function renderTopicRepos(topic, repos) {
+      var resultsEl = document.getElementById('results');
+      var grid = document.getElementById('stats-grid');
+      document.getElementById('results-title-text').innerHTML = '<span class="repo-topic-badge" style="font-size:0.85rem;">' + escapeHtml(topic) + '</span>';
+      document.getElementById('gh-link').href = 'https://github.com/topics/' + encodeURIComponent(topic);
+      document.getElementById('repo-subtitle').style.display = 'none';
+      document.getElementById('tree-chart').style.display = 'none';
+      var versionSelect = document.getElementById('version-select');
+      versionSelect.style.display = 'none';
+      versionSelect.dataset.repo = '';
+      document.getElementById('version-chart-container').style.display = 'none';
+      hideSections(ALL_SECTION_IDS);
+      document.getElementById('deps-container').style.display = 'none';
+      destroyVersionChart();
+      versionChartGeneration++;
+
+      var repoIndices = [];
+      for (var i = 0; i < repos.length; i++) {
+        if (!repos[i].fork) repoIndices.push(i);
+      }
+
+      grid.innerHTML = buildOwnerTableHTML(repos, repoIndices, { fullName: true });
+      resultsEl.style.display = 'block';
 
       fixLangIcons(grid);
       setupTableSorting(grid);
@@ -1350,8 +1429,23 @@
         return;
       }
       renderOwnerRepos(owner, repos);
-      saveRecent(owner);
       history.replaceState(null, '', '#' + owner);
+    }
+
+    async function analyzeTopic(topic) {
+      setBtnLoading('Searching...');
+      var repos = await fetchTopicRepos(topic);
+      setBtnReady();
+      if (!repos) {
+        if (rateLimitExhausted) {
+          showRateLimitError();
+        } else {
+          showError('No repositories found for topic "' + topic + '".');
+        }
+        return;
+      }
+      renderTopicRepos(topic, repos);
+      history.replaceState(null, '', '#topic:' + encodeURIComponent(topic));
     }
 
     async function analyzeSingleRepo(ownerRepo, version) {
@@ -1379,11 +1473,11 @@
       }
 
       var cacheKey = version ? ownerRepo + '@' + version : ownerRepo;
-      var defaultBranch = await fetchDefaultBranch(ownerRepo);
-      renderRepoStats(cacheKey, response.result.stats, defaultBranch);
+      var repoInfo = await fetchRepoInfo(ownerRepo);
+      var defaultBranch = repoInfo ? repoInfo.default_branch : null;
+      renderRepoStats(cacheKey, response.result.stats, defaultBranch, repoInfo);
       try { renderFileTree(cacheKey, defaultBranch); } catch (e) { console.error('Tree render error:', e); }
       renderTestDeps(ownerRepo);
-      saveRecent(ownerRepo);
       history.replaceState(null, '', '#' + ownerRepo + (version ? '@' + version : ''));
       applyPendingModal();
 
@@ -1423,6 +1517,14 @@
           return;
         }
 
+        if (input.indexOf('topic:') === 0) {
+          var topic = input.substring(6).trim();
+          if (topic) {
+            await analyzeTopic(topic);
+            return;
+          }
+        }
+
         var ownerRepo = parseGitHubOwnerRepo(input);
         if (!ownerRepo) {
           var owner = parseGitHubOwner(input);
@@ -1448,60 +1550,6 @@
     });
 
     loadExtensions();
-
-    // --- Recent Searches ---
-    function getRecent() {
-      try {
-        return JSON.parse(localStorage.getItem('testminer_search_cache') || '[]');
-      } catch (e) { return []; }
-    }
-
-    function saveRecent(repo) {
-      var recent = getRecent().filter(function (r) { return r !== repo; });
-      recent.unshift(repo);
-      if (recent.length > tminerConfig.max_search_cache) recent = recent.slice(0, tminerConfig.max_search_cache);
-      localStorage.setItem('testminer_search_cache', JSON.stringify(recent));
-      renderRecent();
-    }
-
-    function renderRecent() {
-      var recent = getRecent();
-      var container = document.getElementById('recent');
-      var list = document.getElementById('recent-list');
-      if (recent.length === 0) {
-        container.style.display = 'none';
-        return;
-      }
-      list.innerHTML = recent.map(function (r) {
-        return '<span class="recent-item" data-repo="' + r + '">' + r + '<span class="recent-remove">&times;</span></span>';
-      }).join('');
-      container.style.display = 'block';
-    }
-
-    document.getElementById('recent-list').addEventListener('click', function (e) {
-      if (e.target.closest('.recent-remove')) {
-        var item = e.target.closest('.recent-item');
-        var repo = item.getAttribute('data-repo');
-        var recent = getRecent().filter(function (r) { return r !== repo; });
-        localStorage.setItem('testminer_search_cache', JSON.stringify(recent));
-        renderRecent();
-        return;
-      }
-      var item = e.target.closest('.recent-item');
-      if (item) {
-        document.getElementById('repo-input').value = item.getAttribute('data-repo');
-        analyze();
-      }
-    });
-
-    document.getElementById('recent-clear').addEventListener('click', function () {
-      localStorage.removeItem('testminer_search_cache');
-      localStorage.removeItem('testminer_analyze_cache');
-      analyzeRepoCache = {};
-      renderRecent();
-    });
-
-    renderRecent();
 
     // --- Suggestions ---
     function renderSuggestions() {
@@ -1744,6 +1792,12 @@
     function analyzeFromHash() {
       var hash = location.hash.substring(1);
       if (hash) {
+        if (hash.indexOf('topic:') === 0) {
+          var topic = decodeURIComponent(hash.substring(6));
+          document.getElementById('repo-input').value = 'topic:' + topic;
+          analyzeTopic(topic);
+          return;
+        }
         var colonIdx = hash.indexOf(':');
         var repoHash = colonIdx >= 0 ? hash.substring(0, colonIdx) : hash;
         pendingModal = colonIdx >= 0 ? hash.substring(colonIdx + 1) : null;
@@ -1818,8 +1872,6 @@
   <div id="file-list-modal" class="file-list-modal-overlay" style="display:none;" onclick="if(event.target===this){closeFileListModal();}">
     <div class="file-list-modal">
       <div class="file-list-modal-header">
-        <span id="file-list-modal-repo" class="file-list-modal-repo"></span>
-        <span class="file-list-modal-sep">&middot;</span>
         <span id="file-list-modal-title" class="file-list-modal-title"></span>
         <button id="file-list-copy-link" class="file-list-copy-link" onclick="copyModalLink()">Copy link</button>
         <button class="file-list-close" onclick="closeFileListModal()">&times;</button>
