@@ -278,7 +278,7 @@ body {
 }
 
 @media (max-width: 600px) {
-  .owner-top-topics .repo-topic-badge:nth-child(n+5) {
+  .owner-top-topics .repo-topic-badge:nth-of-type(n+4) {
     display: none;
   }
 }

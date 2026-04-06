@@ -1350,7 +1350,7 @@
       });
       var top = sorted.slice(0, 5).sort();
       if (!top.length) return '';
-      var html = '<div class="owner-top-topics"><span class="owner-top-topics-label">Related topics:</span>';
+      var html = '<div class="owner-top-topics">' + (exclude ? '<span class="owner-top-topics-label">Related:</span>' : '');
       for (var k = 0; k < top.length; k++) {
         var topic = top[k];
         html += '<a href="#topic:' + encodeURIComponent(topic) + '" class="repo-topic-badge">' + escapeHtml(topic) + '</a>';
@@ -1392,7 +1392,7 @@
     function renderTopicRepos(topic, repos) {
       var resultsEl = document.getElementById('results');
       var grid = document.getElementById('stats-grid');
-      document.getElementById('results-title-text').innerHTML = '<span class="repo-topic-badge" style="font-size:0.85rem;">' + escapeHtml(topic) + '</span>';
+      document.getElementById('results-title-text').innerHTML = '<span class="owner-top-topics-label">Topic:</span> <span class="repo-topic-badge" style="font-size:0.85rem;">' + escapeHtml(topic) + '</span>';
       document.getElementById('gh-link').href = 'https://github.com/topics/' + encodeURIComponent(topic);
       document.getElementById('repo-subtitle').style.display = 'none';
       document.getElementById('tree-chart').style.display = 'none';
