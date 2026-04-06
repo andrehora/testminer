@@ -945,6 +945,18 @@ body {
   #share-btn {
     order: 3;
   }
+  .results-title {
+    font-size: 1.45rem;
+  }
+  .results-title i,
+  .results-title svg {
+    font-size: 1.45rem;
+    width: 1.45rem;
+    height: 1.45rem;
+  }
+  #version-select {
+    display: none !important;
+  }
 }
 
 .th-short { display: none; }
