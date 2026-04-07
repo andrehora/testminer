@@ -348,12 +348,10 @@ function computeTestStats(classified) {
   Object.keys(classified).forEach(function (key) {
     total += classified[key].length;
   });
-  const testCount = (classified['test'] || []).length;
-  const sourceCount = (classified['source'] || []).length;
   return {
     total: total,
-    sourceFiles: sourceCount,
-    testFiles: testCount,
+    sourceFiles: (classified['source'] || []).length,
+    testFiles: (classified['tests'] || []).length,
     mockFiles: (classified['mocks'] || []).length,
     e2eFiles: (classified['e2e'] || []).length,
     snapshotFiles: (classified['snapshots'] || []).length,
