@@ -61,7 +61,7 @@
 
     <div class="search">
       <div class="search-input-wrap">
-        <input id="repo-input" type="text" placeholder="GitHub repo, organization, or topic" autocomplete="off" />
+        <input id="repo-input" type="text" placeholder="GitHub repo, owner, or topic" autocomplete="off" />
         <div id="autocomplete-list" class="autocomplete-list"></div>
       </div>
       <button id="analyze-btn" onclick="analyze()"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
@@ -173,7 +173,7 @@
 
       let parsed = parseOwnerRepo(ownerRepo);
       let baseRepo = parsed.baseRepo;
-      let linkRef = parsed.versionTag || gitRef || '';
+      let linkRef = parsed.versionTag ? getGitHubTagRef(baseRepo, parsed.versionTag) : (gitRef || '');
 
       let oldTooltip = document.querySelector('.block-tooltip');
       if (oldTooltip) oldTooltip.remove();
@@ -840,14 +840,14 @@
 
       let parsed = parseOwnerRepo(ownerRepo);
       let baseRepo = parsed.baseRepo;
-      let linkRef = parsed.versionTag || gitRef || '';
+      let linkRef = parsed.versionTag ? getGitHubTagRef(baseRepo, parsed.versionTag) : (gitRef || '');
 
       setupStatCardClicks(grid, ownerRepo, baseRepo, linkRef);
       renderTestTerms(ownerRepo, baseRepo, linkRef);
       let ownerPart = baseRepo.split('/')[0];
       let repoPart = baseRepo.split('/')[1];
       document.getElementById('results-title-text').innerHTML = buildOwnerIcon(ownerPart) + '<a class="owner-link" href="#' + ownerPart + '">' + ownerPart + '</a> / ' + repoPart + (parsed.versionTag ? '@' + parsed.versionTag : '');
-      document.getElementById('gh-link').href = 'https://github.com/' + baseRepo + (parsed.versionTag ? '/tree/' + parsed.versionTag : '');
+      document.getElementById('gh-link').href = 'https://github.com/' + baseRepo + (parsed.versionTag ? '/tree/' + getGitHubTagRef(baseRepo, parsed.versionTag) : '');
       hideEmptyOwnerIcons(document.getElementById('results-title-text'));
       renderRepoSubtitle(repoInfo);
       showSections(['section-title-overview', 'section-title-state', 'section-title-deps']);
@@ -1453,6 +1453,7 @@
       let cacheKey = version ? ownerRepo + '@' + version : ownerRepo;
       let repoInfo = await fetchRepoInfo(ownerRepo);
       let defaultBranch = repoInfo ? repoInfo.default_branch : null;
+      if (version) await fetchGitHubTagRef(ownerRepo, version);
       renderRepoStats(cacheKey, response.result.stats, defaultBranch, repoInfo);
       try { renderFileTree(cacheKey, defaultBranch); } catch (e) { console.error('Tree render error:', e); }
       renderTestDeps(ownerRepo);

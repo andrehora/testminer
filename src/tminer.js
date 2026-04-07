@@ -1,5 +1,6 @@
 const ownerReposCache = {};
 let analyzeRepoCache = loadAnalyzeRepoCache();
+const tagPrefixCache = {};
 let extensionSet = null;
 let testLibsSet = null;
 
@@ -134,6 +135,43 @@ function fetchTopicRepos(topic) {
     .catch(function () {
       return null;
     });
+}
+
+function fetchGitHubTagRef(ownerRepo, version) {
+  var cacheKey = ownerRepo + '@' + version;
+  if (tagPrefixCache.hasOwnProperty(cacheKey)) {
+    return Promise.resolve(tagPrefixCache[cacheKey]);
+  }
+  const url = 'https://api.github.com/repos/' + ownerRepo + '/tags';
+  return githubFetch(url)
+    .then(function (response) {
+      if (!response || !response.ok) return null;
+      return response.json();
+    })
+    .then(function (tags) {
+      var tagRef = version;
+      if (tags && tags.length) {
+        for (var i = 0; i < tags.length; i++) {
+          var tagName = tags[i].name;
+          var stripped = tagName.replace(/^[^0-9]*/, '');
+          if (stripped === version) {
+            tagRef = tagName;
+            break;
+          }
+        }
+      }
+      tagPrefixCache[cacheKey] = tagRef;
+      return tagRef;
+    })
+    .catch(function () {
+      tagPrefixCache[cacheKey] = version;
+      return version;
+    });
+}
+
+function getGitHubTagRef(ownerRepo, version) {
+  var cacheKey = ownerRepo + '@' + version;
+  return tagPrefixCache.hasOwnProperty(cacheKey) ? tagPrefixCache[cacheKey] : version;
 }
 
 function fetchJsDelivrFilesByRef(ownerRepo, ref) {
@@ -618,6 +656,8 @@ if (typeof module !== 'undefined') {
     isCITestFile: isCITestFile,
     filterTestDependencies: filterTestDependencies,
     filterSemverVersions: filterSemverVersions,
+    fetchGitHubTagRef: fetchGitHubTagRef,
+    getGitHubTagRef: getGitHubTagRef,
     setExtensionSet: function (s) { extensionSet = s; },
     setTestLibsSet: function (s) { testLibsSet = s; },
     resetAnalyzeRepoCache: function () { analyzeRepoCache = {}; }
