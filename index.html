@@ -1461,7 +1461,7 @@
       let cacheKey = version ? ownerRepo + '@' + version : ownerRepo;
       let repoInfo = await fetchRepoInfo(ownerRepo);
       let defaultBranch = repoInfo ? repoInfo.default_branch : null;
-      if (version) await fetchGitHubTagRef(ownerRepo, version);
+      if (version) await fetchTagPrefix(ownerRepo);
       renderRepoStats(cacheKey, response.result.stats, defaultBranch, repoInfo);
       try { renderFileTree(cacheKey, defaultBranch); } catch (e) { console.error('Tree render error:', e); }
       renderTestDeps(ownerRepo);
