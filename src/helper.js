@@ -52,13 +52,6 @@ const classificationTextColors = {
 
 // --- Helpers ---
 
-function destroyVersionChart() {
-  if (versionChartInstance) {
-    versionChartInstance.destroy();
-    versionChartInstance = null;
-  }
-}
-
 function getActiveMetric() {
   let metricBtn = document.querySelector('#version-metric-btns .active');
   return metricBtn ? metricBtn.getAttribute('data-metric') : 'testFiles';

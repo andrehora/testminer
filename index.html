@@ -505,6 +505,13 @@
     let versionChartGeneration = 0;
     let versionChartOwnerRepo = '';
 
+    function destroyVersionChart() {
+      if (versionChartInstance) {
+        versionChartInstance.destroy();
+        versionChartInstance = null;
+      }
+    }
+
     const versionMetricOptions = [
       { key: 'testFiles', label: 'test', category: 'test' },
       { key: 'testHelperFiles', label: 'test-helper', category: 'test-helper' },
@@ -1310,7 +1317,10 @@
       if (topicIconClass) {
         setTimeout(function () {
           let icon = document.querySelector('#results-title-text .lang-icon');
-          if (icon && icon.offsetWidth <= 1) icon.style.display = 'none';
+          if (icon) {
+            var beforeContent = window.getComputedStyle(icon, '::before').content;
+            if (icon.offsetWidth <= 1 || beforeContent === 'none' || beforeContent === 'normal' || beforeContent === '') icon.style.display = 'none';
+          }
         });
       }
       document.getElementById('gh-link').href = 'https://github.com/topics/' + encodeURIComponent(topic);
