@@ -148,7 +148,8 @@
         href="https://github.com/andrehora/testminer" target="_blank" rel="noopener">TestMiner</a>.</p>
     <p id="github-rate-limit" class="footer-text"><span id="github-rate-limit-text"></span></p>
     <p class="footer-token-wrap"><button id="gh-token-btn" onclick="openTokenModal()" class="gh-token-btn">Add GitHub
-        token</button></p>
+        token</button>
+      <button onclick="clearAnalyzeCache()" class="gh-token-btn">Clear cache</button></p>
 
   </div>
 
@@ -1131,7 +1132,8 @@
 
     function buildOwnerTableHTML(repos, repoIndices, opts) {
       opts = opts || {};
-      let html = '<div class="owner-table-wrap"><table class="owner-table" id="owner-table">'
+      let html = '<div class="block-separator"></div>'
+        + '<div class="owner-table-wrap"><table class="owner-table" id="owner-table">'
         + '<thead><tr>';
       for (let ci = 0; ci < ownerTableColumns.length; ci++) {
         let words = ownerTableColumns[ci].label.split(' ');
@@ -1274,7 +1276,7 @@
         let topic = top[k];
         html += '<a href="#topic:' + encodeURIComponent(topic) + '" class="repo-topic-badge">' + escapeHtml(topic) + '</a>';
       }
-      html += '</div>';
+      html += '</div><hr class="footer-divider">';
       return html;
     }
 
@@ -1880,6 +1882,10 @@
       document.getElementById('gh-token-input').value = '';
       updateTokenBtn();
       closeTokenModal();
+    }
+
+    function clearAnalyzeCache() {
+      try { localStorage.removeItem('testminer_analyze_cache'); } catch (e) {}
     }
 
     updateTokenBtn();
