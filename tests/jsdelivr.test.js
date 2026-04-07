@@ -71,7 +71,7 @@ describe('parseJsDelivrFiles', function () {
   it('should classify real jsdelivr data', function () {
     var filepaths = parseJsDelivrFiles(jsdelivrGitevoData);
     var result = classifyFiles(filepaths);
-    expect(result.test).toContain('tests/test_main.py');
+    expect(result.tests).toContain('tests/test_main.py');
     expect(result.source).toContain('gitevo/main.py');
   });
 
