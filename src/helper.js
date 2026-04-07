@@ -1,52 +1,52 @@
 const classificationColors = {
-  'test': '#22c55e',
-  'test-helper': '#86efac',
-  'mock': '#94a3b8',
+  'tests': '#22c55e',
+  'test-helpers': '#86efac',
+  'mocks': '#94a3b8',
   'e2e': '#8b5cf6',
-  'snapshot': '#ec4899',
-  'ci-test': '#06b6d4',
+  'snapshots': '#ec4899',
+  'ci-tests': '#06b6d4',
   'smoke': '#ef4444',
-  'fixture': '#f97316',
-  'benchmark': '#facc15',
+  'fixtures': '#f97316',
+  'benchmarks': '#facc15',
   'source': '#1e293b'
 };
 
 const classificationBgColors = {
-  'test': '#dcfce7',
-  'test-helper': '#f0fdf4',
-  'mock': '#f1f5f9',
+  'tests': '#dcfce7',
+  'test-helpers': '#f0fdf4',
+  'mocks': '#f1f5f9',
   'e2e': '#f5f3ff',
-  'snapshot': '#fdf2f8',
-  'ci-test': '#ecfeff',
+  'snapshots': '#fdf2f8',
+  'ci-tests': '#ecfeff',
   'smoke': '#fef2f2',
-  'fixture': '#fff7ed',
-  'benchmark': '#fefce8',
+  'fixtures': '#fff7ed',
+  'benchmarks': '#fefce8',
   'source': '#f8fafc'
 };
 
 const classificationBorderColors = {
-  'test': '#86efac',
-  'test-helper': '#bbf7d0',
-  'mock': '#cbd5e1',
+  'tests': '#86efac',
+  'test-helpers': '#bbf7d0',
+  'mocks': '#cbd5e1',
   'e2e': '#c4b5fd',
-  'snapshot': '#f9a8d4',
-  'ci-test': '#67e8f9',
+  'snapshots': '#f9a8d4',
+  'ci-tests': '#67e8f9',
   'smoke': '#fca5a5',
-  'fixture': '#fdba74',
-  'benchmark': '#fde047',
+  'fixtures': '#fdba74',
+  'benchmarks': '#fde047',
   'source': '#cbd5e1'
 };
 
 const classificationTextColors = {
-  'test': '#16a34a',
-  'test-helper': '#16a34a',
-  'mock': '#475569',
+  'tests': '#16a34a',
+  'test-helpers': '#16a34a',
+  'mocks': '#475569',
   'e2e': '#6d28d9',
-  'snapshot': '#be185d',
-  'ci-test': '#0891b2',
+  'snapshots': '#be185d',
+  'ci-tests': '#0891b2',
   'smoke': '#dc2626',
-  'fixture': '#ea580c',
-  'benchmark': '#ca8a04',
+  'fixtures': '#ea580c',
+  'benchmarks': '#ca8a04',
   'source': '#334155'
 };
 

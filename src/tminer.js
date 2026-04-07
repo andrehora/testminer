@@ -17,11 +17,11 @@ function getGitHubToken() {
 }
 
 function saveGitHubToken(token) {
-  try { localStorage.setItem('testminer_gh_token', token); } catch (e) {}
+  try { localStorage.setItem('testminer_gh_token', token); } catch (e) { }
 }
 
 function removeGitHubToken() {
-  try { localStorage.removeItem('testminer_gh_token'); } catch (e) {}
+  try { localStorage.removeItem('testminer_gh_token'); } catch (e) { }
 }
 
 function githubFetch(url, options) {
@@ -49,7 +49,7 @@ function fetchRateLimit() {
     .then(function (response) {
       updateRateLimit(response);
     })
-    .catch(function () {});
+    .catch(function () { });
 }
 
 function ensureAnalyzeRepo(repoKey, version) {
@@ -257,7 +257,7 @@ function filterTestDependencies(sbomPackages, testLibs, keywords) {
     }
     for (let it = testLibs.values(), val = it.next(); !val.done; val = it.next()) {
       if (shortName === val.value || nameLower === val.value ||
-          shortName.indexOf(val.value + '-') === 0 || shortName.indexOf(val.value + '_') === 0) {
+        shortName.indexOf(val.value + '-') === 0 || shortName.indexOf(val.value + '_') === 0) {
         results.add(pkg);
         break;
       }
@@ -354,27 +354,27 @@ function computeTestStats(classified) {
     total: total,
     sourceFiles: sourceCount,
     testFiles: testCount,
-    mockFiles: (classified['mock'] || []).length,
+    mockFiles: (classified['mocks'] || []).length,
     e2eFiles: (classified['e2e'] || []).length,
-    snapshotFiles: (classified['snapshot'] || []).length,
-    ciTestFiles: (classified['ci-test'] || []).length,
+    snapshotFiles: (classified['snapshots'] || []).length,
+    ciTestFiles: (classified['ci-tests'] || []).length,
     smokeFiles: (classified['smoke'] || []).length,
-    fixtureFiles: (classified['fixture'] || []).length,
-    benchmarkFiles: (classified['benchmark'] || []).length,
-    testHelperFiles: (classified['test-helper'] || []).length
+    fixtureFiles: (classified['fixtures'] || []).length,
+    benchmarkFiles: (classified['benchmarks'] || []).length,
+    testHelperFiles: (classified['test-helpers'] || []).length
   };
 }
 
 function classifyFile(filepath) {
-  if (isBenchmarkFile(filepath)) return 'benchmark';
+  if (isBenchmarkFile(filepath)) return 'benchmarks';
   if (isSmokeFile(filepath)) return 'smoke';
-  if (isCITestFile(filepath)) return 'ci-test';
-  if (isFixtureFile(filepath)) return 'fixture';
+  if (isCITestFile(filepath)) return 'ci-tests';
+  if (isFixtureFile(filepath)) return 'fixtures';
   if (isE2EFile(filepath)) return 'e2e';
-  if (isMockFile(filepath)) return 'mock';
-  if (isSnapshotFile(filepath)) return 'snapshot';
-  if (isTestFile(filepath)) return 'test';
-  if (isTestHelperFile(filepath)) return 'test-helper';
+  if (isMockFile(filepath)) return 'mocks';
+  if (isSnapshotFile(filepath)) return 'snapshots';
+  if (isTestFile(filepath)) return 'tests';
+  if (isTestHelperFile(filepath)) return 'test-helpers';
   return 'source';
 }
 
@@ -561,7 +561,7 @@ function saveAnalyzeRepoCache() {
       }
     }
     localStorage.setItem('testminer_analyze_cache', JSON.stringify(analyzeRepoCache));
-  } catch (e) {}
+  } catch (e) { }
 }
 
 function parseTerms(str) {
@@ -571,8 +571,8 @@ function parseTerms(str) {
     .replace(/([A-Z]+)([A-Z][a-z])/g, '$1\x00$2')
     .replace(/[-_]/g, '\x00')
     .split('\x00')
-    .filter(function(t) { return t.length >= 3 && !omitPatterns.includes(t.toLowerCase()); })
-    .map(function(t) {
+    .filter(function (t) { return t.length >= 3 && !omitPatterns.includes(t.toLowerCase()); })
+    .map(function (t) {
       if (t.length > 1 && t[0] === t[0].toUpperCase() && t[1] === t[1].toLowerCase()) {
         return t[0].toLowerCase() + t.slice(1);
       }
@@ -582,11 +582,11 @@ function parseTerms(str) {
 
 function groupFilesByTerms(filepaths) {
   const termMap = Object.create(null);
-  filepaths.forEach(function(filepath) {
+  filepaths.forEach(function (filepath) {
     const filename = filepath.split('/').pop();
     const stem = filename.replace(/(\.[^/.]+)+$/, '');
     const terms = parseTerms(stem);
-    terms.forEach(function(term) {
+    terms.forEach(function (term) {
       if (!termMap[term]) termMap[term] = [];
       termMap[term].push(filepath);
     });
@@ -620,8 +620,8 @@ if (typeof module !== 'undefined') {
     isCITestFile: isCITestFile,
     filterTestDependencies: filterTestDependencies,
     filterSemverVersions: filterSemverVersions,
-    setExtensionSet: function(s) { extensionSet = s; },
-    setTestLibsSet: function(s) { testLibsSet = s; },
-    resetAnalyzeRepoCache: function() { analyzeRepoCache = {}; }
+    setExtensionSet: function (s) { extensionSet = s; },
+    setTestLibsSet: function (s) { testLibsSet = s; },
+    resetAnalyzeRepoCache: function () { analyzeRepoCache = {}; }
   };
 }

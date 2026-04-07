@@ -525,14 +525,14 @@
 
     const versionMetricOptions = [
       { key: 'testFiles', label: 'test', category: 'test' },
-      { key: 'testHelperFiles', label: 'test-helper', category: 'test-helper' },
-      { key: 'mockFiles', label: 'mock', category: 'mock' },
+      { key: 'testHelperFiles', label: 'test-helpers', category: 'test-helpers' },
+      { key: 'mockFiles', label: 'mocks', category: 'mocks' },
       { key: 'e2eFiles', label: 'e2e', category: 'e2e' },
-      { key: 'snapshotFiles', label: 'snapshot', category: 'snapshot' },
-      { key: 'ciTestFiles', label: 'ci-test', category: 'ci-test' },
+      { key: 'snapshotFiles', label: 'snapshots', category: 'snapshot' },
+      { key: 'ciTestFiles', label: 'ci-tests', category: 'ci-tests' },
       { key: 'smokeFiles', label: 'smoke', category: 'smoke' },
-      { key: 'fixtureFiles', label: 'fixture', category: 'fixture' },
-      { key: 'benchmarkFiles', label: 'benchmark', category: 'benchmark' },
+      { key: 'fixtureFiles', label: 'fixtures', category: 'fixtures' },
+      { key: 'benchmarkFiles', label: 'benchmarks', category: 'benchmarks' },
       { key: 'sourceFiles', label: 'source', category: 'source' },
     ];
 
@@ -811,15 +811,15 @@
     function renderRepoStats(ownerRepo, stats, gitRef, repoInfo) {
       let cards = [
         { label: 'Source Files', value: stats.sourceFiles, category: 'source' },
-        { label: 'Tests', value: stats.testFiles, category: 'test' },
-        { label: 'Test Helpers', value: stats.testHelperFiles, category: 'test-helper' },
-        { label: 'Mocks', value: stats.mockFiles, category: 'mock' },
+        { label: 'Tests', value: stats.testFiles, category: 'tests' },
+        { label: 'Test Helpers', value: stats.testHelperFiles, category: 'test-helpers' },
+        { label: 'Mocks', value: stats.mockFiles, category: 'mocks' },
         { label: 'E2E', value: stats.e2eFiles, category: 'e2e' },
-        { label: 'Snapshots', value: stats.snapshotFiles, category: 'snapshot' },
-        { label: 'CI Tests', value: stats.ciTestFiles, category: 'ci-test' },
+        { label: 'Snapshots', value: stats.snapshotFiles, category: 'snapshots' },
+        { label: 'CI Tests', value: stats.ciTestFiles, category: 'ci-tests' },
         { label: 'Smoke', value: stats.smokeFiles, category: 'smoke' },
-        { label: 'Fixtures', value: stats.fixtureFiles, category: 'fixture' },
-        { label: 'Benchmarks', value: stats.benchmarkFiles, category: 'benchmark' },
+        { label: 'Fixtures', value: stats.fixtureFiles, category: 'fixtures' },
+        { label: 'Benchmarks', value: stats.benchmarkFiles, category: 'benchmarks' },
       ];
 
       let cached = analyzeRepoCache[ownerRepo];
@@ -868,15 +868,15 @@
       if (!cached || !cached.files) return;
 
       let categories = [
-        { key: 'test', label: 'Tests' },
-        { key: 'test-helper', label: 'Test Helpers' },
-        { key: 'mock', label: 'Mock' },
+        { key: 'tests', label: 'Tests' },
+        { key: 'test-helpers', label: 'Test Helpers' },
+        { key: 'mocks', label: 'Mocks' },
         { key: 'e2e', label: 'E2E' },
-        { key: 'snapshot', label: 'Snapshots' },
-        { key: 'ci-test', label: 'CI Tests' },
+        { key: 'snapshots', label: 'Snapshots' },
+        { key: 'ci-tests', label: 'CI Tests' },
         { key: 'smoke', label: 'Smoke' },
-        { key: 'fixture', label: 'Fixtures' },
-        { key: 'benchmark', label: 'Benchmarks' }
+        { key: 'fixtures', label: 'Fixtures' },
+        { key: 'benchmarks', label: 'Benchmarks' }
       ];
 
       let rows = '';
