@@ -9,18 +9,8 @@ const tminerConfig = {
   top_n_test_terms: 5,
   top_n_test_terms_mobile: 3,
   dep_keywords: ['test', 'mock', 'stub', 'spy', 'dummy', 'fake', 'spies', 'dummies'],
-  search_suggestions: []
+  search_suggestions: ['google', 'microsoft', 'apple', 'facebook', 'netflix', 'github', 'apache', 'huggingface', 'fastapi/fastapi', 'prisma/prisma', 'github/linguist']
 };
-
-const tminerConfigReady = fetch('data/config.json')
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    const keys = Object.keys(data);
-    for (let i = 0; i < keys.length; i++) {
-      tminerConfig[keys[i]] = data[keys[i]];
-    }
-  })
-  .catch(function() {});
 
 function getGitHubToken() {
   try { return localStorage.getItem('testminer_gh_token') || ''; } catch (e) { return ''; }
