@@ -50,8 +50,8 @@ npm run serve   # Start static server on port 8081
 
 ## Stack
 
-- Vanilla JavaScript (ES5), HTML5, CSS3
-- [Chart.js](https://www.chartjs.org/), [jsPDF](https://github.com/parallax/jsPDF), [html2canvas](https://html2canvas.hertzen.com/) via CDN
+- JavaScript, HTML5, CSS3
+- [Chart.js](https://www.chartjs.org/), [html2canvas](https://html2canvas.hertzen.com/) via CDN
 - GitHub API, jsDelivr API
 - Jest + Cypress for testing
 
