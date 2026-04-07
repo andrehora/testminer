@@ -80,11 +80,19 @@
 
     <div id="results">
       <h2 id="results-title" class="results-title"><span id="results-title-text"></span><span
-          class="results-title-actions"><span id="version-select-loading" style="display:none;" class="version-select-loading"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></path></svg></span><select id="version-select" class="version-select"
-            style="display:none;"></select></span><a id="gh-link" class="gh-link" target="_blank" rel="noopener"
-          title="GitHub page"><i class="devicon-github-original"></i></a><button id="copy-link-btn"
-          class="copy-link-btn" title="Copy link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          class="results-title-actions"><span id="version-select-loading" style="display:none;"
+            class="version-select-loading"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8"
+              stroke-width="2.5" stroke-linecap="round">
+              <path
+                d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83">
+                <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s"
+                  repeatCount="indefinite" />
+              </path>
+            </svg></span><select id="version-select" class="version-select" style="display:none;"></select></span><a
+          id="gh-link" class="gh-link" target="_blank" rel="noopener" title="GitHub page"><i
+            class="devicon-github-original"></i></a><button id="copy-link-btn" class="copy-link-btn"
+          title="Copy link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
           </svg></button><button id="share-btn" class="share-btn" title="Share"><svg width="16" height="16"
@@ -524,7 +532,7 @@
     }
 
     const versionMetricOptions = [
-      { key: 'testFiles', label: 'test', category: 'test' },
+      { key: 'testFiles', label: 'tests', category: 'tests' },
       { key: 'testHelperFiles', label: 'test-helpers', category: 'test-helpers' },
       { key: 'mockFiles', label: 'mocks', category: 'mocks' },
       { key: 'e2eFiles', label: 'e2e', category: 'e2e' },
@@ -1453,7 +1461,7 @@
       let cacheKey = version ? ownerRepo + '@' + version : ownerRepo;
       let repoInfo = await fetchRepoInfo(ownerRepo);
       let defaultBranch = repoInfo ? repoInfo.default_branch : null;
-      if (version) await fetchTagPrefix(ownerRepo);
+      if (version) await fetchGitHubTagRef(ownerRepo, version);
       renderRepoStats(cacheKey, response.result.stats, defaultBranch, repoInfo);
       try { renderFileTree(cacheKey, defaultBranch); } catch (e) { console.error('Tree render error:', e); }
       renderTestDeps(ownerRepo);
