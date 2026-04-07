@@ -137,41 +137,47 @@ function fetchTopicRepos(topic) {
     });
 }
 
-function fetchGitHubTagRef(ownerRepo, version) {
-  var cacheKey = ownerRepo + '@' + version;
-  if (tagPrefixCache.hasOwnProperty(cacheKey)) {
-    return Promise.resolve(tagPrefixCache[cacheKey]);
+function fetchTagPrefix(ownerRepo) {
+  if (tagPrefixCache.hasOwnProperty(ownerRepo)) {
+    return Promise.resolve(tagPrefixCache[ownerRepo]);
   }
-  const url = 'https://api.github.com/repos/' + ownerRepo + '/tags';
-  return githubFetch(url)
-    .then(function (response) {
-      if (!response || !response.ok) return null;
-      return response.json();
-    })
-    .then(function (tags) {
-      var tagRef = version;
-      if (tags && tags.length) {
-        for (var i = 0; i < tags.length; i++) {
-          var tagName = tags[i].name;
-          var stripped = tagName.replace(/^[^0-9]*/, '');
-          if (stripped === version) {
-            tagRef = tagName;
-            break;
+  return fetchJsDelivrVersions(ownerRepo).then(function (versions) {
+    var latestVersion = versions && versions.length ? versions[0] : null;
+    if (!latestVersion) {
+      tagPrefixCache[ownerRepo] = '';
+      return '';
+    }
+    var url = 'https://api.github.com/repos/' + ownerRepo + '/tags';
+    return githubFetch(url)
+      .then(function (response) {
+        if (!response || !response.ok) return null;
+        return response.json();
+      })
+      .then(function (tags) {
+        var prefix = '';
+        if (tags && tags.length) {
+          for (var i = 0; i < tags.length; i++) {
+            var tagName = tags[i].name;
+            var stripped = tagName.replace(/^[^0-9]*/, '');
+            if (stripped === latestVersion) {
+              prefix = tagName.substring(0, tagName.length - latestVersion.length);
+              break;
+            }
           }
         }
-      }
-      tagPrefixCache[cacheKey] = tagRef;
-      return tagRef;
-    })
-    .catch(function () {
-      tagPrefixCache[cacheKey] = version;
-      return version;
-    });
+        tagPrefixCache[ownerRepo] = prefix;
+        return prefix;
+      })
+      .catch(function () {
+        tagPrefixCache[ownerRepo] = '';
+        return '';
+      });
+  });
 }
 
 function getGitHubTagRef(ownerRepo, version) {
-  var cacheKey = ownerRepo + '@' + version;
-  return tagPrefixCache.hasOwnProperty(cacheKey) ? tagPrefixCache[cacheKey] : version;
+  var prefix = tagPrefixCache.hasOwnProperty(ownerRepo) ? tagPrefixCache[ownerRepo] : '';
+  return prefix + version;
 }
 
 function fetchJsDelivrFilesByRef(ownerRepo, ref) {
@@ -656,7 +662,7 @@ if (typeof module !== 'undefined') {
     isCITestFile: isCITestFile,
     filterTestDependencies: filterTestDependencies,
     filterSemverVersions: filterSemverVersions,
-    fetchGitHubTagRef: fetchGitHubTagRef,
+    fetchTagPrefix: fetchTagPrefix,
     getGitHubTagRef: getGitHubTagRef,
     setExtensionSet: function (s) { extensionSet = s; },
     setTestLibsSet: function (s) { testLibsSet = s; },
