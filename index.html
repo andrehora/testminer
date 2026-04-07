@@ -149,12 +149,12 @@
     <p id="github-rate-limit" class="footer-text"><span id="github-rate-limit-text"></span></p>
     <p class="footer-token-wrap"><button id="gh-token-btn" onclick="openTokenModal()" class="gh-token-btn">Add GitHub
         token</button>
-      <button onclick="clearAnalyzeCache()" class="gh-token-btn">Clear cache</button></p>
+      <button onclick="clearAnalyzeCache()" class="gh-token-btn">Clear cache</button>
+    </p>
 
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="src/helper.js"></script>
   <script src="src/tminer.js"></script>
   <script>
@@ -367,6 +367,14 @@
         }
       });
 
+      function loadHtml2Canvas(cb) {
+        if (window.html2canvas) return cb();
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+        s.onload = cb;
+        document.head.appendChild(s);
+      }
+
       function captureChart(btn, originalLabel, callback) {
         let originalHTML = btn.innerHTML;
         btn.disabled = true;
@@ -427,16 +435,18 @@
         chartEl.insertBefore(legendEl, chartEl.firstChild);
         chartEl.insertBefore(titleEl, chartEl.firstChild);
 
-        html2canvas(chartEl, { backgroundColor: '#ffffff', scale: 2 }).then(function (canvas) {
-          callback(canvas);
-        }).finally(function () {
-          chartEl.removeChild(titleEl);
-          chartEl.removeChild(legendEl);
-          chartEl.style.maxHeight = origMaxHeight;
-          chartEl.style.overflowY = origOverflow;
-          hideEls.forEach(function (el) { el.style.display = ''; });
-          btn.disabled = false;
-          btn.innerHTML = originalHTML;
+        loadHtml2Canvas(function () {
+          html2canvas(chartEl, { backgroundColor: '#ffffff', scale: 2 }).then(function (canvas) {
+            callback(canvas);
+          }).finally(function () {
+            chartEl.removeChild(titleEl);
+            chartEl.removeChild(legendEl);
+            chartEl.style.maxHeight = origMaxHeight;
+            chartEl.style.overflowY = origOverflow;
+            hideEls.forEach(function (el) { el.style.display = ''; });
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+          });
         });
       }
 
@@ -730,18 +740,20 @@
 
       container.insertBefore(titleEl, container.firstChild);
 
-      html2canvas(container, { backgroundColor: '#ffffff', scale: 2 }).then(function (canvas) {
-        let link = document.createElement('a');
-        let now = new Date();
-        let ts = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + '-' + String(now.getSeconds()).padStart(2, '0');
-        link.download = versionChartOwnerRepo.replace('/', '-') + '-test-history-' + ts + '.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      }).finally(function () {
-        container.removeChild(titleEl);
-        typeBtnsEl.style.display = '';
-        exportHistoryPngBtn.disabled = false;
-        exportHistoryPngBtn.innerHTML = originalHTML;
+      loadHtml2Canvas(function () {
+        html2canvas(container, { backgroundColor: '#ffffff', scale: 2 }).then(function (canvas) {
+          let link = document.createElement('a');
+          let now = new Date();
+          let ts = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + '-' + String(now.getSeconds()).padStart(2, '0');
+          link.download = versionChartOwnerRepo.replace('/', '-') + '-test-history-' + ts + '.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        }).finally(function () {
+          container.removeChild(titleEl);
+          typeBtnsEl.style.display = '';
+          exportHistoryPngBtn.disabled = false;
+          exportHistoryPngBtn.innerHTML = originalHTML;
+        });
       });
     });
 
@@ -1885,7 +1897,7 @@
     }
 
     function clearAnalyzeCache() {
-      try { localStorage.removeItem('testminer_analyze_cache'); } catch (e) {}
+      try { localStorage.removeItem('testminer_analyze_cache'); } catch (e) { }
     }
 
     updateTokenBtn();
