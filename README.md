@@ -4,7 +4,7 @@
 
 Webapp: https://andrehora.github.io/testminer/
 
-A webapp for exploring and visualizing *software testing* across GitHub repositories. Analyze: how projects organize tests, how tests evolve across versions, and which testing libraries are used.
+Eplore and visualize *software testing* across GitHub repositories. Analyze: how projects organize tests, how tests evolve across versions, and which testing libraries are used.
 
 Examples: 
 - Organizations: [Google](https://andrehora.github.io/testminer/#google), [Microsoft](https://andrehora.github.io/testminer/#microsoft), [Apple](https://andrehora.github.io/testminer/#apple), [Facebook](https://andrehora.github.io/testminer/#facebook), [Netflix](https://andrehora.github.io/testminer/#netflix), 
